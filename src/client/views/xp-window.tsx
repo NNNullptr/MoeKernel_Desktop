@@ -174,7 +174,7 @@ export function XpWindow({ win, onFocus, onClose, onMinimize, onPositionChange, 
         display: 'flex',
         flexDirection: 'column',
         boxShadow: '2px 2px 8px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.3)',
-        border: '2px solid #0a3a8a',
+        border: '2px solid var(--xp-chrome-border-dark)',
         borderRadius: '6px 6px 0 0',
         overflow: 'hidden',
         fontFamily: FONT,
@@ -191,7 +191,7 @@ export function XpWindow({ win, onFocus, onClose, onMinimize, onPositionChange, 
       <div
         onPointerDown={handleTitlePointerDown}
         style={{
-          background: 'linear-gradient(180deg, #2d7fea 0%, #1757c8 45%, #0d47b5 55%, #1352c2 100%)',
+          background: 'linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 45%, #b8b8b8 55%, #c0c0c0 100%)',
           padding: '3px 4px',
           display: 'flex',
           alignItems: 'center',
@@ -199,17 +199,17 @@ export function XpWindow({ win, onFocus, onClose, onMinimize, onPositionChange, 
           cursor: 'move',
           flexShrink: 0,
           minHeight: '28px',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.4)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)',
         }}
       >
         <img src={win.icon} alt={win.title} style={{ width: '16px', height: '16px', objectFit: 'contain', flexShrink: 0 }} />
-        <span style={{ flex: 1, color: '#fff', fontSize: '12px', fontWeight: 'bold', textShadow: '1px 1px 1px rgba(0,0,0,0.5)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+        <span style={{ flex: 1, color: '#000', fontSize: '12px', fontWeight: 'bold', textShadow: '1px 1px 1px rgba(255,255,255,0.4)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
           {win.title}
         </span>
         {/* Window control buttons */}
         <div style={{ display: 'flex', gap: '2px', flexShrink: 0 }} data-window-btn>
-          <WinBtn label="_" title="Minimize" color="#2b7fe0" onClick={() => onMinimize(win.id)} />
-          <WinBtn label={maximized ? '❐' : '□'} title="Maximize" color="#2b7fe0" onClick={handleMaximize} />
+          <WinBtn label="_" title="Minimize" color="#c8c8c8" textColor="#000" onClick={() => onMinimize(win.id)} />
+          <WinBtn label={maximized ? '❐' : '□'} title="Maximize" color="#c8c8c8" textColor="#000" onClick={handleMaximize} />
           <WinBtn label="✕" title="Close" color="#d93b3b" hoverColor="#f05050" onClick={() => onClose(win.id)} />
         </div>
       </div>
@@ -223,8 +223,9 @@ export function XpWindow({ win, onFocus, onClose, onMinimize, onPositionChange, 
 }
 
 /** XP-style title bar button (minimize / maximize / close) */
-function WinBtn({ label, title, color, hoverColor, onClick }: { label: string; title: string; color: string; hoverColor?: string; onClick: () => void }) {
+function WinBtn({ label, title, color, hoverColor, textColor, onClick }: { label: string; title: string; color: string; hoverColor?: string; textColor?: string; onClick: () => void }) {
   const [hovered, setHovered] = React.useState(false);
+  const idleTop = textColor === '#000' ? '#f4f4f4' : '#ff9a9a';
   return (
     <button
       data-window-btn
@@ -236,10 +237,10 @@ function WinBtn({ label, title, color, hoverColor, onClick }: { label: string; t
         width: '21px', height: '21px',
         background: hovered
           ? `linear-gradient(180deg, ${hoverColor ?? color} 0%, ${color} 100%)`
-          : `linear-gradient(180deg, #5aa8f4 0%, ${color} 100%)`,
-        border: '1px solid #0a3a8a',
+          : `linear-gradient(180deg, ${idleTop} 0%, ${color} 100%)`,
+        border: '1px solid var(--xp-chrome-border)',
         borderRadius: '3px',
-        color: '#fff',
+        color: textColor ?? '#fff',
         fontSize: '11px',
         fontWeight: 'bold',
         cursor: 'pointer',

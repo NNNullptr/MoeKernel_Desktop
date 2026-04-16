@@ -33,7 +33,7 @@ function FolderTile({ icon, label }: { icon: string; label: string }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '80px',
-        cursor: 'pointer', background: hov ? '#316ac5' : 'transparent', borderRadius: '4px', padding: '8px 4px' }}
+        cursor: 'pointer', background: hov ? '#5a5a5a' : 'transparent', borderRadius: '4px', padding: '8px 4px' }}
     >
       <img src={icon} alt={label} style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
       <span style={{ fontSize: '11px', fontFamily: FONT, color: hov ? '#fff' : '#000', textAlign: 'center', wordBreak: 'break-word' }}>{label}</span>

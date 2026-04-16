@@ -73,7 +73,7 @@ export function MsnApp() {
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
             <span style={{ fontSize: '10px', color: '#999', marginBottom: '2px' }}>{msg.from === 'me' ? 'Me' : 'XP_Buddy'} • {msg.time}</span>
-            <div style={{ background: msg.from === 'me' ? '#316ac5' : '#fff', color: msg.from === 'me' ? '#fff' : '#000', border: msg.from === 'me' ? 'none' : '1px solid #d0d8e8', borderRadius: '8px', padding: '6px 10px', fontSize: '12px', maxWidth: '75%', wordBreak: 'break-word' }}>
+            <div style={{ background: msg.from === 'me' ? '#5a5a5a' : '#fff', color: msg.from === 'me' ? '#fff' : '#000', border: msg.from === 'me' ? 'none' : '1px solid #d0d8e8', borderRadius: '8px', padding: '6px 10px', fontSize: '12px', maxWidth: '75%', wordBreak: 'break-word' }}>
               {msg.text}
             </div>
           </div>
@@ -89,13 +89,13 @@ export function MsnApp() {
       </div>
 
       {/* Input */}
-      <div style={{ display: 'flex', borderTop: '2px solid #316ac5', background: '#fff' }}>
+      <div style={{ display: 'flex', borderTop: '2px solid #5a5a5a', background: '#fff' }}>
         <input value={input} onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && send()}
           placeholder="Type a message..."
           style={{ flex: 1, border: 'none', outline: 'none', padding: '8px 12px', fontFamily: FONT, fontSize: '12px' }} />
         <button onClick={send}
-          style={{ background: '#316ac5', color: '#fff', border: 'none', padding: '0 16px', cursor: 'pointer', fontFamily: FONT, fontSize: '12px', fontWeight: 'bold' }}>
+          style={{ background: '#5a5a5a', color: '#fff', border: 'none', padding: '0 16px', cursor: 'pointer', fontFamily: FONT, fontSize: '12px', fontWeight: 'bold' }}>
           Send
         </button>
       </div>

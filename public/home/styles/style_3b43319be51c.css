@@ -462,41 +462,41 @@ body {
 }
 :root {
   --xp-gradient:
-    rgb(31, 47, 134) 0px, rgb(49, 101, 196) 3%, rgb(54, 130, 229) 6%,
-    rgb(68, 144, 230) 10%, rgb(56, 131, 229) 12%, rgb(43, 113, 224) 15%,
-    rgb(38, 99, 218) 18%, rgb(35, 91, 214) 20%, rgb(34, 88, 213) 23%,
-    rgb(33, 87, 214) 38%, rgb(36, 93, 219) 54%, rgb(37, 98, 223) 86%,
-    rgb(36, 95, 220) 89%, rgb(33, 88, 212) 92%, rgb(29, 78, 192) 95%,
-    rgb(25, 65, 165) 98%;
+    rgb(168, 168, 168) 0px, rgb(200, 200, 200) 3%, rgb(224, 224, 224) 6%,
+    rgb(232, 232, 232) 10%, rgb(220, 220, 220) 12%, rgb(208, 208, 208) 15%,
+    rgb(200, 200, 200) 18%, rgb(196, 196, 196) 20%, rgb(194, 194, 194) 23%,
+    rgb(195, 195, 195) 38%, rgb(202, 202, 202) 54%, rgb(208, 208, 208) 86%,
+    rgb(204, 204, 204) 89%, rgb(196, 196, 196) 92%, rgb(180, 180, 180) 95%,
+    rgb(160, 160, 160) 98%;
   --titlebar-gradient:
-    180deg, #0997ff, #0053ee 8%, #0050ee 40%, #06f 88%, #06f 93%, #005bff 95%,
-    #003dd7 96%, #003dd7;
+    180deg, #f0f0f0, #d8d8d8 8%, #cfcfcf 40%, #c8c8c8 88%, #c8c8c8 93%, #bcbcbc 95%,
+    #a8a8a8 96%, #a8a8a8;
   --titlebar-gradient-inactive:
-    rgb(118, 151, 231) 0%, rgb(126, 158, 227) 3%, rgb(148, 175, 232) 6%,
-    rgb(151, 180, 233) 8%, rgb(130, 165, 228) 14%, rgb(124, 159, 226) 17%,
-    rgb(121, 150, 222) 25%, rgb(123, 153, 225) 56%, rgb(130, 169, 233) 81%,
-    rgb(128, 165, 231) 89%, rgb(123, 150, 225) 94%, rgb(122, 147, 223) 97%,
-    rgb(171, 186, 227) 100%;
+    rgb(220, 220, 220) 0%, rgb(224, 224, 224) 3%, rgb(230, 230, 230) 6%,
+    rgb(232, 232, 232) 8%, rgb(222, 222, 222) 14%, rgb(218, 218, 218) 17%,
+    rgb(212, 212, 212) 25%, rgb(214, 214, 214) 56%, rgb(224, 224, 224) 81%,
+    rgb(220, 220, 220) 89%, rgb(212, 212, 212) 94%, rgb(210, 210, 210) 97%,
+    rgb(230, 230, 230) 100%;
   --window-box-shadow-inactive:
-    inset -1px -1px rgb(130, 165, 228), inset 1px 1px rgb(130, 165, 228),
-    inset -2px -2px rgb(130, 165, 228), inset 2px 2px rgb(130, 165, 228),
-    inset -3px -3px rgb(130, 165, 228), inset 3px 3px rgb(130, 165, 228);
+    inset -1px -1px rgb(210, 210, 210), inset 1px 1px rgb(210, 210, 210),
+    inset -2px -2px rgb(210, 210, 210), inset 2px 2px rgb(210, 210, 210),
+    inset -3px -3px rgb(210, 210, 210), inset 3px 3px rgb(210, 210, 210);
   --window-box-shadow:
-    inset -1px -1px #424fa2, inset 1px 1px #4e68d1, inset -2px -2px #5669c0,
-    inset 2px 2px #528eef, inset -3px -3px #4e73d7, inset 3px 3px #5284da;
+    inset -1px -1px #888, inset 1px 1px #c8c8c8, inset -2px -2px #a0a0a0,
+    inset 2px 2px #e0e0e0, inset -3px -3px #989898, inset 3px 3px #d0d0d0;
   --tile-box-shadow:
     rgb(0 0 0/30%) -1px 0px inset, rgb(255 255 255/20%) 1px 1px 1px inset;
   --tile-box-shadow-focus:
     rgb(0 0 0/20%) 0px 0px 1px 1px inset, rgb(0 0 0/70%) 1px 0px 1px inset;
   --system-tray:
-    rgb(12, 89, 185) 1%, rgb(19, 158, 233) 6%, rgb(24, 181, 242) 10%,
-    rgb(19, 155, 235) 14%, rgb(18, 144, 232) 19%, rgb(13, 141, 234) 63% 63%,
-    rgb(13, 159, 241) 81%, rgb(15, 158, 237) 88%, rgb(17, 155, 233) 91%,
-    rgb(19, 146, 226) 94%, rgb(19, 126, 215) 97%, rgb(9, 91, 201) 100%;
+    rgb(160, 160, 160) 1%, rgb(200, 200, 200) 6%, rgb(216, 216, 216) 10%,
+    rgb(204, 204, 204) 14%, rgb(196, 196, 196) 19%, rgb(192, 192, 192) 63% 63%,
+    rgb(204, 204, 204) 81%, rgb(200, 200, 200) 88%, rgb(196, 196, 196) 91%,
+    rgb(188, 188, 188) 94%, rgb(176, 176, 176) 97%, rgb(160, 160, 160) 100%;
   --xp-scrollbar-size: 17px;
-  --xp-scrollbar-thumb-bg: #c8d6fb;
-  --xp-scrollbar-thumb-shadow-left: inset -3px 0#bad1fc;
-  --xp-scrollbar-thumb-shadow-right: inset 1px 1px #b7caf5;
+  --xp-scrollbar-thumb-bg: #d0d0d0;
+  --xp-scrollbar-thumb-shadow-left: inset -3px 0 #bcbcbc;
+  --xp-scrollbar-thumb-shadow-right: inset 1px 1px #b8b8b8;
   --xp-scrollbar-border: 1px solid white;
 }
 ::-webkit-scrollbar {
@@ -684,8 +684,8 @@ body {
 }
 ._system-tray_oqlpl_86 {
   background: linear-gradient(var(--system-tray));
-  border-left: 1px solid rgb(16, 66, 175);
-  box-shadow: #18bbff 1px 0 1px inset;
+  border-left: 1px solid rgb(136, 136, 136);
+  box-shadow: #f0f0f0 1px 0 1px inset;
   padding: 0 10px;
   margin-left: 10px;
   display: flex;
@@ -703,7 +703,7 @@ body {
   background-repeat: no-repeat;
 }
 ._time_oqlpl_108 {
-  color: #fff;
+  color: #000;
   font-size: 11px;
 }
 ._system-tray-item-wrapper_oqlpl_147 {

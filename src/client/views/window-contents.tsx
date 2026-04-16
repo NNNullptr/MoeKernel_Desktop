@@ -42,7 +42,7 @@ function FolderTile({ icon, label }: { icon: string; label: string }) {
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', width: '80px',
-        cursor: 'pointer', background: hov ? '#316ac5' : 'transparent', borderRadius: '4px', padding: '8px 4px' }}
+        cursor: 'pointer', background: hov ? '#5a5a5a' : 'transparent', borderRadius: '4px', padding: '8px 4px' }}
     >
       <img src={icon} alt={label} style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
       <span style={{ fontSize: '11px', fontFamily: FONT, color: hov ? '#fff' : '#000', textAlign: 'center', wordBreak: 'break-word' }}>{label}</span>
@@ -97,16 +97,16 @@ export function GamesFolderContent() {
 // ═══════════════════════════════════════════════════════════════════════════════
 export function AboutMeContent() {
   return (
-    <div style={{ height: '100%', overflowY: 'auto', background: 'linear-gradient(160deg,#dce9fc 0%,#eef4ff 100%)', fontFamily: FONT }}>
+    <div style={{ height: '100%', overflowY: 'auto', background: 'linear-gradient(160deg,#f0f0f0 0%,#fafafa 100%)', fontFamily: FONT }}>
       <div style={{ padding: '24px 28px' }}>
         {/* Header card */}
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center', background: '#fff', border: '1px solid #c5d8f8', borderRadius: '8px', padding: '16px 20px', marginBottom: '20px', boxShadow: '0 2px 6px rgba(0,80,200,0.08)' }}>
-          <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg,#316ac5,#5fa3e8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', flexShrink: 0 }}>
+          <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg,#5a5a5a,#b8b8b8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '36px', flexShrink: 0 }}>
             👤
           </div>
           <div>
-            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#0a3a8a' }}>NNNullptr</div>
-            <div style={{ fontSize: '13px', color: '#316ac5', marginTop: '2px' }}>Full-Stack Developer & Designer</div>
+            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#767676' }}>NNNullptr</div>
+            <div style={{ fontSize: '13px', color: '#5a5a5a', marginTop: '2px' }}>Full-Stack Developer & Designer</div>
             <div style={{ fontSize: '12px', color: '#555', marginTop: '6px' }}>📍 Istanbul, Turkey</div>
           </div>
         </div>
@@ -121,7 +121,7 @@ export function AboutMeContent() {
         <Section title="🛠 Skills">
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {['React', 'TypeScript', 'Tailwind CSS', 'Node.js', 'tRPC', 'Figma', 'CSS Animations', 'WebGL'].map((s) => (
-              <span key={s} style={{ background: '#316ac5', color: '#fff', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', fontWeight: 'bold' }}>{s}</span>
+              <span key={s} style={{ background: '#5a5a5a', color: '#fff', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', fontWeight: 'bold' }}>{s}</span>
             ))}
           </div>
         </Section>
@@ -139,7 +139,7 @@ export function AboutMeContent() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: '16px' }}>
-      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#0a3a8a', marginBottom: '8px', borderBottom: '1px solid #c5d8f8', paddingBottom: '4px' }}>{title}</div>
+      <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#767676', marginBottom: '8px', borderBottom: '1px solid #c5d8f8', paddingBottom: '4px' }}>{title}</div>
       {children}
     </div>
   );
@@ -157,8 +157,8 @@ export function ContactContent() {
     { icon: '🐦', label: 'Twitter/X', value: '@nnnullptr', href: 'https://x.com' },
   ];
   return (
-    <div style={{ height: '100%', overflowY: 'auto', background: 'linear-gradient(160deg,#dce9fc,#eef4ff)', fontFamily: FONT, padding: '24px 28px' }}>
-      <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0a3a8a', marginBottom: '6px' }}>Get In Touch</div>
+    <div style={{ height: '100%', overflowY: 'auto', background: 'linear-gradient(160deg,#f0f0f0,#fafafa)', fontFamily: FONT, padding: '24px 28px' }}>
+      <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#767676', marginBottom: '6px' }}>Get In Touch</div>
       <div style={{ fontSize: '12px', color: '#555', marginBottom: '20px' }}>I'm open to new opportunities and collaborations.</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         {links.map((l) => (
@@ -170,7 +170,7 @@ export function ContactContent() {
             <span style={{ fontSize: '22px' }}>{l.icon}</span>
             <div>
               <div style={{ fontSize: '12px', color: '#888', fontWeight: 'bold' }}>{l.label}</div>
-              <div style={{ fontSize: '13px', color: '#316ac5' }}>{l.value}</div>
+              <div style={{ fontSize: '13px', color: '#5a5a5a' }}>{l.value}</div>
             </div>
           </a>
         ))}
@@ -348,7 +348,7 @@ export function MsnContent() {
         {messages.map((msg, i) => (
           <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: msg.from === 'me' ? 'flex-end' : 'flex-start' }}>
             <span style={{ fontSize: '10px', color: '#999', marginBottom: '2px' }}>{msg.from === 'me' ? 'Me' : 'XP_Buddy'} • {msg.time}</span>
-            <div style={{ background: msg.from === 'me' ? '#316ac5' : '#fff', color: msg.from === 'me' ? '#fff' : '#000', border: msg.from === 'me' ? 'none' : '1px solid #d0d8e8', borderRadius: '8px', padding: '6px 10px', fontSize: '12px', maxWidth: '75%', wordBreak: 'break-word' }}>
+            <div style={{ background: msg.from === 'me' ? '#5a5a5a' : '#fff', color: msg.from === 'me' ? '#fff' : '#000', border: msg.from === 'me' ? 'none' : '1px solid #d0d8e8', borderRadius: '8px', padding: '6px 10px', fontSize: '12px', maxWidth: '75%', wordBreak: 'break-word' }}>
               {msg.text}
             </div>
           </div>
@@ -364,13 +364,13 @@ export function MsnContent() {
       </div>
 
       {/* Input */}
-      <div style={{ display: 'flex', borderTop: '2px solid #316ac5', background: '#fff' }}>
+      <div style={{ display: 'flex', borderTop: '2px solid #5a5a5a', background: '#fff' }}>
         <input value={input} onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && send()}
           placeholder="Type a message..."
           style={{ flex: 1, border: 'none', outline: 'none', padding: '8px 12px', fontFamily: FONT, fontSize: '12px' }} />
         <button onClick={send}
-          style={{ background: '#316ac5', color: '#fff', border: 'none', padding: '0 16px', cursor: 'pointer', fontFamily: FONT, fontSize: '12px', fontWeight: 'bold' }}>
+          style={{ background: '#5a5a5a', color: '#fff', border: 'none', padding: '0 16px', cursor: 'pointer', fontFamily: FONT, fontSize: '12px', fontWeight: 'bold' }}>
           Send
         </button>
       </div>
@@ -473,14 +473,14 @@ export function PaintContent() {
         <div style={{ display:'flex', gap:'4px' }}>
           {([['pencil','✏️'],['eraser','⬜'],['fill','🪣']] as [Tool,string][]).map(([t,icon]) => (
             <button key={t} onClick={()=>setTool(t)}
-              style={{ background:tool===t?'#316ac5':'#d4d0c8', color:tool===t?'#fff':'#000', border:'1px solid #888', borderRadius:'3px', padding:'2px 8px', cursor:'pointer', fontSize:'14px' }}>
+              style={{ background:tool===t?'#5a5a5a':'#d4d0c8', color:tool===t?'#fff':'#000', border:'1px solid #888', borderRadius:'3px', padding:'2px 8px', cursor:'pointer', fontSize:'14px' }}>
               {icon}
             </button>
           ))}
         </div>
         {/* Size */}
         <label style={{ fontSize:'11px', display:'flex', alignItems:'center', gap:'4px' }}>
-          Size: <input type="range" min={1} max={24} value={size} onChange={(e)=>setSize(Number(e.target.value))} style={{ width:'60px', accentColor:'#316ac5' }} /> {size}px
+          Size: <input type="range" min={1} max={24} value={size} onChange={(e)=>setSize(Number(e.target.value))} style={{ width:'60px', accentColor:'#5a5a5a' }} /> {size}px
         </label>
         {/* Clear */}
         <button onClick={clear} style={{ marginLeft:'auto', background:'#d4d0c8', border:'1px solid #888', borderRadius:'3px', padding:'2px 8px', cursor:'pointer', fontSize:'11px' }}>
@@ -520,9 +520,9 @@ export function ResumeContent() {
       </div>
       {/* Document */}
       <div style={{ maxWidth:'640px', margin:'0 auto', padding:'40px 48px', background:'#fff', minHeight:'800px', boxShadow:'0 0 12px rgba(0,0,0,0.15)', marginTop:'12px', marginBottom:'12px' }}>
-        <div style={{ textAlign:'center', borderBottom:'2px solid #316ac5', paddingBottom:'16px', marginBottom:'20px' }}>
-          <div style={{ fontSize:'22px', fontWeight:'bold', color:'#0a3a8a' }}>NNNULLPTR</div>
-          <div style={{ fontSize:'12px', color:'#316ac5', marginTop:'4px' }}>Full-Stack Developer • Designer • Retro Enthusiast</div>
+        <div style={{ textAlign:'center', borderBottom:'2px solid #5a5a5a', paddingBottom:'16px', marginBottom:'20px' }}>
+          <div style={{ fontSize:'22px', fontWeight:'bold', color:'#767676' }}>NNNULLPTR</div>
+          <div style={{ fontSize:'12px', color:'#5a5a5a', marginTop:'4px' }}>Full-Stack Developer • Designer • Retro Enthusiast</div>
           <div style={{ fontSize:'11px', color:'#666', marginTop:'6px' }}>📧 nnnullptr@example.com &nbsp;|&nbsp; 🌐 nnnullptr.dev &nbsp;|&nbsp; 📍 Istanbul, Turkey</div>
         </div>
 
@@ -564,7 +564,7 @@ export function ResumeContent() {
 function ResumeSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom:'18px' }}>
-      <div style={{ fontSize:'12px', fontWeight:'bold', color:'#316ac5', letterSpacing:'1.5px', marginBottom:'6px', borderBottom:'1px solid #d0d8f0', paddingBottom:'2px' }}>{title}</div>
+      <div style={{ fontSize:'12px', fontWeight:'bold', color:'#5a5a5a', letterSpacing:'1.5px', marginBottom:'6px', borderBottom:'1px solid #d0d8f0', paddingBottom:'2px' }}>{title}</div>
       {children}
     </div>
   );
@@ -573,7 +573,7 @@ function ResumeSection({ title, children }: { title: string; children: React.Rea
 function ResumeJob({ title, company, period }: { title: string; company: string; period: string }) {
   return (
     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:'2px' }}>
-      <div style={{ fontSize:'12px', fontWeight:'bold', color:'#0a3a8a' }}>{title} <span style={{ color:'#555', fontWeight:'normal' }}>@ {company}</span></div>
+      <div style={{ fontSize:'12px', fontWeight:'bold', color:'#767676' }}>{title} <span style={{ color:'#555', fontWeight:'normal' }}>@ {company}</span></div>
       <div style={{ fontSize:'11px', color:'#888', flexShrink:0, marginLeft:'8px' }}>{period}</div>
     </div>
   );
@@ -754,7 +754,7 @@ function CategoryTab({ label, active, onClick }: { label: string; active: boolea
         fontFamily: FONT,
         fontSize: '11px',
         fontWeight: active ? 'bold' : 'normal',
-        color: active ? '#0a3a8a' : '#333',
+        color: active ? '#767676' : '#333',
         marginRight: '2px',
         position: 'relative',
         bottom: active ? '-1px' : '0',
@@ -812,11 +812,11 @@ export function PortfolioContent() {
           width: '150px',
           flexShrink: 0,
           background: 'linear-gradient(180deg,#dce8fc 0%,#b8d0f8 100%)',
-          borderRight: '1px solid #7ba2d8',
+          borderRight: '1px solid #c8c8c8',
           padding: '12px 8px',
           overflowY: 'auto',
         }}>
-          <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#0a3a8a', marginBottom: '8px', borderBottom: '1px solid #7ba2d8', paddingBottom: '4px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#767676', marginBottom: '8px', borderBottom: '1px solid #c8c8c8', paddingBottom: '4px' }}>
             File and Folder Tasks
           </div>
           {[
@@ -832,7 +832,7 @@ export function PortfolioContent() {
             </div>
           ))}
 
-          <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#0a3a8a', margin: '14px 0 8px', borderBottom: '1px solid #7ba2d8', paddingBottom: '4px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#767676', margin: '14px 0 8px', borderBottom: '1px solid #c8c8c8', paddingBottom: '4px' }}>
             Details
           </div>
           <div style={{ fontSize: '10px', color: '#333', lineHeight: 1.7 }}>
@@ -850,7 +850,7 @@ export function PortfolioContent() {
               onMouseEnter={() => setHoveredId(item.id)}
               onMouseLeave={() => setHoveredId(null)}
               style={{
-                border: hoveredId === item.id ? '2px solid #316ac5' : '2px solid #d0d8e8',
+                border: hoveredId === item.id ? '2px solid #5a5a5a' : '2px solid #d0d8e8',
                 borderRadius: '4px',
                 overflow: 'hidden',
                 cursor: 'pointer',
@@ -881,7 +881,7 @@ export function PortfolioContent() {
 
               {/* Caption */}
               <div style={{ padding: '6px 8px', borderTop: '1px solid #d0d8e8' }}>
-                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#0a3a8a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
+                <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#767676', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
                 <div style={{ fontSize: '10px', color: '#666', marginTop: '1px' }}>{item.category}</div>
               </div>
             </div>

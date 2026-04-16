@@ -21,7 +21,7 @@
  *   - 找到 `ABOUT_CONFIG.skills` 数组。
  *   - 每个技能对象有三个字段：
  *       name      → 标签显示的文字
- *       bgColor   → 标签背景颜色（支持任意 CSS 颜色，如 "#316ac5" 或 "rgb(49,106,197)"）
+ *       bgColor   → 标签背景颜色（支持任意 CSS 颜色，如 "#5a5a5a" 或 "rgb(49,106,197)"）
  *       textColor → 标签文字颜色（建议与背景对比鲜明）
  *   - 直接新增、删除或修改这些对象即可更新技能标签区。
  *
@@ -92,13 +92,13 @@ efefgbfgg
 // 🎨 内联 Markdown 样式（注入到内容容器内）
 // ============================================================
 const MARKDOWN_STYLES = `
-  .about-md h2 { font-size: 13px; font-weight: bold; color: #0a3a8a; margin: 14px 0 6px; border-bottom: 1px solid #c5d8f8; padding-bottom: 3px; }
+  .about-md h2 { font-size: 13px; font-weight: bold; color: #767676; margin: 14px 0 6px; border-bottom: 1px solid #c5d8f8; padding-bottom: 3px; }
   .about-md p  { font-size: 12px; color: #333; line-height: 1.75; margin: 0 0 8px; }
   .about-md ul { padding-left: 18px; margin: 0 0 8px; }
   .about-md li { font-size: 12px; color: #333; line-height: 1.8; list-style-type: disc; }
-  .about-md strong { color: #0a3a8a; }
-  .about-md hr { border: none; border-top: 1px solid #dce9fc; margin: 10px 0; }
-  .about-md blockquote { border-left: 3px solid #316ac5; margin: 8px 0; padding: 4px 10px; background: #eef4ff; border-radius: 0 4px 4px 0; }
+  .about-md strong { color: #767676; }
+  .about-md hr { border: none; border-top: 1px solid #f0f0f0; margin: 10px 0; }
+  .about-md blockquote { border-left: 3px solid #5a5a5a; margin: 8px 0; padding: 4px 10px; background: #fafafa; border-radius: 0 4px 4px 0; }
   .about-md blockquote p { font-size: 11px; color: #555; font-style: italic; margin: 0; }
 `;
 
@@ -111,7 +111,7 @@ export function AboutMeApp() {
   const [bgOpacity, setBgOpacity] = useState<number>(ABOUT_CONFIG.bgOpacity);
 
   return (
-    <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: FONT, overflow: 'hidden', background: 'linear-gradient(160deg,#dce9fc 0%,#eef4ff 100%)' }}>
+    <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', fontFamily: FONT, overflow: 'hidden', background: 'linear-gradient(160deg,#f0f0f0 0%,#fafafa 100%)' }}>
 
       {/* ── 样式注入 ── */}
       <style>{MARKDOWN_STYLES}</style>
@@ -138,7 +138,7 @@ export function AboutMeApp() {
             type="range" min={0} max={1} step={0.05}
             value={bgOpacity}
             onChange={(e) => setBgOpacity(parseFloat(e.target.value))}
-            style={{ width: '72px', accentColor: '#316ac5', cursor: 'pointer' }}
+            style={{ width: '72px', accentColor: '#5a5a5a', cursor: 'pointer' }}
           />
         </div>
       )}
@@ -154,17 +154,17 @@ export function AboutMeApp() {
               <img
                 src={ABOUT_CONFIG.avatarSrc}
                 alt="avatar"
-                style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #316ac5', flexShrink: 0 }}
+                style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #5a5a5a', flexShrink: 0 }}
               />
             ) : (
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg,#316ac5,#5fa3e8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', flexShrink: 0, border: '2px solid #316ac5' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg,#5a5a5a,#b8b8b8)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', flexShrink: 0, border: '2px solid #5a5a5a' }}>
                 👤
               </div>
             )}
             {/* 文字信息 */}
             <div>
-              <div style={{ fontSize: '17px', fontWeight: 'bold', color: '#0a3a8a' }}>{ABOUT_CONFIG.name}</div>
-              <div style={{ fontSize: '12px', color: '#316ac5', marginTop: '2px' }}>{ABOUT_CONFIG.title}</div>
+              <div style={{ fontSize: '17px', fontWeight: 'bold', color: '#767676' }}>{ABOUT_CONFIG.name}</div>
+              <div style={{ fontSize: '12px', color: '#5a5a5a', marginTop: '2px' }}>{ABOUT_CONFIG.title}</div>
               <div style={{ fontSize: '11px', color: '#666', marginTop: '5px' }}>{ABOUT_CONFIG.location}</div>
             </div>
           </div>
@@ -181,7 +181,7 @@ export function AboutMeApp() {
 
         {/* ── 底部：技能标签（固定在最底部，不参与滚动） ── */}
         <div style={{ flexShrink: 0, padding: '10px 20px 14px', borderTop: '1px solid #c5d8f8', background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(4px)' }}>
-          <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#0a3a8a', marginBottom: '7px', letterSpacing: '0.5px' }}>🛠 SKILLS</div>
+          <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#767676', marginBottom: '7px', letterSpacing: '0.5px' }}>🛠 SKILLS</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
             {ABOUT_CONFIG.skills.map((skill) => (
               <span

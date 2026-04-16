@@ -26,5 +26,7 @@ export const SYSTEM_TRAY_ICONS: string[] = [
   'https://static.step1.dev/g9nbov/assets/f41de3abce9a.png',
   'https://static.step1.dev/g9nbov/assets/cff960cc7c15.png',
   'https://static.step1.dev/g9nbov/assets/a52bbbc23e20.png',
+  '/assets/icons/tray/icon1.png',
+  '/assets/icons/tray/icon2.png',
 ];
 // ↑ 若要使用本地文件：将其放入 public/assets/icons/tray/ 并修改为 '/assets/icons/tray/icon1.png'

@@ -50,22 +50,22 @@ export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) 
         zIndex: 10000, boxShadow: '4px -4px 16px rgba(0,0,0,0.6)',
         borderRadius: '8px 8px 0 0', overflow: 'hidden',
         fontFamily: FONT, fontSize: '13px', userSelect: 'none',
-        border: '1px solid #0a3a8a', borderBottom: 'none',
+        border: '1px solid var(--xp-chrome-border-dark)', borderBottom: 'none',
       }}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}
       <div style={{
-        background: 'linear-gradient(180deg, #245ed6 0%, #1a3fa0 50%, #0c2e8a 100%)',
+        background: 'linear-gradient(180deg, #e0e0e0 0%, #c8c8c8 50%, #a8a8a8 100%)',
         padding: '8px 12px', display: 'flex', alignItems: 'center', gap: '10px',
-        borderBottom: '2px solid #6fa3e0',
+        borderBottom: '2px solid #888',
       }}>
         <img
           src="https://static.step1.dev/g9nbov/assets/58721f37b0c0.png"
           alt="User"
-          style={{ width: '50px', height: '50px', border: '2px solid #8ab4e8', borderRadius: '2px', objectFit: 'cover', background: '#fff' }}
+          style={{ width: '50px', height: '50px', border: '2px solid #b8b8b8', borderRadius: '2px', objectFit: 'cover', background: '#fff' }}
         />
-        <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '15px', textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>NNNullptr</span>
+        <span style={{ color: '#000', fontWeight: 'bold', fontSize: '15px', textShadow: '1px 1px 3px rgba(255,255,255,0.5)' }}>NNNullptr</span>
       </div>
 
       {/* Body */}
@@ -87,13 +87,13 @@ export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) 
         {/* Right: Places */}
         <div style={{
           width: '210px',
-          background: 'linear-gradient(180deg, #c5d9f5 0%, #b0ccee 100%)',
-          borderLeft: '1px solid #7aa4d8', display: 'flex', flexDirection: 'column',
+          background: 'linear-gradient(180deg, #ececec 0%, #dcdcdc 100%)',
+          borderLeft: '1px solid #a0a0a0', display: 'flex', flexDirection: 'column',
           overflowY: 'auto', paddingTop: '6px',
         }}>
           {PLACES.map((place) => (
             <React.Fragment key={place.id}>
-              {place.dividerAbove && <Divider color="#7aa4d8" />}
+              {place.dividerAbove && <Divider color="#a0a0a0" />}
               <PlaceBtn icon={place.icon} label={place.label} onClick={() => onItemClick?.(place.id)} />
             </React.Fragment>
           ))}
@@ -102,8 +102,8 @@ export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) 
 
       {/* Footer */}
       <div style={{
-        background: 'linear-gradient(180deg, #1a4ab5 0%, #0d3590 100%)',
-        borderTop: '2px solid #6fa3e0', display: 'flex',
+        background: 'linear-gradient(180deg, #c0c0c0 0%, #a0a0a0 100%)',
+        borderTop: '2px solid #888', display: 'flex',
         justifyContent: 'flex-end', gap: '8px', padding: '6px 12px',
       }}>
         <FooterBtn label="Log Off" emoji="\uD83D\uDD13" onClick={onLogOff} />
@@ -127,7 +127,7 @@ function ProgramBtn({ icon, label, highlighted, onClick }: { icon: string; label
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 12px',
-        background: active ? '#316ac5' : 'transparent', color: active ? '#fff' : '#000',
+        background: active ? 'var(--xp-chrome-highlight)' : 'transparent', color: '#000',
         border: 'none', textAlign: 'left', cursor: 'pointer', width: '100%',
         fontSize: '13px', fontFamily: FONT, fontWeight: highlighted ? 'bold' : 'normal',
       }}
@@ -147,7 +147,7 @@ function PlaceBtn({ icon, label, onClick }: { icon: string; label: string; onCli
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px',
-        background: hovered ? '#316ac5' : 'transparent', color: hovered ? '#fff' : '#000',
+        background: hovered ? 'var(--xp-chrome-highlight)' : 'transparent', color: '#000',
         border: 'none', textAlign: 'left', cursor: 'pointer', width: '100%',
         fontSize: '13px', fontFamily: FONT,
       }}
@@ -166,8 +166,8 @@ function AllProgramsBtn() {
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '6px 12px', background: hovered ? '#316ac5' : 'transparent',
-        color: hovered ? '#fff' : '#000', border: 'none', cursor: 'pointer',
+        padding: '6px 12px', background: hovered ? 'var(--xp-chrome-highlight)' : 'transparent',
+        color: '#000', border: 'none', cursor: 'pointer',
         width: '100%', fontSize: '13px', fontFamily: FONT, fontWeight: 'bold',
       }}
     >
@@ -186,8 +186,8 @@ function FooterBtn({ label, emoji, onClick }: { label: string; emoji: string; on
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px',
-        background: hovered ? 'linear-gradient(180deg,#6aa0e8 0%,#3a6fd4 100%)' : 'linear-gradient(180deg,#4a80d4 0%,#2155b3 100%)',
-        border: '1px solid #6fa3e0', borderRadius: '4px', color: '#fff',
+        background: hovered ? 'linear-gradient(180deg,#ececec 0%,#bcbcbc 100%)' : 'linear-gradient(180deg,#d8d8d8 0%,#a8a8a8 100%)',
+        border: '1px solid #888', borderRadius: '4px', color: '#000',
         fontSize: '12px', fontFamily: FONT, cursor: 'pointer',
         boxShadow: '0 1px 2px rgba(0,0,0,0.4)',
       }}

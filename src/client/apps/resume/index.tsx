@@ -88,8 +88,8 @@ const DOC_CONFIG = {
 // ════════════════════════════════════════════════════════════════
 
 /** 代码块高亮色（XP 主题蓝） */
-const XP_BLUE = '#316ac5';
-const XP_DARK_BLUE = '#0a3a8a';
+const XP_BLUE = '#5a5a5a';
+const XP_DARK_BLUE = '#767676';
 
 /** 为 ReactMarkdown 提供的元素样式组件映射 */
 const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components'] = {
@@ -149,7 +149,7 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components
         padding: '10px 14px',
         fontSize: '11px',
         fontFamily: '"Courier New", monospace',
-        color: '#0a3a8a',
+        color: '#767676',
         whiteSpace: 'pre-wrap',
         wordBreak: 'break-word',
         lineHeight: 1.7,
@@ -165,7 +165,7 @@ const markdownComponents: React.ComponentProps<typeof ReactMarkdown>['components
         padding: '1px 5px',
         fontSize: '11px',
         fontFamily: '"Courier New", monospace',
-        color: '#0a3a8a',
+        color: '#767676',
       }}>
         {children}
       </code>

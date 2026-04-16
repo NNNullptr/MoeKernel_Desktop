@@ -26,16 +26,16 @@ import type { DesktopIconDef } from '@/hooks/use-desktop-icons';
  * - `src`  : URL or path to the desktop shortcut image.
  */
 export const DESKTOP_ICON_DEFS: DesktopIconDef[] = [
-  { id: 'myComputer',  label: 'My Computer',    src: 'https://static.step1.dev/g9nbov/assets/c27a5c3a1797.png' },
-  { id: 'resume',      label: 'Resume',         src: 'https://static.step1.dev/g9nbov/assets/bb426464f8be.ico' },
-  { id: 'aboutme',     label: 'About Me',       src: 'https://static.step1.dev/g9nbov/assets/58721f37b0c0.png' },
-  { id: 'contact',     label: 'Contact Me',     src: 'https://static.step1.dev/g9nbov/assets/e225895b1c27.png' },
-  { id: 'webamp',      label: 'Winamp',         src: 'https://static.step1.dev/g9nbov/assets/da0d359368d3.png' },
-  { id: 'paint',       label: 'Paint',          src: 'https://static.step1.dev/g9nbov/assets/035b30cba825.png' },
-  { id: 'gamesFolder', label: 'Games',          src: 'https://static.step1.dev/g9nbov/assets/37d3eab6367b.png' },
-  { id: 'msn',         label: 'MSN Messenger',  src: 'https://static.step1.dev/g9nbov/assets/ba1bb3f668bb.png' },
-  { id: 'video',       label: 'Media Player',   src: 'https://static.step1.dev/g9nbov/assets/da0d359368d3.png' },
-  { id: 'portfolio',   label: 'My Portfolio',   src: 'https://static.step1.dev/g9nbov/assets/37d3eab6367b.png' },
-  { id: 'blog',        label: 'My Blog',        src: 'https://static.step1.dev/g9nbov/assets/bb426464f8be.ico' },
-  { id: 'recycleBin',  label: 'Recycle Bin',    src: 'https://static.step1.dev/g9nbov/assets/d51e6ce243c1.png' },
+  { id: 'myComputer', label: 'My Computer', src: 'public/assets/icons/My Computer.png' },
+  { id: 'resume', label: 'Resume', src: 'public/assets/icons/Resume.png' },
+  { id: 'aboutme', label: 'About Me', src: 'public/assets/icons/About.png' },
+  { id: 'contact', label: 'Contact Me', src: 'public/assets/icons/Contact.png' },
+  { id: 'webamp', label: 'Winamp', src: 'public/assets/icons/Winamp.png' },
+  { id: 'paint', label: 'Paint', src: 'public/assets/icons/Paint.png' },
+  { id: 'gamesFolder', label: 'Games', src: 'public/assets/icons/Games.png' },
+  { id: 'msn', label: 'MSN Messenger', src: 'public/assets/icons/MSN.png' },
+  { id: 'video', label: 'Media Player', src: 'public/assets/icons/Media.png' },
+  { id: 'portfolio', label: 'My Portfolio', src: 'public/assets/icons/Portfolio.png' },
+  { id: 'blog', label: 'My Blog', src: 'public/assets/icons/Blog.png' },
+  { id: 'recycleBin', label: 'Recycle Bin', src: 'public/assets/icons/Recycle.png' },
 ];

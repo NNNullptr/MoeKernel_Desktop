@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm dev:*)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

@@ -146,7 +146,7 @@ function ArticleTile({ icon, label, postId }: { icon: string; label: string; pos
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         gap: '4px', width: '88px', cursor: 'pointer',
-        background: hov ? '#316ac5' : 'transparent',
+        background: hov ? '#5a5a5a' : 'transparent',
         borderRadius: '4px', padding: '8px 4px',
         userSelect: 'none',
       }}

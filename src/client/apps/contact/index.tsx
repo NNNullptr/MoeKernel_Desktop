@@ -149,7 +149,7 @@ function ContactTile({
         gap:            '4px',
         width:          '80px',
         cursor:         'pointer',
-        background:     hov ? '#316ac5' : 'transparent',
+        background:     hov ? '#5a5a5a' : 'transparent',
         borderRadius:   '4px',
         padding:        '8px 4px',
         textDecoration: 'none',

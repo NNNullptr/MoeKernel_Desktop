@@ -37,8 +37,8 @@ import remarkGfm from 'remark-gfm';
 import type { BlogPost } from '@/client/config/blog.config';
 
 // ── XP 主题色常量 ────────────────────────────────────────────────────────────
-const XP_BLUE = '#316ac5';
-const XP_DARK_BLUE = '#0a3a8a';
+const XP_BLUE = '#5a5a5a';
+const XP_DARK_BLUE = '#767676';
 const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 
 // ── Markdown 元素样式映射（与 ResumeApp 保持一致） ───────────────────────────

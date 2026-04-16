@@ -72,10 +72,10 @@ const PORTFOLIO_CONFIG = {
     background: 'linear-gradient(180deg,#dce8fc 0%,#b8d0f8 100%)',
 
     // 分隔线和边框颜色（与 background 配套调整）
-    borderColor: '#7ba2d8',
+    borderColor: '#c8c8c8',
 
     // 文字标题颜色（分组标题）
-    titleColor: '#0a3a8a',
+    titleColor: '#767676',
 
     // 任务链接文字颜色
     linkColor: '#0033aa',
@@ -350,7 +350,7 @@ function ExplorerToolbar({ opacity, onOpacityChange, showBgControl }: ToolbarPro
               step={0.01}
               value={opacity}
               onChange={(e) => onOpacityChange(Number(e.target.value))}
-              style={{ width: '80px', cursor: 'pointer', accentColor: '#316ac5' }}
+              style={{ width: '80px', cursor: 'pointer', accentColor: '#5a5a5a' }}
               title={`背景透明度：${Math.round(opacity * 100)}%`}
             />
             <span style={{ fontSize: '10px', color: '#333', minWidth: '28px' }}>
@@ -496,7 +496,7 @@ export function PortfolioApp() {
                 fontFamily: FONT,
                 fontSize: '11px',
                 fontWeight: activeCategory === cat ? 'bold' : 'normal',
-                color: activeCategory === cat ? '#0a3a8a' : '#333',
+                color: activeCategory === cat ? '#767676' : '#333',
                 marginRight: '2px',
                 position: 'relative',
                 bottom: activeCategory === cat ? '-1px' : '0',
@@ -618,7 +618,7 @@ export function PortfolioApp() {
                   onClick={() => setLightboxItem(item)}
                   style={{
                     border:
-                      hoveredId === item.id ? '2px solid #316ac5' : '2px solid #d0d8e8',
+                      hoveredId === item.id ? '2px solid #5a5a5a' : '2px solid #d0d8e8',
                     borderRadius: '4px',
                     overflow: 'hidden',
                     cursor: 'pointer',
@@ -720,7 +720,7 @@ export function PortfolioApp() {
                       style={{
                         fontSize: '11px',
                         fontWeight: 'bold',
-                        color: '#0a3a8a',
+                        color: '#767676',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',

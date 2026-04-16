@@ -449,8 +449,8 @@ function DesktopIcon({ id, label, src, x, y, selected, onPointerDown, onClick }:
         boxSizing: 'border-box',
         cursor: 'default',
         touchAction: 'none',
-        // Selection highlight: semi-transparent dark blue overlay
-        background: selected ? 'rgba(0, 60, 160, 0.45)' : 'transparent',
+        // Selection highlight: semi-transparent neutral grey overlay
+        background: selected ? 'var(--xp-selection-overlay)' : 'transparent',
         border: selected ? '1px dotted rgba(255,255,255,0.7)' : '1px solid transparent',
         userSelect: 'none',
         WebkitUserSelect: 'none',
@@ -480,8 +480,8 @@ function DesktopIcon({ id, label, src, x, y, selected, onPointerDown, onClick }:
           padding: '1px 3px',
           lineHeight: '1.2',
           fontFamily: 'MSSS, Tahoma, "Trebuchet MS", Arial, sans-serif',
-          // When selected: blue background on the label text (XP style)
-          background: selected ? 'rgba(10, 58, 138, 0.8)' : 'transparent',
+          // When selected: dark grey background on the label text (XP Classic)
+          background: selected ? 'var(--xp-selection-label-bg)' : 'transparent',
           borderRadius: '1px',
         }}
       >
@@ -518,20 +518,20 @@ function TaskbarWindowBtn({ win, onClick }: { win: WindowState; onClick: () => v
         maxWidth: '160px',
         background: active
           ? hovered
-            ? 'linear-gradient(180deg, #6fa8e8 0%, #3a72c8 100%)'
-            : 'linear-gradient(180deg, #4a85d4 0%, #2060b8 100%)'
+            ? 'linear-gradient(180deg, #ececec 0%, #c0c0c0 100%)'
+            : 'linear-gradient(180deg, #e0e0e0 0%, #b8b8b8 100%)'
           : hovered
-            ? 'linear-gradient(180deg, #5090d8 0%, #2858a8 100%)'
-            : 'linear-gradient(180deg, #3070c0 0%, #184898 100%)',
-        border: active ? '1px solid #a0c4f8' : '1px solid #4870b0',
+            ? 'linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%)'
+            : 'linear-gradient(180deg, #c8c8c8 0%, #a0a0a0 100%)',
+        border: active ? '1px solid #888' : '1px solid #767676',
         borderRadius: '3px',
-        boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,0.3)' : 'none',
+        boxShadow: active ? 'inset 0 1px 0 rgba(255,255,255,0.6)' : 'none',
         cursor: 'pointer',
         fontFamily: TASKBAR_FONT,
         fontSize: '11px',
         fontWeight: active ? 'bold' : 'normal',
-        color: '#fff',
-        textShadow: '1px 1px 1px rgba(0,0,0,0.5)',
+        color: '#000',
+        textShadow: '1px 1px 1px rgba(255,255,255,0.4)',
         overflow: 'hidden',
         flexShrink: 0,
       }}

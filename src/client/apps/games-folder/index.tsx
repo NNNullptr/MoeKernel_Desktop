@@ -241,7 +241,7 @@ function ExplorerToolbar({
 // ─────────────────────────────────────────────
 /**
  * @description 渲染一个可悬浮高亮的游戏图标。
- * - 悬浮时背景变为 XP 蓝（#316ac5），文字变白
+ * - 悬浮时背景变为 XP 蓝（#5a5a5a），文字变白
  * - 展示 emoji 图标 + 游戏名称
  * @param game 游戏配置对象
  * @param onClick 双击启动游戏的回调
@@ -269,7 +269,7 @@ function FolderTile({
         gap: '4px',
         width: '80px',
         cursor: 'pointer',
-        background: hov ? '#316ac5' : 'transparent',
+        background: hov ? '#5a5a5a' : 'transparent',
         borderRadius: '4px',
         padding: '8px 4px',
         userSelect: 'none',

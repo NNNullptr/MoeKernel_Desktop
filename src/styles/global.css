@@ -77,6 +77,22 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+
+  /* ── XP Classic Silver Chrome Theme ─────────────────────────────── */
+  --xp-chrome-bg-light: #f4f4f4;
+  --xp-chrome-bg-mid: #e0e0e0;
+  --xp-chrome-bg-dark: #c8c8c8;
+  --xp-chrome-bg-darker: #b0b0b0;
+  --xp-chrome-border: #a0a0a0;
+  --xp-chrome-border-dark: #767676;
+  --xp-chrome-highlight: #d8d8d8;
+  --xp-chrome-hover: #ececec;
+  --xp-chrome-text: #000;
+  --xp-chrome-text-on-dark: #fff;
+  --xp-chrome-accent: #5a5a5a;
+  --xp-chrome-accent-soft: #d0d0d0;
+  --xp-selection-overlay: rgba(80, 80, 80, 0.45);
+  --xp-selection-label-bg: rgba(60, 60, 60, 0.8);
 }
 
 .dark {

@@ -24,7 +24,11 @@ try {
 	const audio_buffer_promise =
 		fetch(CHORD_WAV_URL)
 			.then((response) => response.arrayBuffer())
-			.then((array_buffer) => audioContext.decodeAudioData(array_buffer));
+			.then((array_buffer) => audioContext.decodeAudioData(array_buffer))
+			.catch((error) => {
+				console.log("Failed to load or decode " + CHORD_WAV_URL + ": ", error);
+				return null;
+			});
 	var play_chord = async function () {
 		audioContext.resume(); // in case it was not allowed to start until a user interaction
 		// Note that this should be before waiting for the audio buffer,
@@ -32,6 +36,7 @@ try {
 		// (This only works if the message box is opened during a user gesture.)
 
 		const audio_buffer = await audio_buffer_promise;
+		if (!audio_buffer) return;
 		const source = audioContext.createBufferSource();
 		source.buffer = audio_buffer;
 		source.connect(audioContext.destination);
