@@ -43,55 +43,48 @@ import remarkGfm from 'remark-gfm';
 const ABOUT_CONFIG = {
   // 头像图片路径。填写 public/assets/ 下的路径，如 "/assets/avatar.png"。
   // 留空字符串 "" 则显示默认 Emoji 占位符。
-  avatarSrc: '',
+  avatarSrc: 'public/assets/avatarSrc.jpg',
 
   // 背景图片路径。填写 public/assets/wallpapers/ 下的路径。
-  bgImageSrc: '',
+  bgImageSrc: 'public/assets/wallpapers/bg1.jpg',
 
   // 背景图初始透明度（0.0 ~ 1.0）。0 = 完全透明，1 = 完全不透明。
-  bgOpacity: 0.15,
+  bgOpacity: 0.5,
 
   // 个人基础信息
   name: 'NNNullptr',
-  title: 'Full-Stack Developer & Designer',
-  location: '📍 Istanbul, Turkey',
+  title: '简介一段',
+  location: 'null',
 
   // 中间滚动区 Markdown 内容。支持标准 Markdown 语法。
   markdownContent: `
-## 👋 Hey there!
+## 标题
 
-Welcome to my **Windows XP** portfolio!
+欢迎访问，随便写几句
+---
 
-I'm a designer & developer who loves building beautiful, interactive experiences on the web. I specialize in **retro-inspired UI**, React, and TypeScript.
+##标题
+示例
 
 ---
 
-## 🎮 Interests
+## 嗯
 
-- 🖥️ Retro computing nostalgia & Y2K aesthetics
-- 🎵 Chiptune music & lo-fi beats
-- 🎮 Indie game development & pixel art
-- 🌐 Exploring the early internet
+efefgbfgg
 
----
-
-## 🚀 Current Focus
-
-Currently exploring **WebGL shaders**, **Framer Motion** micro-interactions, and building tools that make the web feel more magical and playful.
-
-> "Any sufficiently advanced technology is indistinguishable from magic." — Arthur C. Clarke
+> "名言" — 名人
   `,
 
   // 技能标签数组。每个标签可以单独设置背景色和文字颜色。
   skills: [
-    { name: 'React',        bgColor: '#316ac5', textColor: '#ffffff' },
-    { name: 'TypeScript',   bgColor: '#3178c6', textColor: '#ffffff' },
-    { name: 'Tailwind CSS', bgColor: '#06b6d4', textColor: '#ffffff' },
-    { name: 'Node.js',      bgColor: '#3d8b37', textColor: '#ffffff' },
-    { name: 'tRPC',         bgColor: '#398ccb', textColor: '#ffffff' },
-    { name: 'Figma',        bgColor: '#a259ff', textColor: '#ffffff' },
-    { name: 'CSS Animations', bgColor: '#e96a24', textColor: '#ffffff' },
-    { name: 'WebGL',        bgColor: '#990000', textColor: '#ffffff' },
+    { name: 'React',        bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'TypeScript',   bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'Tailwind CSS', bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'Node.js',      bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'tRPC',         bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'Figma',        bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'CSS Animations', bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'WebGL',        bgColor: '#f46fa43f', textColor: '#ffffff' },
   ],
 } as const;
 

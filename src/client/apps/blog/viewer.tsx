@@ -30,7 +30,8 @@
  * 4. ReactMarkdown 通过 components prop 注入 XP 风格内联样式。
  */
 
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { BlogPost } from '@/client/config/blog.config';
@@ -178,6 +179,7 @@ export function BlogPostViewer({ post }: { post: BlogPost }) {
           {['File', 'Edit', 'View', 'Format', 'Help'].map((m) => (
             <button
               key={m}
+              type="button"
               style={{ background: 'none', border: 'none', padding: '2px 8px', cursor: 'pointer', fontFamily: FONT, fontSize: '12px' }}
             >
               {m}
