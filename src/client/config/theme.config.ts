@@ -14,7 +14,7 @@
  */
 
 /** 桌面壁纸图片 URL */
-export const WALLPAPER_URL = 'public/assets/wallpapers/wallpaper.jpg';
+export const WALLPAPER_URL = '/assets/wallpapers/wallpaper.jpg';
 // ↑ 若要使用本地文件：将其放入 public/assets/wallpapers/ 并修改为 '/assets/wallpapers/your-file.webp'
 
 /** 开始按钮内显示的 Windows 图标 */

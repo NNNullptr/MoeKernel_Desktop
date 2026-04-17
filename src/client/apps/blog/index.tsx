@@ -214,8 +214,8 @@ export function BlogFolderApp() {
         {/* 左侧任务面板（XP Explorer 风格蓝色侧边栏） */}
         <div style={{
           width: '160px',
-          background: 'linear-gradient(180deg, #c5d5f5 0%, #a8bef0 100%)',
-          borderRight: '1px solid #7a9bd4',
+          background: 'linear-gradient(180deg, #edeff3 0%, #f0f0f0 100%)',
+          borderRight: '1px solid #cecece',
           padding: '12px 8px',
           flexShrink: 0,
           display: 'flex',

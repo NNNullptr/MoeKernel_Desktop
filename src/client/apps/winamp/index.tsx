@@ -46,23 +46,23 @@
  * ============================================================
  */
 
-import { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 
 // ============================================================
 // 🎵 SONG_LIST — 在此添加/删除歌曲（详见顶部中文指南）
 // ============================================================
 const SONG_LIST = [
   {
-    coverSrc:  '',                              // 替换为 '/assets/covers/song1.jpg'
-    title:     'Triple Baka',
-    artist:    'Hatsune Miku',
-    audioSrc:  '',                              // 替换为 '/assets/tracks/triple-baka.mp3'
+    coverSrc: '/assets/covers/cover1.jpg',                              // 替换为 '/assets/covers/song1.jpg'
+    title: 'Tatara',
+    artist: 'Hatsune Miku',
+    audioSrc: '/assets/tracks/Tatara.mp3',                              // 替换为 '/assets/tracks/triple-baka.mp3'
   },
   {
-    coverSrc:  '',                              // 替换为 '/assets/covers/song2.jpg'
-    title:     'World Is Mine',
-    artist:    'Hatsune Miku',
-    audioSrc:  '',                              // 替换为 '/assets/tracks/world-is-mine.mp3'
+    coverSrc: '/assets/covers/cover2.jpg',                              // 替换为 '/assets/covers/song2.jpg'
+    title: '世界で一番おひめさま',
+    artist: 'Hatsune Miku',
+    audioSrc: '/assets/tracks/Tatara.mp3',                              // 替换为 '/assets/tracks/world-is-mine.mp3'
   },
   // ── 在此继续添加歌曲 ──
   // {
@@ -78,19 +78,19 @@ const SONG_LIST = [
 // ============================================================
 const WINAMP_CONFIG = {
   // 背景图设置（留空 '' 则不显示背景图片）
-  bgImage:       '',          // 例：'/assets/wallpapers/winamp-bg.jpg'
-  bgOpacity:     0.25,        // 背景图透明度 0.0（全透明）~ 1.0（不透明）
+  bgImage: '/assets/wallpapers/bg3.jpg',          // 例：'/assets/wallpapers/winamp-bg.jpg'
+  bgOpacity: 0.3,        // 背景图透明度 0.0（全透明）~ 1.0（不透明）
 
   // 配色方案
-  bgColor:       '#1c1c2e',   // 播放器整体背景色
-  textColor:     '#e0e0ff',   // 主文字颜色（歌曲名）
-  subTextColor:  '#8888cc',   // 副文字颜色（歌手名、时间）
-  progressColor: '#6655ee',   // 进度条填充色
-  progressBg:    '#333355',   // 进度条轨道背景色
-  btnBg:         '#2a2a44',   // 按钮默认背景色
-  btnBorder:     '#4444aa',   // 按钮边框色
-  btnText:       '#aaaaff',   // 按钮图标/文字色
-  btnActiveBg:   '#4433cc',   // 播放按钮激活时的背景色
+  bgColor: '#ffffffff',   // 播放器整体背景色
+  textColor: '#464646ff',   // 主文字颜色（歌曲名）
+  subTextColor: '#7a7678ff',   // 副文字颜色（歌手名、时间）
+  progressColor: '#ee9cc1ff',   // 进度条填充色
+  progressBg: '#f5ecf2ff',   // 进度条轨道背景色
+  btnBg: '#fafafa',   // 按钮默认背景色
+  btnBorder: '#fafafa',   // 按钮边框色
+  btnText: '#ee9cc1ff',   // 按钮图标/文字色
+  btnActiveBg: '#fafafa',   // 播放按钮激活时的背景色
 } as const;
 
 // ============================================================
@@ -106,10 +106,10 @@ function formatTime(seconds: number): string {
 // 默认封面占位（纯 CSS 渐变，不依赖外部图片）
 const DEFAULT_COVER_STYLE: React.CSSProperties = {
   background: 'linear-gradient(135deg, #2a2a5a 0%, #6644cc 50%, #aa44aa 100%)',
-  display:    'flex',
+  display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize:   '36px',
+  fontSize: '36px',
 };
 
 // ============================================================
@@ -120,14 +120,14 @@ export function WinampApp() {
   const songs = SONG_LIST as unknown as Array<{ coverSrc: string; title: string; artist: string; audioSrc: string }>;
 
   // ── 播放状态 ──
-  const [trackIdx, setTrackIdx]   = useState(0);
-  const [playing,  setPlaying]    = useState(false);
-  const [current,  setCurrent]    = useState(0);   // 当前播放秒数
-  const [duration, setDuration]   = useState(0);   // 总时长（秒）
-  const [dragging, setDragging]   = useState(false);
-  const [dragVal,  setDragVal]    = useState(0);
+  const [trackIdx, setTrackIdx] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [current, setCurrent] = useState(0);   // 当前播放秒数
+  const [duration, setDuration] = useState(0);   // 总时长（秒）
+  const [dragging, setDragging] = useState(false);
+  const [dragVal, setDragVal] = useState(0);
 
-  const audioRef    = useRef<HTMLAudioElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
   const song = songs[trackIdx] ?? { coverSrc: '', title: 'No Track', artist: '---', audioSrc: '' };
@@ -207,15 +207,15 @@ export function WinampApp() {
   return (
     <div
       style={{
-        height:      '100%',
-        display:     'flex',
+        height: '100%',
+        display: 'flex',
         flexDirection: 'column',
-        background:  cfg.bgColor,
-        color:       cfg.textColor,
-        fontFamily:  '"Trebuchet MS", Tahoma, Arial, sans-serif',
-        userSelect:  'none',
-        position:    'relative',
-        overflow:    'hidden',
+        background: cfg.bgColor,
+        color: cfg.textColor,
+        fontFamily: '"Trebuchet MS", Tahoma, Arial, sans-serif',
+        userSelect: 'none',
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
       {/* ── 隐藏 Audio 标签 ── */}
@@ -231,14 +231,14 @@ export function WinampApp() {
       {cfg.bgImage && (
         <div
           style={{
-            position:   'absolute',
-            inset:      0,
-            backgroundImage:    `url(${cfg.bgImage})`,
-            backgroundSize:     'cover',
+            position: 'absolute',
+            inset: 0,
+            backgroundImage: `url(${cfg.bgImage})`,
+            backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity:    cfg.bgOpacity,
+            opacity: cfg.bgOpacity,
             pointerEvents: 'none',
-            zIndex:     0,
+            zIndex: 0,
           }}
         />
       )}
@@ -251,12 +251,12 @@ export function WinampApp() {
           {/* 专辑封面 */}
           <div
             style={{
-              width:         '100px',
-              height:        '100px',
-              flexShrink:    0,
-              border:        `2px solid ${cfg.btnBorder}`,
-              borderRadius:  '4px',
-              overflow:      'hidden',
+              width: '100px',
+              height: '100px',
+              flexShrink: 0,
+              border: `2px solid ${cfg.btnBorder}`,
+              borderRadius: '4px',
+              overflow: 'hidden',
               ...(song.coverSrc ? {} : DEFAULT_COVER_STYLE),
             }}
           >
@@ -276,11 +276,11 @@ export function WinampApp() {
             {/* 歌曲名 */}
             <div
               style={{
-                fontSize:    '15px',
-                fontWeight:  'bold',
-                color:       cfg.textColor,
-                overflow:    'hidden',
-                whiteSpace:  'nowrap',
+                fontSize: '15px',
+                fontWeight: 'bold',
+                color: cfg.textColor,
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
                 textOverflow: 'ellipsis',
                 letterSpacing: '0.5px',
               }}
@@ -290,9 +290,9 @@ export function WinampApp() {
             {/* 歌手名 */}
             <div
               style={{
-                fontSize:   '13px',
-                color:      cfg.subTextColor,
-                overflow:   'hidden',
+                fontSize: '13px',
+                color: cfg.subTextColor,
+                overflow: 'hidden',
                 whiteSpace: 'nowrap',
                 textOverflow: 'ellipsis',
               }}
@@ -309,13 +309,13 @@ export function WinampApp() {
               </span>
               <span
                 style={{
-                  marginLeft:  'auto',
-                  fontSize:    '10px',
-                  color:       cfg.subTextColor,
-                  background:  cfg.btnBg,
-                  border:      `1px solid ${cfg.btnBorder}`,
+                  marginLeft: 'auto',
+                  fontSize: '10px',
+                  color: cfg.subTextColor,
+                  background: cfg.btnBg,
+                  border: `1px solid ${cfg.btnBorder}`,
                   borderRadius: '3px',
-                  padding:     '1px 6px',
+                  padding: '1px 6px',
                 }}
               >
                 {trackIdx + 1} / {songs.length}
@@ -332,37 +332,37 @@ export function WinampApp() {
             onPointerMove={onProgressPointerMove}
             onPointerUp={onProgressPointerUp}
             style={{
-              height:       '10px',
-              background:   cfg.progressBg,
+              height: '10px',
+              background: cfg.progressBg,
               borderRadius: '5px',
-              cursor:       'pointer',
-              position:     'relative',
-              border:       `1px solid ${cfg.btnBorder}`,
+              cursor: 'pointer',
+              position: 'relative',
+              border: `1px solid ${cfg.btnBorder}`,
             }}
           >
             {/* 填充条 */}
             <div
               style={{
-                width:        `${displayProgress}%`,
-                height:       '100%',
-                background:   cfg.progressColor,
+                width: `${displayProgress}%`,
+                height: '100%',
+                background: cfg.progressColor,
                 borderRadius: '5px',
-                transition:   dragging ? 'none' : 'width 0.1s linear',
+                transition: dragging ? 'none' : 'width 0.1s linear',
               }}
             />
             {/* 拖拽手柄 */}
             <div
               style={{
-                position:     'absolute',
-                top:          '50%',
-                left:         `${displayProgress}%`,
-                transform:    'translate(-50%, -50%)',
-                width:        '14px',
-                height:       '14px',
+                position: 'absolute',
+                top: '50%',
+                left: `${displayProgress}%`,
+                transform: 'translate(-50%, -50%)',
+                width: '14px',
+                height: '14px',
                 borderRadius: '50%',
-                background:   cfg.progressColor,
-                border:       `2px solid ${cfg.textColor}`,
-                boxShadow:    '0 0 4px rgba(0,0,0,0.5)',
+                background: cfg.progressColor,
+                border: `2px solid ${cfg.textColor}`,
+                boxShadow: '0 0 4px rgba(0,0,0,0.5)',
               }}
             />
           </div>
@@ -371,13 +371,13 @@ export function WinampApp() {
         {/* ── 底部控制按钮 ── */}
         <div
           style={{
-            display:       'flex',
+            display: 'flex',
             justifyContent: 'center',
-            alignItems:    'center',
-            gap:           '8px',
-            padding:       '10px 16px 14px',
-            borderTop:     `1px solid ${cfg.btnBorder}`,
-            background:    `${cfg.bgColor}cc`,
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 16px 14px',
+            borderTop: `1px solid ${cfg.btnBorder}`,
+            background: 'transparent',
           }}
         >
           {/* Previous */}
@@ -435,16 +435,16 @@ function CtrlBtn({
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background:   active ? cfg.btnActiveBg : hov ? cfg.btnActiveBg : cfg.btnBg,
-        color:        cfg.btnText,
-        border:       `1px solid ${cfg.btnBorder}`,
+        background: active ? cfg.btnActiveBg : hov ? cfg.btnActiveBg : cfg.btnBg,
+        color: cfg.btnText,
+        border: `1px solid ${cfg.btnBorder}`,
         borderRadius: '5px',
-        padding:      '7px 14px',
-        cursor:       'pointer',
-        fontSize:     '16px',
-        minWidth:     '42px',
-        transition:   'background 0.15s',
-        boxShadow:    active ? `0 0 8px ${cfg.btnActiveBg}88` : 'none',
+        padding: '7px 14px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        minWidth: '42px',
+        transition: 'background 0.15s',
+        boxShadow: active ? `0 0 8px ${cfg.btnActiveBg}88` : 'none',
       }}
     >
       {children}

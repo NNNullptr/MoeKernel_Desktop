@@ -26,16 +26,16 @@ import type { DesktopIconDef } from '@/hooks/use-desktop-icons';
  * - `src`  : URL or path to the desktop shortcut image.
  */
 export const DESKTOP_ICON_DEFS: DesktopIconDef[] = [
-  { id: 'myComputer', label: 'My Computer', src: 'public/assets/icons/My Computer.png' },
-  { id: 'resume', label: 'Resume', src: 'public/assets/icons/Resume.png' },
-  { id: 'aboutme', label: 'About Me', src: 'public/assets/icons/About.png' },
-  { id: 'contact', label: 'Contact Me', src: 'public/assets/icons/Contact.png' },
-  { id: 'webamp', label: 'Winamp', src: 'public/assets/icons/Winamp.png' },
-  { id: 'paint', label: 'Paint', src: 'public/assets/icons/Paint.png' },
-  { id: 'gamesFolder', label: 'Games', src: 'public/assets/icons/Games.png' },
-  { id: 'msn', label: 'MSN Messenger', src: 'public/assets/icons/MSN.png' },
-  { id: 'video', label: 'Media Player', src: 'public/assets/icons/Media.png' },
-  { id: 'portfolio', label: 'My Portfolio', src: 'public/assets/icons/Portfolio.png' },
-  { id: 'blog', label: 'My Blog', src: 'public/assets/icons/Blog.png' },
-  { id: 'recycleBin', label: 'Recycle Bin', src: 'public/assets/icons/Recycle.png' },
+  { id: 'myComputer', label: 'My Computer', src: '/assets/icons/My Computer.png' },
+  { id: 'resume', label: 'Resume', src: '/assets/icons/Resume.png' },
+  { id: 'aboutme', label: 'About Me', src: '/assets/icons/About.png' },
+  { id: 'contact', label: 'Contact Me', src: '/assets/icons/Contact.png' },
+  { id: 'webamp', label: 'Winamp', src: '/assets/icons/Winamp.png' },
+  { id: 'paint', label: 'Paint', src: '/assets/icons/Paint.png' },
+  { id: 'gamesFolder', label: 'Games', src: '/assets/icons/Games.png' },
+  { id: 'msn', label: 'MSN Messenger', src: '/assets/icons/MSN.png' },
+  { id: 'video', label: 'Media Player', src: '/assets/icons/Media.png' },
+  { id: 'portfolio', label: 'My Portfolio', src: '/assets/icons/Portfolio.png' },
+  { id: 'blog', label: 'My Blog', src: '/assets/icons/Blog.png' },
+  { id: 'recycleBin', label: 'Recycle Bin', src: '/assets/icons/Recycle.png' },
 ];

@@ -47,34 +47,18 @@ const CONTACT_CONFIG = [
   {
     id:      'github',
     name:    'GitHub',
-    url:     'https://github.com',
+    url:     'https://github.com/NNNullptr',
     // 把 github.png 放到 public/assets/icons/social/github.png 后替换下方路径
-    iconSrc: '',
-    emoji:   '🐙',
-  },
-  {
-    id:      'linkedin',
-    name:    'LinkedIn',
-    url:     'https://linkedin.com',
-    // 把 linkedin.png 放到 public/assets/icons/social/linkedin.png 后替换下方路径
-    iconSrc: '',
-    emoji:   '💼',
-  },
-  {
-    id:      'email',
-    name:    'Email',
-    url:     'mailto:nnnullptr@example.com',
-    // 把 email.png 放到 public/assets/icons/social/email.png 后替换下方路径
-    iconSrc: '',
-    emoji:   '📧',
+    iconSrc: '/assets/icons/github.png',
+    emoji:   '',
   },
   {
     id:      'twitter',
-    name:    'Twitter / X',
-    url:     'https://x.com',
+    name:    'Twitter',
+    url:     'https://x.com/NNNullptr',
     // 把 twitter.png 放到 public/assets/icons/social/twitter.png 后替换下方路径
-    iconSrc: '',
-    emoji:   '🐦',
+    iconSrc: '/assets/icons/twitter.png',
+    emoji:   '',
   },
   // ── 在这里添加更多平台 ──
   // {

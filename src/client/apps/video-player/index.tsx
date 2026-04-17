@@ -112,6 +112,12 @@ const VIDEO_LIST: VideoItem[] = [
     bvid: 'BV1Ls411c7es',
     cover: '',
   },
+  {
+    type: 'mp4',
+    title: 'リリリリ★バーニングナイトを踊ってみた',
+    src: '/assets/video/1.mp4',  // 放在 public/assets/ 下的文件
+    cover: '/assets/video/1.webp',
+  },
   // ── mp4 示例（取消注释并填入真实 src 即可启用）──
   // {
   //   type: 'mp4',

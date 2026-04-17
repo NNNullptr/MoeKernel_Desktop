@@ -43,10 +43,10 @@ import remarkGfm from 'remark-gfm';
 const ABOUT_CONFIG = {
   // 头像图片路径。填写 public/assets/ 下的路径，如 "/assets/avatar.png"。
   // 留空字符串 "" 则显示默认 Emoji 占位符。
-  avatarSrc: 'public/assets/avatarSrc.jpg',
+  avatarSrc: '/assets/avatarSrc.jpg',
 
   // 背景图片路径。填写 public/assets/wallpapers/ 下的路径。
-  bgImageSrc: 'public/assets/wallpapers/bg1.jpg',
+  bgImageSrc: '/assets/wallpapers/bg2.jpg',
 
   // 背景图初始透明度（0.0 ~ 1.0）。0 = 完全透明，1 = 完全不透明。
   bgOpacity: 0.5,
@@ -77,14 +77,14 @@ efefgbfgg
 
   // 技能标签数组。每个标签可以单独设置背景色和文字颜色。
   skills: [
-    { name: 'React',        bgColor: '#f46fa43f', textColor: '#ffffff' },
-    { name: 'TypeScript',   bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'React', bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'TypeScript', bgColor: '#f46fa43f', textColor: '#ffffff' },
     { name: 'Tailwind CSS', bgColor: '#f46fa43f', textColor: '#ffffff' },
-    { name: 'Node.js',      bgColor: '#f46fa43f', textColor: '#ffffff' },
-    { name: 'tRPC',         bgColor: '#f46fa43f', textColor: '#ffffff' },
-    { name: 'Figma',        bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'Node.js', bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'tRPC', bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'Figma', bgColor: '#f46fa43f', textColor: '#ffffff' },
     { name: 'CSS Animations', bgColor: '#f46fa43f', textColor: '#ffffff' },
-    { name: 'WebGL',        bgColor: '#f46fa43f', textColor: '#ffffff' },
+    { name: 'WebGL', bgColor: '#f46fa43f', textColor: '#ffffff' },
   ],
 } as const;
 

@@ -14,6 +14,8 @@
  *    B. 在线游戏：直接把游戏网址填到 url 字段
  *       注意：部分网站会拒绝被 iframe 嵌入（X-Frame-Options 限制）
  *       推荐寻找 itch.io / GitHub Pages 上的开源游戏
+ * 
+            💡 点击游戏图标即可启动 · 将本地游戏放入 /public/games/ 文件夹并在 GAMES_LIST 中添加记录即可上架新游戏
  *
  *  步骤二：在 GAMES_LIST 数组中新增一项配置：
  *    {
@@ -58,34 +60,37 @@ interface GameDef {
    *   - 在线游戏："https://example.com/game"        ← 需确认该网站允许 iframe 嵌入
    */
   url: string;
+  /** 可选的自定义图片图标路径（如果有，则优先使用它而不是 emoji） */
+  iconSrc?: string;
 }
 
 const GAMES_LIST: GameDef[] = [
   // ── 示范游戏 1：扫雷（在线，itch.io 开源版）──────────────────────────────
-  {
-    id: 'minesweeper',
-    title: 'Minesweeper',
-    icon: '💣',
-    description: '经典扫雷，左键揭格，右键插旗',
-    // itch.io 上的开源扫雷，允许 iframe 嵌入
-    url: 'https://kayernyc.itch.io/minesweeper',
-  },
-  // ── 示范游戏 2：2048（在线）──────────────────────────────────────────────
-  {
-    id: '2048',
-    title: '2048',
-    icon: '🔢',
-    description: '滑动方块，合并数字到 2048',
-    url: 'https://play2048.co/',
-  },
-  // ── 示范游戏 3：贪吃蛇（在线）───────────────────────────────────────────
-  {
-    id: 'snake',
-    title: 'Snake',
-    icon: '🐍',
-    description: '经典贪吃蛇，用方向键控制',
-    url: 'https://www.google.com/fbx?fbx=snake_arcade',
-  },
+  /*  {
+      id: 'minesweeper',
+      title: 'Minesweeper',
+      icon: '💣',
+      description: '经典扫雷，左键揭格，右键插旗',
+      // itch.io 上的开源扫雷，允许 iframe 嵌入
+      url: 'https://kayernyc.itch.io/minesweeper',
+    },
+    // ── 示范游戏 2：2048（在线）──────────────────────────────────────────────
+    {
+      id: '2048',
+      title: '2048',
+      icon: '🔢',
+      description: '滑动方块，合并数字到 2048',
+      url: 'https://play2048.co/',
+    },
+    // ── 示范游戏 3：贪吃蛇（在线）───────────────────────────────────────────
+    {
+      id: 'snake',
+      title: 'Snake',
+      icon: '🐍',
+      description: '经典贪吃蛇，用方向键控制',
+      url: 'https://www.google.com/fbx?fbx=snake_arcade',
+    },
+    */
   // ── 示范游戏 4：Tetris（在线，GitHub Pages）──────────────────────────────
   {
     id: 'tetris',
@@ -102,13 +107,14 @@ const GAMES_LIST: GameDef[] = [
     description: '经典吃豆人，用方向键操控',
     url: 'https://freepacman.org/',
   },
-  // ── 示范游戏 6：Chess（在线）─────────────────────────────────────────────
+  // ── 示范游戏 6：Minecraft（本地）─────────────────────────────────────────────
   {
-    id: 'chess',
-    title: 'Chess',
-    icon: '♟️',
-    description: '国际象棋，人机对战',
-    url: 'https://www.chess.com/play/computer',
+    id: 'minecraft',
+    title: 'Minecraft',
+    icon: '🟩', // Emoji fallback
+    iconSrc: '/assets/icons/MC.png', // The correct path to use as iconSrc!
+    description: 'MC',
+    url: '/games/minecraft/index.html',
   },
   // ──────────────────────────────────────────────────────────────────────────
   // 💡 在此处继续添加游戏，参考文件顶部的使用步骤说明
@@ -275,16 +281,29 @@ function FolderTile({
         userSelect: 'none',
       }}
     >
-      {/* Emoji 图标 */}
-      <span
-        style={{
-          fontSize: '36px',
-          lineHeight: 1,
-          filter: hov ? 'brightness(1.2)' : 'none',
-        }}
-      >
-        {game.icon}
-      </span>
+      {/* 优先判断是否有指定的图片路径 iconSrc */}
+      {game.iconSrc ? (
+        <img
+          src={game.iconSrc}
+          alt={game.title}
+          style={{
+            width: '36px',
+            height: '36px',
+            objectFit: 'contain',
+            filter: hov ? 'brightness(1.2)' : 'none',
+          }}
+        />
+      ) : (
+        <span
+          style={{
+            fontSize: '36px',
+            lineHeight: 1,
+            filter: hov ? 'brightness(1.2)' : 'none',
+          }}
+        >
+          {game.icon}
+        </span>
+      )}
 
       {/* 游戏名称 */}
       <span
@@ -389,7 +408,7 @@ export function GamesFolderApp() {
               fontFamily: FONT,
             }}
           >
-            💡 点击游戏图标即可启动 · 将本地游戏放入 /public/games/ 文件夹并在 GAMES_LIST 中添加记录即可上架新游戏
+
           </div>
         </div>
       ) : (

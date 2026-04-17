@@ -198,7 +198,8 @@ export function BlogPostViewer({ post }: { post: BlogPost }) {
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px', background: hasBg ? 'transparent' : '#f0ede4' }}>
           <div style={{
             maxWidth: '680px', margin: '0 auto 12px auto', padding: '32px 40px',
-            background: hasBg ? 'rgba(255,255,255,0.88)' : '#fff',
+            // 💡 提示：如需修改覆盖在背景图上方的白色文本块透明度，更改下方 rgba(255,255,255,0) 中的 0 即可（0 代表完全透明，1 代表完全不透明）
+            background: hasBg ? 'rgba(255,255,255,0)' : '#fff',
             minHeight: '400px', boxShadow: '0 0 12px rgba(0,0,0,0.15)',
             backdropFilter: hasBg ? 'blur(2px)' : 'none',
           }}>
