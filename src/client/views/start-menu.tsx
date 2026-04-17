@@ -1,40 +1,16 @@
 import React from 'react';
-
-interface ProgramItem {
-  id: string;
-  icon: string;
-  label: string;
-  highlight?: boolean;
-}
-
-interface PlaceItem {
-  id: string;
-  icon: string;
-  label: string;
-  dividerAbove?: boolean;
-}
+import { DESKTOP_ICON_DEFS } from '../config/icons.config';
+import { FILE_SYSTEM, DEFAULT_FILE_ICON, setPendingInitialPath } from '../config/filesystem.config';
 
 const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 
-const PROGRAMS: ProgramItem[] = [
-  { id: 'resume', icon: 'https://static.step1.dev/g9nbov/assets/bb426464f8be.ico', label: 'Resume', highlight: true },
-  { id: 'contact', icon: 'https://static.step1.dev/g9nbov/assets/e225895b1c27.png', label: 'Contact Me' },
-  { id: 'myComputer', icon: 'https://static.step1.dev/g9nbov/assets/c27a5c3a1797.png', label: 'My Computer' },
-  { id: 'webamp', icon: 'https://static.step1.dev/g9nbov/assets/da0d359368d3.png', label: 'Winamp' },
-  { id: 'paint', icon: 'https://static.step1.dev/g9nbov/assets/035b30cba825.png', label: 'Paint' },
-  { id: 'msn', icon: 'https://static.step1.dev/g9nbov/assets/ba1bb3f668bb.png', label: 'MSN Messenger' },
-];
+const PROGRAMS = DESKTOP_ICON_DEFS
+  .filter((def) => def.id !== 'recycleBin')
+  .map((def) => ({ id: def.id, icon: def.src, label: def.label, highlight: def.id === 'resume' }));
 
-const PLACES: PlaceItem[] = [
-  { id: 'myDocuments', icon: 'https://static.step1.dev/g9nbov/assets/37d3eab6367b.png', label: 'My Documents' },
-  { id: 'myPictures', icon: 'https://static.step1.dev/g9nbov/assets/37d3eab6367b.png', label: 'My Pictures' },
-  { id: 'myMusic', icon: 'https://static.step1.dev/g9nbov/assets/37d3eab6367b.png', label: 'My Music' },
-  { id: 'myVideos', icon: 'https://static.step1.dev/g9nbov/assets/37d3eab6367b.png', label: 'My Videos', dividerAbove: true },
-  { id: 'displayProperties', icon: 'https://static.step1.dev/g9nbov/assets/c27a5c3a1797.png', label: 'Display Properties', dividerAbove: true },
-  { id: 'linkedin', icon: 'https://static.step1.dev/g9nbov/assets/ba1bb3f668bb.png', label: 'LinkedIn', dividerAbove: true },
-  { id: 'github', icon: 'https://static.step1.dev/g9nbov/assets/5e5af28959cf.webp', label: 'GitHub' },
-  { id: 'instagram', icon: 'https://static.step1.dev/g9nbov/assets/e225895b1c27.png', label: 'Instagram' },
-];
+const PLACES = FILE_SYSTEM
+  .filter((item) => item.type === 'folder')
+  .slice(0, 5);
 
 interface StartMenuProps {
   onItemClick?: (id: string) => void;
@@ -43,6 +19,12 @@ interface StartMenuProps {
 }
 
 export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) {
+  const handleFolderClick = (folderName: string) => {
+    setPendingInitialPath([folderName]);
+    window.dispatchEvent(new CustomEvent<string[]>('xp-navigate-mycomputer', { detail: [folderName] }));
+    onItemClick?.('myComputer');
+  };
+
   return (
     <div
       style={{
@@ -70,7 +52,7 @@ export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) 
 
       {/* Body */}
       <div style={{ display: 'flex', height: '400px' }}>
-        {/* Left: Programs */}
+        {/* Left: Programs — derived from DESKTOP_ICON_DEFS */}
         <div style={{ flex: 1, background: '#ffffff', display: 'flex', flexDirection: 'column', overflowY: 'auto', paddingTop: '4px' }}>
           {PROGRAMS.map((prog, idx) => (
             <React.Fragment key={prog.id}>
@@ -84,7 +66,7 @@ export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) 
           </div>
         </div>
 
-        {/* Right: Places */}
+        {/* Right: Folders — top 5 from FILE_SYSTEM */}
         <div style={{
           width: '210px',
           background: 'linear-gradient(180deg, #ececec 0%, #dcdcdc 100%)',
@@ -92,10 +74,12 @@ export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) 
           overflowY: 'auto', paddingTop: '6px',
         }}>
           {PLACES.map((place) => (
-            <React.Fragment key={place.id}>
-              {place.dividerAbove && <Divider color="#a0a0a0" />}
-              <PlaceBtn icon={place.icon} label={place.label} onClick={() => onItemClick?.(place.id)} />
-            </React.Fragment>
+            <PlaceBtn
+              key={place.name}
+              icon={place.icon ?? DEFAULT_FILE_ICON}
+              label={place.name}
+              onClick={() => handleFolderClick(place.name)}
+            />
           ))}
         </div>
       </div>

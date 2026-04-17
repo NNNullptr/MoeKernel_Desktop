@@ -102,14 +102,14 @@ type VideoItem =
 const VIDEO_LIST: VideoItem[] = [
   {
     type: 'bilibili',
-    title: 'Windows XP Nostalgia Mix',
-    bvid: 'BV1GJ411x7h7',
+    title: 'おちゃめ機能',
+    bvid: 'BV1sx411c7sB',
     cover: '',
   },
   {
     type: 'bilibili',
-    title: 'Frutiger Aero Aesthetic — Y2K Dreams',
-    bvid: 'BV1Ls411c7es',
+    title: '河蟹你全家【原版】',
+    bvid: 'BV1xx411c7BF',
     cover: '',
   },
   {

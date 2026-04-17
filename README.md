@@ -156,6 +156,39 @@ interface OsApp {
 
 ---
 
+## 🖥️ WelcomeGuard 欢迎动画
+
+文件：`src/client/views/welcome-guard.tsx`
+
+首次进入时自动播放 Boot → Login 两阶段动画，同一会话内刷新不重复播放。
+
+**修改文字内容：** 文件顶部有完整索引注释，按注释搜索关键词即可定位：
+
+| 需要修改的内容 | 搜索关键词 |
+|--------------|-----------|
+| Boot 用户名大字 | `NNNullptr`（BootStage 内） |
+| Boot 红色 xp 后缀 | `>xp<`（BootStage 内 `<span>` 红色斜体） |
+| Boot 副标题 | `>Welcome<` |
+| Boot 持续时间 | `setTimeout(onDone, 3000)` 中的毫秒数 |
+| Login 左侧用户名 | `NNNullptr`（LoginStage 左栏） |
+| Login 左侧角色说明 | `>Software Developer<`（左栏） |
+| Login 左侧引导语 | `>To begin, click your user name<` |
+| Login 右侧头像图片 | `src="/assets/avatarSrc.jpg"` |
+| Login 右侧头像卡用户名 | `NNNullptr`（LoginStage 右栏头像卡） |
+| Login 右侧头像卡角色 | `>Software Developer<`（右栏） |
+| 底部 Restart 按钮 | `>Restart<` |
+
+**调试命令（浏览器 console）：**
+```js
+// 重新播放欢迎流程
+sessionStorage.removeItem('xp:welcomed'); location.reload();
+
+// 跳过欢迎流程
+sessionStorage.setItem('xp:welcomed', '1'); location.reload();
+```
+
+---
+
 ## ✏️ 如何添加新应用
 
 只需 3 步，完全不触碰内核代码：
@@ -314,4 +347,7 @@ pnpm build
 | V21 | Games Folder 配置化重构 + iframe 沙盒游戏视图切换 |
 | V22–V23 | **博客系统**：XP 资源管理器博客文件夹 + Markdown 阅读器 + 分类过滤 Tab |
 | V24 | 修复最大化窗口被右侧边栏遮挡（`calc(100vw - 34px)`）|
+| V25 | **WelcomeGuard 入口保护**：Boot（银色胶囊进度条）→ Login（银灰主题头像卡）两阶段欢迎动画，sessionStorage 控制每会话仅播放一次 |
+| V26 | **My Computer 重构**：静态文件树映射 `public/assets/`，文件夹导航（地址栏 + Back 按钮），默认图标 `file.png` 支持逐项覆盖 |
+| V27 | **Start 菜单双侧联动**：左侧程序列表自动同步 `DESKTOP_ICON_DEFS`，右侧文件夹列表来自 `FILE_SYSTEM`（最多 5 行），点击定位 My Computer 对应目录 |
 

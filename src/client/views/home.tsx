@@ -283,6 +283,7 @@ export function HomePage() {
               fontFamily: '"Trebuchet MS", Tahoma, Arial, sans-serif',
               fontSize: '14px',
               fontWeight: 'bold',
+              fontStyle: 'italic', // 复刻真实 WinXP Start 按钮的 Trebuchet MS Bold Italic 字样
               color: '#ffffff',
               textShadow: '1px 1px 2px rgba(0,0,0,0.6)',
               letterSpacing: '0.5px',

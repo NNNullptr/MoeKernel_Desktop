@@ -135,9 +135,10 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* WinXP 经典字体栈：Trebuchet MS 为主，Tahoma 为 XP UI 备用字体 */
     font-family:
-      Inter, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
-      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+      'Trebuchet MS', Tahoma, 'Microsoft Sans Serif', Arial, sans-serif,
+      'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   }
 }
 

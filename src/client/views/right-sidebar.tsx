@@ -47,12 +47,9 @@ export function RightSidebar({ pets, activePetIds, onToggle }: RightSidebarProps
         gap: 2,
         paddingTop: 6,
         paddingBottom: 6,
-        // XP Classic silver gradient — left-to-right for a cylindrical feel
-        background: 'linear-gradient(90deg, #f4f4f4 0%, #e0e0e0 40%, #c8c8c8 100%)',
-        // Left-edge white highlight line — gives the same raised look as taskbar
-        borderLeft: '1px solid #ffffff',
-        // Subtle inner shadow on the right for depth
-        boxShadow: 'inset -1px 0 3px rgba(0,0,0,0.18), -1px 0 4px rgba(0,0,0,0.12)',
+        background: 'linear-gradient(90deg, var(--xp-gradient))',
+        borderLeft: '1px solid rgb(136, 136, 136)',
+        boxShadow: '#f0f0f0 1px 0 1px inset',
         zIndex: 9000,
         overflowY: 'auto',
         overflowX: 'hidden',
