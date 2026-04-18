@@ -18,6 +18,7 @@ export default defineConfig({
     viteComponentMapper(),
     tanstackStart(),
     nitro({
+      preset: 'deno-deploy',
       output: {
         dir: '.output',
       },
@@ -26,9 +27,6 @@ export default defineConfig({
     viteReact(),
     tailwindcss(),
   ],
-  nitro: {
-    preset: 'deno-deploy',
-  },
   build: {
     sourcemap: 'hidden',
     rollupOptions: {
