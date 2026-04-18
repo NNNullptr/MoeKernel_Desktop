@@ -1,12 +1,12 @@
-# 🖥️ XP Portfolio — Windows XP 风格个人作品集
+# 🖥️ MoeKernel_Desktop — Windows XP 风格个人桌面系统
 
-> 一个以 Windows XP / Y2K 梦幻核美学为主题的交互式个人作品集网站。访客将像操作一台复古 PC 一样浏览你的作品。
+> 一个以 Windows XP / Y2K 梦幻核美学为主题的交互式个人桌面系统。访客将像操作一台复古 PC 一样浏览作品与信息。
 
 ---
 
 ## 📸 项目简介
 
-本项目模拟了一套完整的 Windows XP 桌面操作系统体验：
+**MoeKernel_Desktop** 是一个运行在浏览器中的 Windows XP 风格个人桌面系统，模拟了一套完整的 XP 操作系统体验：
 
 - 可拖拽的桌面图标与墙纸背景（多列自动排布 + 自由拖拽 + 边界钳制）
 - 带 Luna 风格的开始菜单（程序 + 地点两列布局）
@@ -166,11 +166,11 @@ interface OsApp {
 
 | 需要修改的内容 | 搜索关键词 |
 |--------------|-----------|
-| Boot 用户名大字 | `NNNullptr`（BootStage 内） |
+| Boot 用户名大字 | `MoeKernel`（BootStage 内） |
 | Boot 红色 xp 后缀 | `>xp<`（BootStage 内 `<span>` 红色斜体） |
 | Boot 副标题 | `>Welcome<` |
 | Boot 持续时间 | `setTimeout(onDone, 3000)` 中的毫秒数 |
-| Login 左侧用户名 | `NNNullptr`（LoginStage 左栏） |
+| Login 左侧用户名 | `MoeKernel`（LoginStage 左栏） |
 | Login 左侧角色说明 | `>Software Developer<`（左栏） |
 | Login 左侧引导语 | `>To begin, click your user name<` |
 | Login 右侧头像图片 | `src="/assets/avatarSrc.jpg"` |
@@ -350,4 +350,7 @@ pnpm build
 | V25 | **WelcomeGuard 入口保护**：Boot（银色胶囊进度条）→ Login（银灰主题头像卡）两阶段欢迎动画，sessionStorage 控制每会话仅播放一次 |
 | V26 | **My Computer 重构**：静态文件树映射 `public/assets/`，文件夹导航（地址栏 + Back 按钮），默认图标 `file.png` 支持逐项覆盖 |
 | V27 | **Start 菜单双侧联动**：左侧程序列表自动同步 `DESKTOP_ICON_DEFS`，右侧文件夹列表来自 `FILE_SYSTEM`（最多 5 行），点击定位 My Computer 对应目录 |
+| V28 | **修复 Deno Deploy 生产部署**：将 `preset: 'deno-deploy'` 移入 `nitro()` 插件配置，解决客户端 JS/CSS 资源 500/404 导致桌面不可交互的问题 |
+| V29 | **My Computer 文件预览**：图片缩略图、视频帧缩略图，点击文件自动打开对应窗口（图片→ImageViewer、mp4→VideoPlayer、mp3→Winamp），新增 `inferFileType` / `getPublicUrl` / Pending File Store |
+| V30 | **项目正式命名为 MoeKernel_Desktop**：更新 README 标题与项目简介 |
 

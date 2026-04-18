@@ -351,7 +351,7 @@ export function ResumeApp() {
           ))}
           {/* 文件名标识 */}
           <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#888', paddingRight: '90px' }}>
-            README.md — 只读
+            MoeKernel_Desktop / README.md — 只读
           </span>
         </div>
 
