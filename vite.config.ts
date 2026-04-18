@@ -19,7 +19,7 @@ export default defineConfig({
     tanstackStart(),
     nitro({
       output: {
-        dir: 'dist',
+        dir: '.output',
       },
     }),
     // react's vite plugin must come after start's vite plugin
