@@ -132,6 +132,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    cursor: url('/assets/icons/F32.png') 0 0, auto !important;
   }
   body {
     @apply bg-background text-foreground;

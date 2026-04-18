@@ -33,7 +33,7 @@ export const DESKTOP_ICON_DEFS: DesktopIconDef[] = [
   { id: 'webamp', label: 'Winamp', src: '/assets/icons/Winamp.png' },
   { id: 'paint', label: 'Paint', src: '/assets/icons/Paint.png' },
   { id: 'gamesFolder', label: 'Games', src: '/assets/icons/Games.png' },
-  { id: 'msn', label: 'MSN Messenger', src: '/assets/icons/MSN.png' },
+  // { id: 'msn', label: 'MSN Messenger', src: '/assets/icons/MSN.png' },
   { id: 'video', label: 'Media Player', src: '/assets/icons/Media.png' },
   { id: 'portfolio', label: 'My Portfolio', src: '/assets/icons/Portfolio.png' },
   { id: 'blog', label: 'My Blog', src: '/assets/icons/Blog.png' },
