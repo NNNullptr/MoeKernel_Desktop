@@ -1,0 +1,16 @@
+{
+  "date": "2026-04-18T06:38:49.368Z",
+  "preset": "deno-deploy",
+  "framework": {
+    "name": "nitro",
+    "version": ""
+  },
+  "versions": {
+    "nitro": "3.0.1-alpha.1"
+  },
+  "commands": {
+    "preview": "",
+    "deploy": "cd ./ && deployctl deploy --project=<project_name> server/index.ts"
+  },
+  "config": {}
+}

@@ -38,6 +38,7 @@ import { PaintApp }        from './paint';
 import { ResumeApp }       from './resume';
 import { VideoPlayerApp }  from './video-player';
 import { PortfolioApp }    from './portfolio';
+import { ImageViewerApp }  from './image-viewer';
 
 // ── Blog app components ──────────────────────────────────────────────────────
 import { BlogFolderApp }   from './blog';
@@ -153,6 +154,15 @@ export const APP_REGISTRY: Record<string, OsApp> = {
     defaultWidth: 780,
     defaultHeight: 560,
     AppComponent: PortfolioApp,
+  },
+
+  imageViewer: {
+    id: 'imageViewer',
+    title: 'Image Viewer',
+    icon: '/assets/icons/file.png',
+    defaultWidth: 640,
+    defaultHeight: 500,
+    AppComponent: ImageViewerApp,
   },
 
   // ── Blog folder — opens the blog article grid ────────────────────────────

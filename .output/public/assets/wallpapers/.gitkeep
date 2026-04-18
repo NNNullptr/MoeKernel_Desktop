@@ -1,0 +1,3 @@
+# Place your wallpaper images here (.jpg, .webp, .png)
+# Reference them in: src/client/config/theme.config.ts
+# Example path in code: '/assets/wallpapers/my-wallpaper.webp'

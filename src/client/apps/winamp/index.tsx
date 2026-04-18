@@ -47,6 +47,7 @@
  */
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
+import { consumePendingViewFile } from '@/client/config/filesystem.config';
 
 // ============================================================
 // 🎵 SONG_LIST — 在此添加/删除歌曲（详见顶部中文指南）
@@ -115,9 +116,18 @@ const DEFAULT_COVER_STYLE: React.CSSProperties = {
 // ============================================================
 // 🎮 WinampApp 主组件
 // ============================================================
+type SongItem = { coverSrc: string; title: string; artist: string; audioSrc: string };
+
 export function WinampApp() {
   const cfg = WINAMP_CONFIG;
-  const songs = SONG_LIST as unknown as Array<{ coverSrc: string; title: string; artist: string; audioSrc: string }>;
+  const [songs] = useState<SongItem[]>(() => {
+    const base = SONG_LIST as unknown as SongItem[];
+    const pending = consumePendingViewFile();
+    if (pending?.type === 'audio') {
+      return [{ coverSrc: '/assets/icons/Media.png', title: pending.title, artist: 'Unknown', audioSrc: pending.url }, ...base];
+    }
+    return [...base];
+  });
 
   // ── 播放状态 ──
   const [trackIdx, setTrackIdx] = useState(0);

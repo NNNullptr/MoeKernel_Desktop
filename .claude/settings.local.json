@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(pnpm dev:*)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(pnpm build *)",
+      "Bash(pnpm lint *)"
     ]
   }
 }

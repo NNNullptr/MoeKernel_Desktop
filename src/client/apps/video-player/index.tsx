@@ -27,6 +27,7 @@
  */
 
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { consumePendingViewFile } from '@/client/config/filesystem.config';
 
 // ============================================================
 // 🎨 VIDEO_CONFIG — 修改配色主题
@@ -155,6 +156,13 @@ interface TransportButton {
  * - progress: 播放进度 0~1（仅 mp4 模式有效）
  */
 export function VideoPlayerApp() {
+  const [videoList, setVideoList] = useState<VideoItem[]>(() => {
+    const pending = consumePendingViewFile();
+    if (pending?.type === 'video') {
+      return [{ type: 'mp4', title: pending.title, src: pending.url, cover: '' }, ...VIDEO_LIST];
+    }
+    return [...VIDEO_LIST];
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isStopped, setIsStopped] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -164,7 +172,7 @@ export function VideoPlayerApp() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const currentVideo = VIDEO_LIST[currentIndex];
+  const currentVideo = videoList[currentIndex];
   const isBilibili = currentVideo?.type === 'bilibili';
   const isMp4 = currentVideo?.type === 'mp4';
 
@@ -266,8 +274,8 @@ export function VideoPlayerApp() {
     }
   };
 
-  const handlePrev = () => switchTo((currentIndex - 1 + VIDEO_LIST.length) % VIDEO_LIST.length);
-  const handleNext = () => switchTo((currentIndex + 1) % VIDEO_LIST.length);
+  const handlePrev = () => switchTo((currentIndex - 1 + videoList.length) % videoList.length);
+  const handleNext = () => switchTo((currentIndex + 1) % videoList.length);
 
   // ── 进度条点击跳转（仅 mp4） ──────────────────────────
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -373,7 +381,7 @@ export function VideoPlayerApp() {
         >
           {currentVideo?.title ?? '— No Video —'}
           <span style={{ marginLeft: '8px', opacity: 0.5, fontSize: '10px' }}>
-            [{currentIndex + 1}/{VIDEO_LIST.length}]
+            [{currentIndex + 1}/{videoList.length}]
           </span>
         </span>
         {/* 引擎标识徽章 */}

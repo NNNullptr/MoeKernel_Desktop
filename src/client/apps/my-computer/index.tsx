@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
-import { FILE_SYSTEM, DEFAULT_FILE_ICON, consumePendingInitialPath } from '@/client/config/filesystem.config';
+import {
+  FILE_SYSTEM,
+  DEFAULT_FILE_ICON,
+  consumePendingInitialPath,
+  inferFileType,
+  getPublicUrl,
+  setPendingViewFile,
+} from '@/client/config/filesystem.config';
 import type { FsItem } from '@/client/config/filesystem.config';
 
 const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
@@ -50,8 +57,54 @@ function ExplorerToolbar({
   );
 }
 
-function FolderTile({ icon, label, onClick }: { icon: string; label: string; onClick?: () => void }) {
+function VideoThumb({ src }: { src: string }) {
+  return (
+    <video
+      src={src}
+      muted
+      preload="metadata"
+      style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 2, display: 'block' }}
+      onLoadedMetadata={(e) => { e.currentTarget.currentTime = 1; }}
+    />
+  );
+}
+
+function FileTile({
+  label,
+  onClick,
+  imageSrc,
+  videoSrc,
+  iconSrc,
+}: {
+  label: string;
+  onClick?: () => void;
+  imageSrc?: string;
+  videoSrc?: string;
+  iconSrc?: string;
+}) {
   const [hov, setHov] = useState(false);
+
+  let preview: React.ReactNode;
+  if (imageSrc) {
+    preview = (
+      <img
+        src={imageSrc}
+        alt={label}
+        style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 2, border: '1px solid #ccc' }}
+      />
+    );
+  } else if (videoSrc) {
+    preview = <VideoThumb src={videoSrc} />;
+  } else {
+    preview = (
+      <img
+        src={iconSrc ?? DEFAULT_FILE_ICON}
+        alt={label}
+        style={{ width: 48, height: 48, objectFit: 'contain' }}
+      />
+    );
+  }
+
   return (
     <div
       onMouseEnter={() => setHov(true)}
@@ -64,7 +117,7 @@ function FolderTile({ icon, label, onClick }: { icon: string; label: string; onC
         borderRadius: '4px', padding: '8px 4px',
       }}
     >
-      <img src={icon} alt={label} style={{ width: '48px', height: '48px', objectFit: 'contain' }} />
+      {preview}
       <span style={{ fontSize: '11px', fontFamily: FONT, color: hov ? '#fff' : '#000', textAlign: 'center', wordBreak: 'break-word' }}>{label}</span>
     </div>
   );
@@ -86,6 +139,22 @@ export function MyComputerApp() {
     ? 'My Computer'
     : 'My Computer > ' + currentPath.join(' > ');
 
+  const handleFileClick = (item: FsItem) => {
+    const fileType = inferFileType(item.name);
+    const url = getPublicUrl([...currentPath, item.name]);
+
+    if (fileType === 'image') {
+      setPendingViewFile({ type: 'image', url, title: item.name });
+      window.dispatchEvent(new CustomEvent('xp-open-window', { detail: 'imageViewer' }));
+    } else if (fileType === 'video') {
+      setPendingViewFile({ type: 'video', url, title: item.name });
+      window.dispatchEvent(new CustomEvent('xp-open-window', { detail: 'video' }));
+    } else if (fileType === 'audio') {
+      setPendingViewFile({ type: 'audio', url, title: item.name });
+      window.dispatchEvent(new CustomEvent('xp-open-window', { detail: 'webamp' }));
+    }
+  };
+
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#fff' }}>
       <ExplorerToolbar
@@ -94,14 +163,36 @@ export function MyComputerApp() {
         canGoBack={currentPath.length > 0}
       />
       <div style={{ flex: 1, padding: '16px', display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', gap: '20px', background: '#fff', overflowY: 'auto' }}>
-        {items.map((item) => (
-          <FolderTile
-            key={item.name}
-            icon={item.icon ?? DEFAULT_FILE_ICON}
-            label={item.name}
-            onClick={item.type === 'folder' ? () => setCurrentPath((p) => [...p, item.name]) : undefined}
-          />
-        ))}
+        {items.map((item) => {
+          if (item.type === 'folder') {
+            return (
+              <FileTile
+                key={item.name}
+                label={item.name}
+                iconSrc={item.icon ?? '/assets/icons/Games.png'}
+                onClick={() => setCurrentPath((p) => [...p, item.name])}
+              />
+            );
+          }
+
+          const fileType = inferFileType(item.name);
+          const url = getPublicUrl([...currentPath, item.name]);
+
+          return (
+            <FileTile
+              key={item.name}
+              label={item.name}
+              imageSrc={fileType === 'image' ? url : undefined}
+              videoSrc={fileType === 'video' ? url : undefined}
+              iconSrc={
+                fileType === 'audio'
+                  ? '/assets/icons/Media.png'
+                  : (item.icon ?? DEFAULT_FILE_ICON)
+              }
+              onClick={() => handleFileClick(item)}
+            />
+          );
+        })}
         {items.length === 0 && (
           <span style={{ color: '#888', fontSize: '12px', fontFamily: FONT }}>This folder is empty.</span>
         )}

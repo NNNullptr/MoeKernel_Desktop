@@ -1,4 +1,5 @@
 export type FsItemType = 'folder' | 'file';
+export type FileType = 'image' | 'video' | 'audio' | 'other';
 
 export interface FsItem {
   name: string;
@@ -14,6 +15,40 @@ export interface FsItem {
 }
 
 export const DEFAULT_FILE_ICON = '/assets/icons/file.png';
+
+const IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'webp', 'gif', 'ico', 'bmp', 'svg']);
+const VIDEO_EXTS = new Set(['mp4', 'webm', 'mov', 'avi']);
+const AUDIO_EXTS = new Set(['mp3', 'ogg', 'wav', 'flac', 'aac']);
+
+export function inferFileType(name: string): FileType {
+  const ext = name.split('.').pop()?.toLowerCase() ?? '';
+  if (IMAGE_EXTS.has(ext)) return 'image';
+  if (VIDEO_EXTS.has(ext)) return 'video';
+  if (AUDIO_EXTS.has(ext)) return 'audio';
+  return 'other';
+}
+
+export function getPublicUrl(pathSegments: string[]): string {
+  return '/assets/' + pathSegments.join('/');
+}
+
+export interface PendingViewFile {
+  type: 'image' | 'video' | 'audio';
+  url: string;
+  title: string;
+}
+
+let _pendingViewFile: PendingViewFile | null = null;
+
+export function setPendingViewFile(f: PendingViewFile): void {
+  _pendingViewFile = f;
+}
+
+export function consumePendingViewFile(): PendingViewFile | null {
+  const f = _pendingViewFile;
+  _pendingViewFile = null;
+  return f;
+}
 
 export const FILE_SYSTEM: FsItem[] = [
   {
