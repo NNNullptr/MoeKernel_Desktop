@@ -202,21 +202,26 @@ export function WelcomeGuard({ children }: { children: ReactNode }) {
   // sessionStorage key: 'xp:welcomed'
   // 调试时在浏览器 console 执行以下命令可重置欢迎流程：
   //   sessionStorage.removeItem('xp:welcomed'); location.reload();
-  const [stage, setStage] = useState<'boot' | 'login' | 'desktop'>(
-    () => (typeof window !== 'undefined' && sessionStorage.getItem('xp:welcomed') === '1')
-      ? 'desktop'
-      : 'boot'
-  );
+  //
+  // SSR 安全说明：
+  // stage 初始值统一为 'init'，服务端和客户端首次渲染结果一致（均渲染 children）。
+  // useEffect 在客户端水合完成后才读取 sessionStorage 并切换真实 stage，
+  // 彻底避免 SSR 水合不匹配导致 React 崩溃、欢迎动画卡死的问题。
+  const [stage, setStage] = useState<'init' | 'boot' | 'login' | 'desktop'>('init');
+
+  useEffect(() => {
+    const welcomed = sessionStorage.getItem('xp:welcomed') === '1';
+    setStage(welcomed ? 'desktop' : 'boot');
+  }, []);
 
   const enterDesktop = () => {
     sessionStorage.setItem('xp:welcomed', '1');
     setStage('desktop');
   };
 
-  if (stage === 'desktop') return <>{children}</>;
-
   return (
     <>
+      {children}
       {stage === 'boot' && <BootStage onDone={() => setStage('login')} />}
       {stage === 'login' && <LoginStage onEnter={enterDesktop} />}
     </>
