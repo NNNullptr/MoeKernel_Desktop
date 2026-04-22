@@ -1,0 +1,443 @@
+# 全栈化改造开发规划
+
+> 目标：将 MoeKernel_Desktop 从纯前端转变为人人可自部署、可视化配置的 WinXP 桌面风格个人站点平台。
+> 产品模型：**自部署模板**（类 Ghost / Umami），每位用户 fork 后独立部署，通过后台管理自己的桌面内容。
+> 约束：不重构现有架构，所有改动为纯增量添加。
+
+---
+
+## 技术角色说明
+
+| 工具 | 职责 | 不该做的事 |
+|---|---|---|
+| **Drizzle ORM** | 描述数据库表结构，生成类型安全的 SQL | 不写业务逻辑 |
+| **Turso** | 云端 SQLite，实际存储数据 | 不直接在组件里访问 |
+| **tRPC** | 服务端函数的暴露窗口，客户端通过它调用服务端 | 不在里面写 UI 逻辑 |
+| **TanStack Query** | 客户端数据缓存，管理 loading/error/刷新 | 不做数据变换 |
+| **Zod** | 验证进入服务端的数据格式 | 不用来描述数据库结构 |
+
+**数据流向（永远单向）：**
+```
+浏览器 → tRPC 调用 → 服务端函数 → Drizzle → Turso 数据库
+浏览器 ← tRPC 返回 ← 服务端函数 ← Drizzle 结果 ←
+```
+
+---
+
+## 防屎山规范
+
+> 这些规则比具体实现更重要，违反它们是屎山的根源。
+
+1. **数据只有一个来源**：某个数据要么来自 DB，要么来自静态配置，不能两处同时有逻辑。迁移后静态配置文件仅作初始默认值，不再被组件直接 import。
+
+2. **服务端逻辑不进组件**：React 组件只做展示数据和响应用户操作。查询 DB、写业务逻辑全放 tRPC 路由文件。
+
+3. **tRPC 路由按领域拆分，不堆在一起**：单个路由文件超过 150 行就拆分。
+
+4. **Zod schema 和 Drizzle schema 各司其职**：Drizzle schema 描述 DB 结构；Zod schema 描述 API 输入验证。不混用。
+
+5. **环境变量集中管理**：`process.env.XXX` 的读取只在 `src/server/env.ts` 一处，其他地方 import 它。
+
+---
+
+## 最终目录结构（仅新增部分）
+
+现有所有文件保持不动，以下为新增内容：
+
+```
+src/
+├── server/
+│   ├── env.ts                        ← 环境变量读取与验证（唯一出口）
+│   ├── db/
+│   │   ├── schema.ts                 ← 所有数据库表定义（唯一）
+│   │   ├── client.ts                 ← Drizzle + Turso 连接（唯一）
+│   │   └── seed.ts                   ← 从现有 config 导入初始数据（一次性脚本）
+│   └── trpc/
+│       └── routes/
+│           ├── example.ts            （保持不动）
+│           ├── site.ts               ← 新增：公开读取接口
+│           ├── blog.ts               ← 新增：博客管理接口（需鉴权）
+│           ├── settings.ts           ← 新增：站点设置接口（需鉴权）
+│           └── auth.ts               ← 新增：管理员认证接口
+│
+└── routes/
+    └── admin/
+        ├── _layout.tsx               ← 管理后台外壳 + 鉴权守卫
+        ├── index.tsx                 ← 仪表盘
+        ├── login.tsx                 ← 登录页
+        ├── theme.tsx                 ← 主题设置（壁纸、Logo）
+        ├── icons.tsx                 ← 桌面图标管理
+        ├── mascots.tsx               ← 吉祥物管理
+        ├── comments.tsx              ← 评论系统配置
+        └── blog/
+            ├── index.tsx             ← 文章列表
+            ├── new.tsx               ← 新建文章
+            └── $id.tsx               ← 编辑文章
+
+drizzle.config.ts                     ← 新增于项目根目录
+drizzle/                              ← 自动生成，存放 migration 文件
+```
+
+---
+
+## Phase 0：项目基础设施
+
+**目标**：数据库连通，能读写，不触碰任何现有代码。
+**预估耗时**：2-3 小时
+
+### 0.1 安装依赖
+
+```bash
+pnpm add drizzle-orm @libsql/client
+pnpm add -D drizzle-kit
+```
+
+### 0.2 创建 `src/server/env.ts`
+
+读取并验证所有环境变量，应用启动时立即报错而不是运行到一半崩溃：
+
+```typescript
+const TURSO_DATABASE_URL = process.env.TURSO_DATABASE_URL;
+const TURSO_AUTH_TOKEN   = process.env.TURSO_AUTH_TOKEN;
+const ADMIN_PASSWORD     = process.env.ADMIN_PASSWORD;
+const JWT_SECRET         = process.env.JWT_SECRET;
+
+if (!TURSO_DATABASE_URL) throw new Error('缺少环境变量: TURSO_DATABASE_URL');
+if (!TURSO_AUTH_TOKEN)   throw new Error('缺少环境变量: TURSO_AUTH_TOKEN');
+if (!ADMIN_PASSWORD)     throw new Error('缺少环境变量: ADMIN_PASSWORD');
+if (!JWT_SECRET)         throw new Error('缺少环境变量: JWT_SECRET');
+
+export const env = { TURSO_DATABASE_URL, TURSO_AUTH_TOKEN, ADMIN_PASSWORD, JWT_SECRET };
+```
+
+### 0.3 创建 `src/server/db/client.ts`
+
+```typescript
+import { drizzle } from 'drizzle-orm/libsql';
+import { createClient } from '@libsql/client/http';  // 必须用 /http，Deno Deploy 不支持 TCP
+import { env } from '../env';
+import * as schema from './schema';
+
+const libsql = createClient({
+  url: env.TURSO_DATABASE_URL,
+  authToken: env.TURSO_AUTH_TOKEN,
+});
+
+export const db = drizzle(libsql, { schema });
+```
+
+### 0.4 创建 `src/server/db/schema.ts`
+
+严格对应现有 config 文件结构：
+
+```typescript
+import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+
+// 对应 theme.config.ts — key-value 结构，灵活存储任意站点设置
+export const siteSettings = sqliteTable('site_settings', {
+  key:   text('key').primaryKey(),
+  value: text('value').notNull(),
+});
+
+// 对应 blog.config.ts
+export const blogPosts = sqliteTable('blog_posts', {
+  id:              text('id').primaryKey(),
+  title:           text('title').notNull(),
+  content:         text('content').notNull(),       // Markdown 全文
+  category:        text('category').notNull(),
+  icon:            text('icon').notNull(),
+  backgroundImage: text('background_image').notNull().default(''),
+  bgOpacity:       real('bg_opacity').notNull().default(1),
+  order:           integer('order').notNull().default(0),
+  createdAt:       integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+});
+
+// 对应 icons.config.ts
+export const desktopIcons = sqliteTable('desktop_icons', {
+  id:      text('id').primaryKey(),
+  label:   text('label').notNull(),
+  src:     text('src').notNull(),
+  order:   integer('order').notNull().default(0),
+  visible: integer('visible', { mode: 'boolean' }).notNull().default(true),
+});
+
+// 对应 pets.config.ts
+export const mascots = sqliteTable('mascots', {
+  id:      text('id').primaryKey(),
+  label:   text('label').notNull().default(''),
+  iconSrc: text('icon_src').notNull(),
+  petSrc:  text('pet_src').notNull(),
+  size:    integer('size').notNull().default(80),
+  order:   integer('order').notNull().default(0),
+});
+```
+
+### 0.5 创建 `drizzle.config.ts`（项目根目录）
+
+```typescript
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+  schema: './src/server/db/schema.ts',
+  out: './drizzle',
+  dialect: 'turso',
+  dbCredentials: {
+    url: process.env.TURSO_DATABASE_URL!,
+    authToken: process.env.TURSO_AUTH_TOKEN!,
+  },
+});
+```
+
+### 0.6 建表
+
+```bash
+npx drizzle-kit push
+```
+
+**完成标志**：Turso 控制台中可见 4 张空表（site_settings / blog_posts / desktop_icons / mascots）。
+
+---
+
+## Phase 1：tRPC 数据层
+
+**目标**：建立完整的服务端 API，暂不改任何前端组件。
+**预估耗时**：1 天
+
+### 1.1 追加 admin 中间件
+
+在 `src/server/trpc/middlewares.ts` 末尾追加（不改动现有代码）：
+
+```typescript
+import { TRPCError } from '@trpc/server';
+import { env } from '../../env';
+
+export const adminMiddleware = t.middleware(({ ctx, next }) => {
+  const token = ctx.headers.get('x-admin-token');
+  if (!token || token !== env.ADMIN_PASSWORD) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  return next({ ctx });
+});
+```
+
+> Phase 3 完成 JWT 后替换此处的简单密码验证。
+
+### 1.2 在 `procedure.ts` 导出受保护过程
+
+追加一行（保持文件其余内容不变）：
+
+```typescript
+export const adminProcedure = publicProcedure.use(adminMiddleware).use(loggingMiddleware);
+```
+
+### 1.3 创建 `src/server/trpc/routes/site.ts`（公开读取）
+
+对外暴露所有前端需要的读取接口，无需鉴权：
+
+- `getSettings` — 返回 site_settings 的 key-value 对象
+- `getBlogPosts` — 返回博客文章列表（按 order 排序）
+- `getDesktopIcons` — 返回可见桌面图标（过滤 visible=false）
+- `getMascots` — 返回吉祥物列表
+
+### 1.4 创建 `src/server/trpc/routes/blog.ts`（管理接口，需鉴权）
+
+使用 `adminProcedure`，提供：
+
+- `list` — 列出所有文章（含草稿）
+- `create` — 创建文章，Zod 验证所有字段
+- `update` — 按 id 更新，Zod 验证 partial 字段
+- `delete` — 按 id 删除
+
+### 1.5 创建 `src/server/trpc/routes/settings.ts`（管理接口，需鉴权）
+
+- `get` — 读取全部设置
+- `set` — 写入单条 key-value
+- `setBatch` — 批量写入（主题设置页用）
+- 桌面图标和吉祥物的 CRUD 操作
+
+### 1.6 创建 `src/server/trpc/routes/auth.ts`（认证）
+
+- `login` — 验证密码，成功后签发 JWT（存入 httpOnly cookie）
+- `logout` — 清除 cookie
+- `verify` — 验证当前 session 是否有效（用于前端路由守卫）
+
+### 1.7 注册所有路由
+
+修改 `src/server/trpc/router.ts`，追加新路由（example 路由保持不动）：
+
+```typescript
+export const appRouter = createTRPCRouter({
+  example: exampleRouter,    // 不动
+  site: siteRouter,
+  blog: blogRouter,
+  settings: settingsRouter,
+  auth: authRouter,
+});
+```
+
+### 1.8 创建 seed 脚本 `src/server/db/seed.ts`
+
+从现有静态 config 文件读取数据写入数据库，**只运行一次**：
+
+```bash
+npx tsx src/server/db/seed.ts
+```
+
+- 导入 `BLOG_POSTS` → 写入 blog_posts 表
+- 导入 `DESKTOP_ICON_DEFS` → 写入 desktop_icons 表
+- 导入 `PET_DEFS` → 写入 mascots 表
+- 写入主题默认值 → site_settings 表
+
+**完成标志**：用 tRPC Panel 或 curl 能查询到博客数据，admin 接口未携带 token 时返回 401。
+
+---
+
+## Phase 2：组件层数据源切换
+
+**目标**：前端组件改为从 tRPC 读取数据，静态配置退为 fallback。
+**预估耗时**：半天
+
+### 2.1 创建配置 hook `src/client/hooks/use-site-config.ts`
+
+合并 DB 值（优先）和静态默认值（fallback），确保未配置 DB 的 fork 也能正常工作：
+
+```typescript
+export function useSiteSettings() {
+  const { data } = trpc.site.getSettings.useQuery();
+  return {
+    wallpaperUrl: data?.wallpaper_url ?? WALLPAPER_URL,
+    logoUrl:      data?.windows_logo_url ?? WINDOWS_LOGO_URL,
+    // ...
+  };
+}
+```
+
+### 2.2 逐组件迁移（按优先级，改一个测一个）
+
+| 顺序 | 组件 | 数据来源变更 |
+|---|---|---|
+| 1 | 博客应用 | `blog.config.ts` → `trpc.site.getBlogPosts` |
+| 2 | 桌面图标 | `icons.config.ts` → `trpc.site.getDesktopIcons` |
+| 3 | 主题/壁纸 | `theme.config.ts` → `useSiteSettings()` |
+| 4 | 吉祥物 | `pets.config.ts` → `trpc.site.getMascots` |
+
+> **重要**：每次只改一个组件，验证页面正常后再改下一个。
+
+**完成标志**：在 Turso 控制台删除一条博客记录，刷新页面后博客列表对应减少。
+
+---
+
+## Phase 3：管理后台 UI
+
+**目标**：可视化后台，通过界面修改所有配置。
+**预估耗时**：1-2 周
+
+### 鉴权流程
+
+```
+访问 /admin 任意页面
+→ _layout.tsx 调用 trpc.auth.verify 检查 cookie
+→ 无效 → 重定向 /admin/login
+→ 填写密码 → trpc.auth.login → 服务端签发 JWT → httpOnly cookie
+→ 后续请求自动携带 cookie，无需手动处理
+```
+
+> 管理员只有一个人（自己），密码存环境变量，无需用户注册系统。
+
+### 开发顺序（严格按此顺序，每步依赖前一步）
+
+1. **`/admin/login`** — 无此页则其他一切进不去
+2. **`/admin/_layout.tsx`** — 鉴权守卫 + 后台导航框架
+3. **`/admin/theme`** — 壁纸 URL、Logo URL、托盘图标
+4. **`/admin/blog/index`** — 文章列表（删除、排序）
+5. **`/admin/blog/new` & `$id`** — Markdown 编辑器（使用 `@uiw/react-md-editor`）
+6. **`/admin/icons`** — 图标显示/隐藏、拖拽排序
+7. **`/admin/mascots`** — 吉祥物管理
+8. **`/admin/comments`** — 评论系统配置（填写参数即可）
+
+**完成标志**：通过后台修改壁纸 URL，刷新首页后桌面壁纸变化。
+
+---
+
+## Phase 4：评论系统（可选）
+
+**目标**：支持多种评论方案，用户在后台选择配置，无需改代码。
+**预估耗时**：2-4 小时
+
+### 实现方式
+
+`site_settings` 中存储评论配置：
+
+| key | 示例值 | 说明 |
+|---|---|---|
+| `comment_provider` | `giscus` / `waline` / `disabled` | 选择方案 |
+| `giscus_repo` | `username/repo` | Giscus 用 |
+| `giscus_repo_id` | `R_xxx` | Giscus 用 |
+| `giscus_category_id` | `DIC_xxx` | Giscus 用 |
+| `waline_server_url` | `https://xxx.vercel.app` | Waline 用 |
+
+博客阅读器底部根据 `comment_provider` 动态渲染对应组件。
+
+### 方案对比
+
+| 方案 | 成本 | 集成难度 | 数据归属 | 适用场景 |
+|---|---|---|---|---|
+| **Giscus** | 完全免费 | 极低（填 3 个 ID） | GitHub | 读者有 GitHub 账号 |
+| **Waline** | 免费自部署（Vercel） | 低（配置环境变量） | 自有 | 想要完整评论功能 |
+| **不启用** | 零 | 零 | — | 纯展示站点 |
+
+---
+
+## 部署目标流程（最终用户体验）
+
+**运行环境**：Ubuntu 云服务器 + 宝塔面板 + Nginx 反向代理 + Cloudflare 代理 + Node.js 20
+
+```
+1. 服务器准备：Ubuntu + 宝塔面板，通过宝塔安装 Node.js 20、pnpm、pm2
+2. Turso 创建数据库（免费套餐） → 复制 URL + AUTH_TOKEN
+3. git clone 仓库到服务器 → pnpm install → pnpm build
+4. 项目根目录创建 .env，填入以下环境变量：
+   TURSO_DATABASE_URL=libsql://xxx.turso.io
+   TURSO_AUTH_TOKEN=eyJ...
+   ADMIN_PASSWORD=你的管理员密码
+   JWT_SECRET=至少32字符的强随机字符串
+   NODE_ENV=production
+   COOKIE_DOMAIN=（可选，跨子域名共享时填 .yoursite.com，通常留空）
+5. pm2 start（监听本地端口，如 3000）
+6. 宝塔：创建站点 → 绑定子域名 → 反向代理到 127.0.0.1:3000
+7. Cloudflare：DNS 启用橙云代理 → SSL 模式设为 Full (Strict)
+   → Page Rule：yoursite.com/api/trpc/* → Cache Level: Bypass
+8. 访问 https://your-subdomain.yoursite.com/admin → 登录 → 配置桌面
+```
+
+### 反向代理与 Cloudflare 配置约束
+
+**Nginx 必须转发的请求头**（宝塔反向代理模板通常已默认配置）：
+```nginx
+proxy_set_header Host              $host;
+proxy_set_header X-Real-IP         $remote_addr;
+proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+proxy_set_header X-Forwarded-Proto $scheme;
+```
+
+**Cloudflare 必须配置**：
+- SSL/TLS 加密模式：**Full (Strict)** — 若设为 Flexible，`Secure` Cookie 在 CF→源站的 HTTP 段会不稳定
+- Page Rule：`/api/trpc/*` → **Cache Level: Bypass** — 防止查询结果被 CDN 缓存串用户
+- 若开启「Bot Fight Mode」，需将 `/admin/*` 和 `/api/trpc/*` 加入白名单
+
+**关于 Cookie `Secure` 标志的策略**：
+- 不依赖检测 `X-Forwarded-Proto` 头（避免头伪造风险）
+- 统一由 `NODE_ENV === 'production'` 控制：生产环境自动启用 `Secure`，开发环境不启用
+- 因此本地开发 HTTP 可正常调试，生产 HTTPS 自动加固
+
+---
+
+## 开发过程检查清单
+
+每个 Phase 开始前自查：
+
+- [ ] 这个功能的数据只来自一个地方吗？
+- [ ] 服务端逻辑有没有混进 React 组件？
+- [ ] 新建的 tRPC 路由文件超过 150 行了吗？（超了就拆）
+- [ ] 有没有在 `env.ts` 以外的地方读取 `process.env`？
+- [ ] 新文件的命名和位置符合已有规范吗？

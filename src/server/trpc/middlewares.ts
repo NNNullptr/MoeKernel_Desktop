@@ -1,9 +1,22 @@
+import { TRPCError } from '@trpc/server';
 import { t } from './init';
+import { env } from '../env';
 
 export const authMiddleware = t.middleware(({ ctx, next }) => {
   return next({
     ctx: {},
   });
+});
+
+// ── Phase 1 新增：管理员鉴权中间件 ────────────────────────────────────────
+// 读取请求头 x-admin-token，与环境变量 ADMIN_PASSWORD 对比。
+// Phase 3 完成 JWT 后，此处替换为 cookie 验证，届时只改这一个函数。
+export const adminMiddleware = t.middleware(({ ctx, next }) => {
+  const token = ctx.headers.get('x-admin-token');
+  if (!token || token !== env.ADMIN_PASSWORD) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  return next({ ctx });
 });
 
 export const loggingMiddleware = t.middleware(

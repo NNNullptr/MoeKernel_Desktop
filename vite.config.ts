@@ -18,7 +18,9 @@ export default defineConfig({
     viteComponentMapper(),
     tanstackStart(),
     nitro({
-      preset: 'deno-deploy',
+      // 架构变更 2026-04-22：从 deno-deploy 切换为 node-server
+      // 构建产物：.output/server/index.mjs，由 PM2 直接启动
+      preset: 'node-server',
       output: {
         dir: '.output',
       },
