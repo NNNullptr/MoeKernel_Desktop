@@ -32,9 +32,11 @@
 
 import type React from 'react';
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import type { BlogPost } from '@/client/config/blog.config';
+import { BLOG_POSTS } from '@/client/config/blog.config';
+import { trpc } from '@/client/trpc';
 
 // ── XP 主题色常量 ────────────────────────────────────────────────────────────
 const XP_BLUE = '#5a5a5a';
@@ -147,9 +149,23 @@ function OpacityControl({ value, onChange }: { value: number; onChange: (v: numb
  * 3. 内容层（relative, z-index 10）包含 XP 风格工具栏和 Markdown 渲染区。
  * 4. Markdown 区域可独立滚动（overflow-y: auto）。
  */
-export function BlogPostViewer({ post }: { post: BlogPost }) {
-  const [bgOpacity, setBgOpacity] = useState<number>(post.bgOpacity);
-  const hasBg = Boolean(post.backgroundImage);
+export function BlogPostViewer({ postId }: { postId: string }) {
+  const { data: dbPosts } = useQuery({
+    ...trpc.site.getBlogPosts.queryOptions(),
+    staleTime: 60_000,
+  });
+  const post = dbPosts?.find((p) => p.id === postId) ?? BLOG_POSTS.find((p) => p.id === postId);
+
+  const [bgOpacity, setBgOpacity] = useState<number>(post?.bgOpacity ?? 1);
+  const hasBg = Boolean(post?.backgroundImage);
+
+  if (!post) {
+    return (
+      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', fontFamily: FONT }}>
+        <span style={{ color: '#888', fontSize: '12px' }}>正在加载文章内容...</span>
+      </div>
+    );
+  }
 
   return (
     <div style={{ height: '100%', position: 'relative', overflow: 'hidden', fontFamily: FONT }}>

@@ -36,7 +36,9 @@
  */
 
 import { useState, useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { BLOG_POSTS } from '@/client/config/blog.config';
+import { trpc } from '@/client/trpc';
 
 const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 const ALL_LABEL = '全部';
@@ -178,17 +180,25 @@ export function BlogFolderApp() {
   // ── 分类状态 ──────────────────────────────────────────────────────────────
   const [activeCategory, setActiveCategory] = useState<string>(ALL_LABEL);
 
-  // 从 BLOG_POSTS 自动提取所有不重复的分类，并在最前面插入"全部"
-  const categories = useMemo<string[]>(() => {
-    const unique = Array.from(new Set(BLOG_POSTS.map((p) => p.category).filter(Boolean)));
-    return [ALL_LABEL, ...unique];
-  }, []);
+  const { data: dbPosts, isLoading } = useQuery({
+    ...trpc.site.getBlogPosts.queryOptions(),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
+  console.log('[BlogFolderApp] API Data:', dbPosts);
+  const posts = dbPosts ?? BLOG_POSTS;
 
-  // 根据当前分类过滤文章列表
+  // 自动提取所有不重复的分类，并在最前面插入"全部"
+  const categories = useMemo<string[]>(() => {
+    const unique = Array.from(new Set(posts.map((p) => p.category).filter(Boolean)));
+    return [ALL_LABEL, ...unique];
+  }, [posts]);
+
+  // 根据当前分类过滤文章列表（后端已按 order asc 排序，不在此处排序）
   const filteredPosts = useMemo(() => {
-    if (activeCategory === ALL_LABEL) return BLOG_POSTS;
-    return BLOG_POSTS.filter((p) => p.category === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === ALL_LABEL) return posts;
+    return posts.filter((p) => p.category === activeCategory);
+  }, [activeCategory, posts]);
 
   // 地址栏路径文字
   const addressPath = activeCategory === ALL_LABEL
@@ -241,11 +251,11 @@ export function BlogFolderApp() {
                 fontWeight: activeCategory === ALL_LABEL ? 'bold' : 'normal',
               }}
             >
-              全部文章 ({BLOG_POSTS.length})
+              全部文章 ({posts.length})
             </div>
             {/* 各分类快捷链接 */}
             {categories.filter((c) => c !== ALL_LABEL).map((cat) => {
-              const count = BLOG_POSTS.filter((p) => p.category === cat).length;
+              const count = posts.filter((p) => p.category === cat).length;
               const isActive = activeCategory === cat;
               return (
                 <div
@@ -274,9 +284,11 @@ export function BlogFolderApp() {
               Details
             </div>
             <div style={{ fontSize: '10px', color: '#333', fontFamily: FONT, lineHeight: '1.6' }}>
-              {activeCategory === ALL_LABEL
-                ? `共 ${BLOG_POSTS.length} 篇文章`
-                : `${activeCategory} 分类下共 ${filteredPosts.length} 篇文章`}
+              {isLoading && !dbPosts
+                ? '正在同步...'
+                : activeCategory === ALL_LABEL
+                  ? `共 ${posts.length} 篇文章`
+                  : `${activeCategory} 分类下共 ${filteredPosts.length} 篇文章`}
             </div>
             <div style={{ fontSize: '10px', color: '#555', fontFamily: FONT, lineHeight: '1.6', marginTop: '4px' }}>
               点击文章图标即可在新窗口中打开阅读。

@@ -126,10 +126,10 @@
 
 ### 步骤检查
 
-- [ ] **2.1** 创建 `src/client/hooks/use-site-config.ts`，实现 DB 值 + 静态 fallback 合并
-- [ ] **2.2** 博客应用 → 改为读取 `trpc.site.getBlogPosts`，验证正常
-- [ ] **2.3** 桌面图标 → 改为读取 `trpc.site.getDesktopIcons`，验证正常
-- [ ] **2.4** 主题/壁纸 → 改为读取 `useSiteSettings()`，验证正常
+- [x] **2.1** 创建 `src/client/hooks/use-site-config.ts`，实现 DB 值 + 静态 fallback 合并
+- [x] **2.2** 博客应用 → 改为读取 `trpc.site.getBlogPosts`，验证正常
+- [x] **2.3** 桌面图标 → 改为读取 `trpc.site.getDesktopIcons`，验证正常
+- [x] **2.4** 主题/壁纸 → 改为读取 `useSiteSettings()`，验证正常
 - [ ] **2.5** 吉祥物 → 改为读取 `trpc.site.getMascots`，验证正常
 
 ### 完成标志验证

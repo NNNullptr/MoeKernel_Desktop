@@ -192,6 +192,6 @@ BLOG_POSTS.forEach((post) => {
     defaultWidth: 700,
     defaultHeight: 560,
     // Capture post in closure — each article gets its own viewer instance
-    AppComponent: () => React.createElement(BlogPostViewer, { post }),
+    AppComponent: () => React.createElement(BlogPostViewer, { postId: post.id }),
   };
 });

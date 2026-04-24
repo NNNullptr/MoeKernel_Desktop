@@ -124,9 +124,7 @@ export function useDesktopIcons(defs: DesktopIconDef[]) {
    */
   useEffect(() => {
     setIcons((prev) => computePositions(defs, window.innerHeight, prev));
-    // Only runs once on mount — defs is stable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [defs]);
 
   /**
    * Begin dragging an icon. Called from the icon's onPointerDown.

@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { StartMenu } from './start-menu';
 import { XpWindow } from './xp-window';
 import type { WindowState } from './xp-window';
@@ -21,8 +22,9 @@ import { useDesktopIcons, ICON_SIZE } from '@/hooks/use-desktop-icons';
 import { RightSidebar } from './right-sidebar';
 import { DesktopPet } from './desktop-pet';
 // ── Config imports — edit these files to customize the desktop ──────────────
-import { WALLPAPER_URL, WINDOWS_LOGO_URL, SYSTEM_TRAY_ICONS } from '@/client/config/theme.config';
 import { DESKTOP_ICON_DEFS } from '@/client/config/icons.config';
+import { trpc } from '@/client/trpc';
+import { useSiteSettings } from '@/client/hooks/use-site-config';
 import { PET_DEFS } from '@/client/config/pets.config';
 // ── App Registry — single source of truth for all window apps ───────────────
 import { APP_REGISTRY } from '@/client/apps/registry';
@@ -62,8 +64,17 @@ export function HomePage() {
   const [activePetIds, setActivePetIds] = useState<Set<string>>(new Set());
   const zCounter = useRef(100);
 
-  // ── Desktop icons drag + selection state ────────────────────────────────────
-  const { icons, selectedId, startDrag, deselectAll, selectIcon } = useDesktopIcons(DESKTOP_ICON_DEFS);
+  // ── 主题设置 — DB 优先，静态配置兜底 ─────────────────────────────────────
+  const settings = useSiteSettings();
+
+  // ── Desktop icons — DB 优先，静态配置兜底 ──────────────────────────────────
+  const { data: dbIcons } = useQuery({
+    ...trpc.site.getDesktopIcons.queryOptions(),
+    staleTime: 60_000,
+  });
+  const iconDefs = dbIcons ?? DESKTOP_ICON_DEFS;
+
+  const { icons, selectedId, startDrag, deselectAll, selectIcon } = useDesktopIcons(iconDefs);
 
   // ── Double-click detection ───────────────────────────────────────────────────
   // We track single vs. double-click manually: if same icon clicked within 350ms → double-click
@@ -227,7 +238,7 @@ export function HomePage() {
         <div
           className="_desktop_1d92e_1"
           style={{
-            backgroundImage: `url("${WALLPAPER_URL}")`,
+            backgroundImage: `url("${settings.wallpaperUrl}")`,
             position: 'relative',
           }}
         >
@@ -291,7 +302,7 @@ export function HomePage() {
             }}
           >
             <img
-              src={WINDOWS_LOGO_URL}
+              src={settings.logoUrl}
               alt="Windows"
               style={{ width: '20px', height: '20px', objectFit: 'contain' }}
             />
@@ -320,7 +331,7 @@ export function HomePage() {
 
           {/* System tray */}
           <div className="_system-tray_oqlpl_86">
-            {SYSTEM_TRAY_ICONS.map((iconUrl, i) => (
+            {settings.systemTrayIcons.map((iconUrl, i) => (
               <div key={i} className="_system-tray-item-wrapper_oqlpl_147">
                 <div className="_system-tray-item_oqlpl_100" style={{ backgroundImage: `url("${iconUrl}")` }} />
               </div>
