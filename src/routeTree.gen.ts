@@ -10,42 +10,121 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
+import { Route as AdminLayoutRouteImport } from './routes/admin/_layout'
+import { Route as AdminLayoutIndexRouteImport } from './routes/admin/_layout/index'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc.$'
+import { Route as AdminLayoutThemeRouteImport } from './routes/admin/_layout/theme'
+import { Route as AdminLayoutBlogIndexRouteImport } from './routes/admin/_layout/blog/index'
+import { Route as AdminLayoutBlogNewRouteImport } from './routes/admin/_layout/blog/new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLayoutRoute = AdminLayoutRouteImport.update({
+  id: '/admin/_layout',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLayoutIndexRoute = AdminLayoutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLayoutThemeRoute = AdminLayoutThemeRouteImport.update({
+  id: '/theme',
+  path: '/theme',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutBlogIndexRoute = AdminLayoutBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutBlogNewRoute = AdminLayoutBlogNewRouteImport.update({
+  id: '/blog/new',
+  path: '/blog/new',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminLayoutRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/theme': typeof AdminLayoutThemeRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/admin/': typeof AdminLayoutIndexRoute
+  '/admin/blog/new': typeof AdminLayoutBlogNewRoute
+  '/admin/blog/': typeof AdminLayoutBlogIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/theme': typeof AdminLayoutThemeRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/admin': typeof AdminLayoutIndexRoute
+  '/admin/blog/new': typeof AdminLayoutBlogNewRoute
+  '/admin/blog': typeof AdminLayoutBlogIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/_layout': typeof AdminLayoutRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/_layout/theme': typeof AdminLayoutThemeRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/admin/_layout/': typeof AdminLayoutIndexRoute
+  '/admin/_layout/blog/new': typeof AdminLayoutBlogNewRoute
+  '/admin/_layout/blog/': typeof AdminLayoutBlogIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/trpc/$'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/admin/login'
+    | '/admin/theme'
+    | '/api/trpc/$'
+    | '/admin/'
+    | '/admin/blog/new'
+    | '/admin/blog/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/trpc/$'
-  id: '__root__' | '/' | '/api/trpc/$'
+  to:
+    | '/'
+    | '/admin/login'
+    | '/admin/theme'
+    | '/api/trpc/$'
+    | '/admin'
+    | '/admin/blog/new'
+    | '/admin/blog'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin/_layout'
+    | '/admin/login'
+    | '/admin/_layout/theme'
+    | '/api/trpc/$'
+    | '/admin/_layout/'
+    | '/admin/_layout/blog/new'
+    | '/admin/_layout/blog/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminLayoutRoute: typeof AdminLayoutRouteWithChildren
+  AdminLoginRoute: typeof AdminLoginRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
 
@@ -58,6 +137,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/_layout': {
+      id: '/admin/_layout'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/_layout/': {
+      id: '/admin/_layout/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminLayoutIndexRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -65,11 +165,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTrpcSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/_layout/theme': {
+      id: '/admin/_layout/theme'
+      path: '/theme'
+      fullPath: '/admin/theme'
+      preLoaderRoute: typeof AdminLayoutThemeRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/blog/': {
+      id: '/admin/_layout/blog/'
+      path: '/blog'
+      fullPath: '/admin/blog/'
+      preLoaderRoute: typeof AdminLayoutBlogIndexRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/blog/new': {
+      id: '/admin/_layout/blog/new'
+      path: '/blog/new'
+      fullPath: '/admin/blog/new'
+      preLoaderRoute: typeof AdminLayoutBlogNewRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
   }
 }
 
+interface AdminLayoutRouteChildren {
+  AdminLayoutThemeRoute: typeof AdminLayoutThemeRoute
+  AdminLayoutIndexRoute: typeof AdminLayoutIndexRoute
+  AdminLayoutBlogNewRoute: typeof AdminLayoutBlogNewRoute
+  AdminLayoutBlogIndexRoute: typeof AdminLayoutBlogIndexRoute
+}
+
+const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
+  AdminLayoutThemeRoute: AdminLayoutThemeRoute,
+  AdminLayoutIndexRoute: AdminLayoutIndexRoute,
+  AdminLayoutBlogNewRoute: AdminLayoutBlogNewRoute,
+  AdminLayoutBlogIndexRoute: AdminLayoutBlogIndexRoute,
+}
+
+const AdminLayoutRouteWithChildren = AdminLayoutRoute._addFileChildren(
+  AdminLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminLayoutRoute: AdminLayoutRouteWithChildren,
+  AdminLoginRoute: AdminLoginRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
 export const routeTree = rootRouteImport

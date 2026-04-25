@@ -7,18 +7,18 @@ import superjson from "superjson";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { TRPCError, initTRPC } from "@trpc/server";
-import z from "zod";
 import { jwtVerify, SignJWT } from "jose";
+import z from "zod";
 import { eq, max, asc, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client/http";
 import { sqliteTable, integer, text, real } from "drizzle-orm/sqlite-core";
-const globalCss = "/assets/global-BHsdrgGG.css";
+const globalCss = "/assets/global-Dg41p1wJ.css";
 const queryClient = new QueryClient();
 const lazyServerLink = (runtime) => (ctx) => observable((observer) => {
   let sub;
-  import("./link-hO1QHhJ8.mjs").then(
+  import("./link-BRkfPDaX.mjs").then(
     ({ serverLink }) => sub = serverLink(runtime)(ctx).subscribe(observer),
     (err) => observer.error(err)
   );
@@ -39,18 +39,18 @@ const trpcClient = createTRPCClient({
     })
   ]
 });
-createTRPCOptionsProxy({
+const trpc = createTRPCOptionsProxy({
   client: trpcClient,
   queryClient
 });
 function TrpcProvider(props) {
-  return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, "data-cid": "lWJPyZom", children: props.children });
+  return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, "data-cid": "1vUAyeQE", children: props.children });
 }
-const Route$2 = createRootRoute({
+const Route$8 = createRootRoute({
   component: RootDocument
 });
 function RootDocument() {
-  return /* @__PURE__ */ jsxs("html", { "data-cid": "iUcoo6yk", children: [
+  return /* @__PURE__ */ jsxs("html", { "data-cid": "M5wqS8KV", children: [
     /* @__PURE__ */ jsxs("head", { children: [
       /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
       /* @__PURE__ */ jsx("meta", { name: "viewport", content: "width=device-width, initial-scale=1" }),
@@ -84,9 +84,21 @@ function RootDocument() {
     ] })
   ] });
 }
-const $$splitComponentImporter = () => import("./index-CBMZ_xjn.mjs");
-const Route$1 = createFileRoute("/")({
-  component: lazyRouteComponent($$splitComponentImporter, "component")
+const $$splitComponentImporter$6 = () => import("./index-CuOijFk3.mjs");
+const Route$7 = createFileRoute("/")({
+  component: lazyRouteComponent($$splitComponentImporter$6, "component")
+});
+const $$splitComponentImporter$5 = () => import("./login-rnFO1oot.mjs");
+const Route$6 = createFileRoute("/admin/login")({
+  component: lazyRouteComponent($$splitComponentImporter$5, "component")
+});
+const $$splitComponentImporter$4 = () => import("./_layout-CrmnkrP7.mjs");
+const Route$5 = createFileRoute("/admin/_layout")({
+  component: lazyRouteComponent($$splitComponentImporter$4, "component")
+});
+const $$splitComponentImporter$3 = () => import("./index-CBkGdXBO.mjs");
+const Route$4 = createFileRoute("/admin/_layout/")({
+  component: lazyRouteComponent($$splitComponentImporter$3, "component")
 });
 const createTRPCContext = ({ headers }) => {
   return {
@@ -103,19 +115,19 @@ const createTRPCRouter = t.router;
 const TURSO_DATABASE_URL = process.env.TURSO_DATABASE_URL;
 const TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const JWT_SECRET$1 = process.env.JWT_SECRET;
+const JWT_SECRET$2 = process.env.JWT_SECRET;
 const missing = [];
 if (!TURSO_DATABASE_URL) missing.push("TURSO_DATABASE_URL");
 if (!TURSO_AUTH_TOKEN) missing.push("TURSO_AUTH_TOKEN");
 if (!ADMIN_PASSWORD) missing.push("ADMIN_PASSWORD");
-if (!JWT_SECRET$1) missing.push("JWT_SECRET");
+if (!JWT_SECRET$2) missing.push("JWT_SECRET");
 if (missing.length > 0) {
   throw new Error(
     `[env] 缺少以下必需的环境变量，请在部署平台或 .env 文件中配置：
 ` + missing.map((k) => `  - ${k}`).join("\n")
   );
 }
-if (JWT_SECRET$1.length < 32) {
+if (JWT_SECRET$2.length < 32) {
   throw new Error("[env] JWT_SECRET 长度必须 ≥ 32 个字符，请使用强随机字符串");
 }
 const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN ?? "";
@@ -123,18 +135,31 @@ const env = {
   TURSO_DATABASE_URL,
   TURSO_AUTH_TOKEN,
   ADMIN_PASSWORD,
-  JWT_SECRET: JWT_SECRET$1,
+  JWT_SECRET: JWT_SECRET$2,
   COOKIE_DOMAIN
 };
+const JWT_SECRET$1 = new TextEncoder().encode(env.JWT_SECRET);
+const COOKIE_NAME$1 = "admin_token";
+function getCookie$1(cookieHeader, name) {
+  for (const part of cookieHeader.split(";")) {
+    const [k, ...rest] = part.trim().split("=");
+    if (k === name) return rest.join("=");
+  }
+  return void 0;
+}
 const authMiddleware = t.middleware(({ ctx, next }) => {
-  return next({
-    ctx: {}
-  });
+  return next({ ctx: {} });
 });
-const adminMiddleware = t.middleware(({ ctx, next }) => {
-  const token = ctx.headers.get("x-admin-token");
-  if (!token || token !== env.ADMIN_PASSWORD) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+const adminMiddleware = t.middleware(async ({ ctx, next }) => {
+  const cookieHeader = ctx.headers.get("cookie") ?? "";
+  const token = getCookie$1(cookieHeader, COOKIE_NAME$1);
+  if (!token) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "未登录" });
+  }
+  try {
+    await jwtVerify(token, JWT_SECRET$1);
+  } catch {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "会话已过期，请重新登录" });
   }
   return next({ ctx });
 });
@@ -536,7 +561,7 @@ function handler({ request }) {
     }
   });
 }
-const Route = createFileRoute("/api/trpc/$")({
+const Route$3 = createFileRoute("/api/trpc/$")({
   server: {
     handlers: {
       GET: handler,
@@ -544,23 +569,76 @@ const Route = createFileRoute("/api/trpc/$")({
     }
   }
 });
-const IndexRoute = Route$1.update({
+const $$splitComponentImporter$2 = () => import("./theme-dDgH1M-C.mjs");
+const Route$2 = createFileRoute("/admin/_layout/theme")({
+  component: lazyRouteComponent($$splitComponentImporter$2, "component")
+});
+const $$splitComponentImporter$1 = () => import("./index-D5u7IJvL.mjs");
+const Route$1 = createFileRoute("/admin/_layout/blog/")({
+  component: lazyRouteComponent($$splitComponentImporter$1, "component")
+});
+const $$splitComponentImporter = () => import("./new-vr2m3l3E.mjs");
+const Route = createFileRoute("/admin/_layout/blog/new")({
+  component: lazyRouteComponent($$splitComponentImporter, "component")
+});
+const IndexRoute = Route$7.update({
   id: "/",
   path: "/",
-  getParentRoute: () => Route$2
+  getParentRoute: () => Route$8
 });
-const ApiTrpcSplatRoute = Route.update({
+const AdminLoginRoute = Route$6.update({
+  id: "/admin/login",
+  path: "/admin/login",
+  getParentRoute: () => Route$8
+});
+const AdminLayoutRoute = Route$5.update({
+  id: "/admin/_layout",
+  path: "/admin",
+  getParentRoute: () => Route$8
+});
+const AdminLayoutIndexRoute = Route$4.update({
+  id: "/",
+  path: "/",
+  getParentRoute: () => AdminLayoutRoute
+});
+const ApiTrpcSplatRoute = Route$3.update({
   id: "/api/trpc/$",
   path: "/api/trpc/$",
-  getParentRoute: () => Route$2
+  getParentRoute: () => Route$8
 });
+const AdminLayoutThemeRoute = Route$2.update({
+  id: "/theme",
+  path: "/theme",
+  getParentRoute: () => AdminLayoutRoute
+});
+const AdminLayoutBlogIndexRoute = Route$1.update({
+  id: "/blog/",
+  path: "/blog/",
+  getParentRoute: () => AdminLayoutRoute
+});
+const AdminLayoutBlogNewRoute = Route.update({
+  id: "/blog/new",
+  path: "/blog/new",
+  getParentRoute: () => AdminLayoutRoute
+});
+const AdminLayoutRouteChildren = {
+  AdminLayoutThemeRoute,
+  AdminLayoutIndexRoute,
+  AdminLayoutBlogNewRoute,
+  AdminLayoutBlogIndexRoute
+};
+const AdminLayoutRouteWithChildren = AdminLayoutRoute._addFileChildren(
+  AdminLayoutRouteChildren
+);
 const rootRouteChildren = {
   IndexRoute,
+  AdminLayoutRoute: AdminLayoutRouteWithChildren,
+  AdminLoginRoute,
   ApiTrpcSplatRoute
 };
-const routeTree = Route$2._addFileChildren(rootRouteChildren)._addFileTypes();
+const routeTree = Route$8._addFileChildren(rootRouteChildren)._addFileTypes();
 function NotFound() {
-  return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen w-screen overflow-hidden", "data-cid": "Wd8ViCkZ", children: /* @__PURE__ */ jsx("div", { className: "text-sm font-bold", children: "404 - Not Found" }) });
+  return /* @__PURE__ */ jsx("div", { className: "flex items-center justify-center h-screen w-screen overflow-hidden", "data-cid": "2L4EqI8E", children: /* @__PURE__ */ jsx("div", { className: "text-sm font-bold", children: "404 - Not Found" }) });
 }
 function getRouter() {
   const router2 = createRouter({
@@ -577,5 +655,7 @@ const router = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
 export {
   appRouter as a,
   createTRPCContext as c,
-  router as r
+  queryClient as q,
+  router as r,
+  trpc as t
 };

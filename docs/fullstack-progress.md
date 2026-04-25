@@ -37,8 +37,8 @@
 |---|---|---|---|
 | Phase 0：基础设施 | ✅ 完成 | 2026-04-22 | 4 张表已在 Turso 云端就绪 |
 | Phase 1：tRPC 数据层 | ✅ 完成 | 2026-04-23 | seed 待执行（1.8），其余全部就绪 |
-| Phase 2：组件数据源切换 | 🔲 未开始 | — | — |
-| Phase 3：管理后台 UI | 🔲 未开始 | — | — |
+| Phase 2：组件数据源切换 | ✅ 完成 | 2026-04-25 | 全部 4 个组件已切换至 tRPC，静态配置退为 fallback |
+| Phase 3：管理后台 UI | 🔄 进行中 | — | — |
 | Phase 4：评论系统 | 🔲 未开始 | — | — |
 
 > 状态说明：🔲 未开始 / 🔄 进行中 / ✅ 完成 / ❌ 阻塞
@@ -109,10 +109,10 @@
 
 ### 完成标志验证
 
-- [ ] `pnpm db:seed` 成功，控制台输出 4 条 ✅
-- [ ] Turso 控制台可见各表数据
-- [ ] 未携带 token 调用 admin 接口，返回 `UNAUTHORIZED`
-- [ ] 调用 `trpc.auth.login` 传正确密码后，cookie 被写入
+- [x] `pnpm db:seed` 成功，控制台输出 4 条 ✅
+- [x] Turso 控制台可见各表数据
+- [x] 未携带 token 调用 admin 接口，返回 `UNAUTHORIZED`
+- [x] 调用 `trpc.auth.login` 传正确密码后，cookie 被写入
 
 ### 问题记录
 
@@ -130,7 +130,7 @@
 - [x] **2.2** 博客应用 → 改为读取 `trpc.site.getBlogPosts`，验证正常
 - [x] **2.3** 桌面图标 → 改为读取 `trpc.site.getDesktopIcons`，验证正常
 - [x] **2.4** 主题/壁纸 → 改为读取 `useSiteSettings()`，验证正常
-- [ ] **2.5** 吉祥物 → 改为读取 `trpc.site.getMascots`，验证正常
+- [x] **2.5** 吉祥物 → 改为读取 `trpc.site.getMascots`，验证正常
 
 ### 完成标志验证
 
@@ -151,13 +151,13 @@
 ### 步骤检查
 
 **基础框架**
-- [ ] **3.1** 创建 `/admin/login` 登录页，调用 `trpc.auth.login`
-- [ ] **3.2** 创建 `/admin/_layout.tsx`，验证 session，未登录跳转 login
+- [x] **3.1** 创建 `/admin/login` 登录页，调用 `trpc.auth.login`
+- [x] **3.2** 创建 `/admin/_layout.tsx`，验证 session，未登录跳转 login；新增 `_layout/index.tsx` 仪表盘占位
 
 **各功能页（按顺序完成）**
-- [ ] **3.3** `/admin/theme` — 壁纸 URL、Logo URL、托盘图标列表
-- [ ] **3.4** `/admin/blog/index` — 文章列表，支持删除
-- [ ] **3.5** `/admin/blog/new` — 新建文章，含 Markdown 编辑器
+- [x] **3.3** `/admin/theme` — 壁纸 URL、Logo URL、托盘图标列表（含 adminMiddleware JWT 升级）
+- [x] **3.4** `/admin/blog/index` — 文章列表，支持删除（双缓存失效：blog.list + site.getBlogPosts）
+- [x] **3.5** `/admin/blog/new` — 新建文章，含 Markdown 编辑器（MDEditor lazy 加载规避 SSR）
 - [ ] **3.6** `/admin/blog/$id` — 编辑文章
 - [ ] **3.7** `/admin/icons` — 图标显示/隐藏、拖拽排序
 - [ ] **3.8** `/admin/mascots` — 吉祥物管理

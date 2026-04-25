@@ -1,7 +1,23 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import React, { useState, useEffect, useRef, useCallback, useTransition, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { t as trpc } from "./router-BsNfXHGR.mjs";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import "@tanstack/react-router";
+import "@trpc/client";
+import "@trpc/server/observable";
+import "superjson";
+import "@trpc/tanstack-react-query";
+import "@trpc/server/adapters/fetch";
+import "@trpc/server";
+import "jose";
+import "zod";
+import "drizzle-orm";
+import "nanoid";
+import "drizzle-orm/libsql";
+import "@libsql/client/http";
+import "drizzle-orm/sqlite-core";
 const DESKTOP_ICON_DEFS = [
   { id: "myComputer", label: "My Computer", src: "/assets/icons/My Computer.png" },
   { id: "resume", label: "Resume", src: "/assets/icons/Resume.png" },
@@ -159,7 +175,7 @@ function StartMenu({
     userSelect: "none",
     border: "1px solid var(--xp-chrome-border-dark)",
     borderBottom: "none"
-  }, onClick: (e) => e.stopPropagation(), "data-cid": "f-dJdcgx", children: [
+  }, onClick: (e) => e.stopPropagation(), "data-cid": "z_bfUeW4", children: [
     /* @__PURE__ */ jsxs("div", { style: {
       background: "linear-gradient(180deg, #e0e0e0 0%, #c8c8c8 50%, #a8a8a8 100%)",
       padding: "8px 12px",
@@ -236,7 +252,7 @@ function Divider({
     border: "none",
     borderTop: `1px solid ${color}`,
     margin: "4px 8px"
-  }, "data-cid": "oARPMlrY" });
+  }, "data-cid": "DJgRppTV" });
 }
 function ProgramBtn({
   icon,
@@ -260,7 +276,7 @@ function ProgramBtn({
     fontSize: "13px",
     fontFamily: FONT$c,
     fontWeight: highlighted ? "bold" : "normal"
-  }, "data-cid": "-7HZW7B5", children: [
+  }, "data-cid": "AXv1T2Kg", children: [
     /* @__PURE__ */ jsx("img", { src: icon, alt: label, style: {
       width: "32px",
       height: "32px",
@@ -289,7 +305,7 @@ function PlaceBtn({
     width: "100%",
     fontSize: "13px",
     fontFamily: FONT$c
-  }, "data-cid": "PbgqvdSQ", children: [
+  }, "data-cid": "EH3slRIX", children: [
     /* @__PURE__ */ jsx("img", { src: icon, alt: label, style: {
       width: "28px",
       height: "28px",
@@ -314,7 +330,7 @@ function AllProgramsBtn() {
     fontSize: "13px",
     fontFamily: FONT$c,
     fontWeight: "bold"
-  }, "data-cid": "U0eD0vBU", children: [
+  }, "data-cid": "x8kwdjG3", children: [
     /* @__PURE__ */ jsx("span", { children: "All Programs" }),
     /* @__PURE__ */ jsx("span", { style: {
       fontSize: "10px"
@@ -340,7 +356,7 @@ function FooterBtn({
     fontFamily: FONT$c,
     cursor: "pointer",
     boxShadow: "0 1px 2px rgba(0,0,0,0.4)"
-  }, "data-cid": "mF_Mui_g", children: [
+  }, "data-cid": "5aMSs2gS", children: [
     /* @__PURE__ */ jsx("span", { children: emoji }),
     /* @__PURE__ */ jsx("span", { children: label })
   ] });
@@ -496,7 +512,7 @@ function ResizeHandle({
     width: h,
     height: h
   });
-  return /* @__PURE__ */ jsx("div", { style, onPointerDown: handlePointerDown, onPointerMove: handlePointerMove, onPointerUp: handlePointerUp, "data-cid": "7LXluz-B" });
+  return /* @__PURE__ */ jsx("div", { style, onPointerDown: handlePointerDown, onPointerMove: handlePointerMove, onPointerUp: handlePointerUp, "data-cid": "U_pXFnwy" });
 }
 function XpWindow({
   win,
@@ -566,7 +582,7 @@ function XpWindow({
     overflow: "hidden",
     fontFamily: FONT$b,
     userSelect: "none"
-  }, onPointerDown: () => onFocus(win.id), "data-cid": "sXR5QF2P", children: [
+  }, onPointerDown: () => onFocus(win.id), "data-cid": "WB5gGKNZ", children: [
     !maximized && ["n", "s", "e", "w", "nw", "ne", "sw", "se"].map((dir) => /* @__PURE__ */ jsx(ResizeHandle, { dir, win, onSizeChange, onFocus }, dir)),
     /* @__PURE__ */ jsxs("div", { onPointerDown: handleTitlePointerDown, style: {
       background: "linear-gradient(180deg, #e8e8e8 0%, #d0d0d0 45%, #b8b8b8 55%, #c0c0c0 100%)",
@@ -643,7 +659,7 @@ function WinBtn({
     fontFamily: FONT$b,
     flexShrink: 0,
     padding: 0
-  }, "data-cid": "l8Q4U1Vk", children: label });
+  }, "data-cid": "K9iL-nBu", children: label });
 }
 const ICON_SIZE = 80;
 const ICON_GAP = 4;
@@ -684,7 +700,7 @@ function useDesktopIcons(defs) {
   const dragRef = useRef(null);
   useEffect(() => {
     setIcons((prev) => computePositions(defs, window.innerHeight, prev));
-  }, []);
+  }, [defs]);
   const startDrag = useCallback((e, iconId) => {
     if (e.button !== 0) return;
     e.stopPropagation();
@@ -772,7 +788,7 @@ function RightSidebar({
     overflowY: "auto",
     overflowX: "hidden",
     scrollbarWidth: "none"
-  }, "data-cid": "rD7pR5Z8", children: pets.map((pet) => /* @__PURE__ */ jsx(PetButton, { pet, active: activePetIds.has(pet.id), onToggle }, pet.id)) });
+  }, "data-cid": "EGg8LGqn", children: pets.map((pet) => /* @__PURE__ */ jsx(PetButton, { pet, active: activePetIds.has(pet.id), onToggle }, pet.id)) });
 }
 function PetButton({
   pet,
@@ -805,7 +821,7 @@ function PetButton({
   return /* @__PURE__ */ jsxs("div", { style: {
     position: "relative",
     flexShrink: 0
-  }, "data-cid": "dRPt08Wx", children: [
+  }, "data-cid": "aoNu711e", children: [
     /* @__PURE__ */ jsx("button", { title: pet.label, onClick: (e) => {
       e.stopPropagation();
       onToggle(pet.id);
@@ -941,7 +957,7 @@ function DesktopPet({
     flexDirection: "column",
     alignItems: "center",
     gap: "2px"
-  }, "data-cid": "h63AfntR", children: [
+  }, "data-cid": "wx_dNR5V", children: [
     /* @__PURE__ */ jsx("button", { onClick: (e) => {
       e.stopPropagation();
       onDismiss(pet.id);
@@ -1002,6 +1018,21 @@ const SYSTEM_TRAY_ICONS = [
   "/assets/icons/tray/icon1.png",
   "/assets/icons/tray/icon2.png"
 ];
+function useSiteSettings() {
+  const { data } = useQuery({
+    ...trpc.site.getSettings.queryOptions(),
+    staleTime: 0,
+    refetchOnWindowFocus: true
+  });
+  console.log("[useSiteSettings] API Data:", data);
+  const trayIconsRaw = data?.system_tray_icons;
+  const trayIcons = trayIconsRaw ? JSON.parse(trayIconsRaw) : SYSTEM_TRAY_ICONS;
+  return {
+    wallpaperUrl: data?.wallpaper_url ?? WALLPAPER_URL,
+    logoUrl: data?.windows_logo_url ?? WINDOWS_LOGO_URL,
+    systemTrayIcons: trayIcons
+  };
+}
 const PET_DEFS = [
   {
     id: "pet_1",
@@ -1223,7 +1254,7 @@ function ExplorerToolbar$4({
     fontFamily: FONT$a,
     fontSize: "12px",
     flexShrink: 0
-  }, "data-cid": "gOMmcLb5", children: [
+  }, "data-cid": "70a1kDQf", children: [
     /* @__PURE__ */ jsx("div", { style: {
       display: "flex",
       gap: "2px",
@@ -1279,7 +1310,7 @@ function VideoThumb({
     display: "block"
   }, onLoadedMetadata: (e) => {
     e.currentTarget.currentTime = 1;
-  }, "data-cid": "8ea0xspS" });
+  }, "data-cid": "LsocHTlS" });
 }
 function FileTile({
   label,
@@ -1317,7 +1348,7 @@ function FileTile({
     background: hov ? "#5a5a5a" : "transparent",
     borderRadius: "4px",
     padding: "8px 4px"
-  }, "data-cid": "fzoRVNE8", children: [
+  }, "data-cid": "394CXh1-", children: [
     preview,
     /* @__PURE__ */ jsx("span", { style: {
       fontSize: "11px",
@@ -1376,7 +1407,7 @@ function MyComputerApp() {
     display: "flex",
     flexDirection: "column",
     background: "#fff"
-  }, "data-cid": "ksYx4D_y", children: [
+  }, "data-cid": "0Uso5dZK", children: [
     /* @__PURE__ */ jsx(ExplorerToolbar$4, { address, onBack: () => setCurrentPath((p) => p.slice(0, -1)), canGoBack: currentPath.length > 0 }),
     /* @__PURE__ */ jsxs("div", { style: {
       flex: 1,
@@ -1390,11 +1421,11 @@ function MyComputerApp() {
     }, children: [
       items.map((item) => {
         if (item.type === "folder") {
-          return /* @__PURE__ */ jsx(FileTile, { label: item.name, iconSrc: item.icon ?? "/assets/icons/Games.png", onClick: () => setCurrentPath((p) => [...p, item.name]), "data-cid": "Hd3SpXwo" }, item.name);
+          return /* @__PURE__ */ jsx(FileTile, { label: item.name, iconSrc: item.icon ?? "/assets/icons/Games.png", onClick: () => setCurrentPath((p) => [...p, item.name]), "data-cid": "jUzURjOI" }, item.name);
         }
         const fileType = inferFileType(item.name);
         const url = getPublicUrl([...currentPath, item.name]);
-        return /* @__PURE__ */ jsx(FileTile, { label: item.name, imageSrc: fileType === "image" ? url : void 0, videoSrc: fileType === "video" ? url : void 0, iconSrc: fileType === "audio" ? "/assets/icons/Media.png" : item.icon ?? DEFAULT_FILE_ICON, onClick: () => handleFileClick(item), "data-cid": "ecaOwa0I" }, item.name);
+        return /* @__PURE__ */ jsx(FileTile, { label: item.name, imageSrc: fileType === "image" ? url : void 0, videoSrc: fileType === "video" ? url : void 0, iconSrc: fileType === "audio" ? "/assets/icons/Media.png" : item.icon ?? DEFAULT_FILE_ICON, onClick: () => handleFileClick(item), "data-cid": "ERIsuq1C" }, item.name);
       }),
       items.length === 0 && /* @__PURE__ */ jsx("span", { style: {
         color: "#888",
@@ -1474,7 +1505,7 @@ function ExplorerToolbar$3({
     fontFamily: FONT$9,
     fontSize: "12px",
     flexShrink: 0
-  }, "data-cid": "eI8pLD7N", children: [
+  }, "data-cid": "394uw3Bn", children: [
     /* @__PURE__ */ jsx("div", { style: {
       display: "flex",
       gap: "2px",
@@ -1552,7 +1583,7 @@ function FolderTile({
         padding: "8px 4px",
         userSelect: "none"
       },
-      "data-cid": "IIIUY_Rd",
+      "data-cid": "Jh9kiJAr",
       children: [
         game.iconSrc ? /* @__PURE__ */ jsx("img", { src: game.iconSrc, alt: game.title, style: {
           width: "36px",
@@ -1591,7 +1622,7 @@ function GamesFolderApp() {
     flexDirection: "column",
     background: "#fff",
     overflow: "hidden"
-  }, "data-cid": "peLD1Zs7", children: [
+  }, "data-cid": "PanEChKw", children: [
     /* @__PURE__ */ jsx(ExplorerToolbar$3, { address, canGoBack: playingGame !== null, onBack: handleBack }),
     playingGame === null ? (
       // ── 文件夹视图：游戏图标网格 ────────────────────────────────────────
@@ -1747,7 +1778,7 @@ function AboutMeApp() {
     fontFamily: FONT$8,
     overflow: "hidden",
     background: "linear-gradient(160deg,#f0f0f0 0%,#fafafa 100%)"
-  }, "data-cid": "kfSWID2d", children: [
+  }, "data-cid": "RXsc6eR4", children: [
     /* @__PURE__ */ jsx("style", { children: MARKDOWN_STYLES }),
     /* @__PURE__ */ jsx("div", { style: {
       position: "absolute",
@@ -1900,7 +1931,7 @@ function ExplorerToolbar$2({
     fontFamily: FONT$7,
     fontSize: "12px",
     flexShrink: 0
-  }, "data-cid": "gBO-dm6P", children: [
+  }, "data-cid": "I6QRSzPv", children: [
     /* @__PURE__ */ jsx("div", { style: {
       display: "flex",
       gap: "2px",
@@ -1953,7 +1984,7 @@ function ContactTile({
     borderRadius: "4px",
     padding: "8px 4px",
     textDecoration: "none"
-  }, "data-cid": "cCG7AOfd", children: [
+  }, "data-cid": "YnrWzwxI", children: [
     iconSrc ? /* @__PURE__ */ jsx("img", { src: iconSrc, alt: name, style: {
       width: "48px",
       height: "48px",
@@ -1981,7 +2012,7 @@ function ContactApp() {
     display: "flex",
     flexDirection: "column",
     background: "#fff"
-  }, "data-cid": "iuJKhsTS", children: [
+  }, "data-cid": "dHnh6hyJ", children: [
     /* @__PURE__ */ jsx(ExplorerToolbar$2, { address: "Contact Me" }),
     /* @__PURE__ */ jsx("div", { style: {
       flex: 1,
@@ -2164,7 +2195,7 @@ function WinampApp() {
     userSelect: "none",
     position: "relative",
     overflow: "hidden"
-  }, "data-cid": "isyU0pdr", children: [
+  }, "data-cid": "CS_zdR8p", children: [
     /* @__PURE__ */ jsx("audio", { ref: audioRef, src: song.audioSrc || void 0, onTimeUpdate: () => {
       if (!dragging && audioRef.current) setCurrent(audioRef.current.currentTime);
     }, onLoadedMetadata: () => {
@@ -2332,7 +2363,7 @@ function CtrlBtn({
     minWidth: "42px",
     transition: "background 0.15s",
     boxShadow: active ? `0 0 8px ${cfg.btnActiveBg}88` : "none"
-  }, "data-cid": "g5SPRjPe", children });
+  }, "data-cid": "guFrQ6-j", children });
 }
 const FONT$6 = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 const BOT_REPLIES = ["lol, totally!", "omg really?? 😮", "brb, mom is calling", "that is so cool!!", "i was just thinking the same thing :)", "lmao xD", "k gtg, ttyl!! ✌️", "did u see that new movie?", "my asl is 16/f/usa lol", "...busy?"];
@@ -2376,7 +2407,7 @@ function MsnApp() {
     flexDirection: "column",
     background: "#fff",
     fontFamily: FONT$6
-  }, "data-cid": "nRciueiS", children: [
+  }, "data-cid": "3lR8CAmi", children: [
     /* @__PURE__ */ jsxs("div", { style: {
       background: "linear-gradient(180deg,#0078d7,#004fa3)",
       padding: "10px 14px",
@@ -2485,7 +2516,7 @@ function PaintApp() {
     height: "100%",
     border: "none",
     display: "block"
-  }, title: "Paint", "data-cid": "6W2v7wUU" });
+  }, title: "Paint", "data-cid": "SbuHWDNg" });
 }
 const readmeContent = "# 🖥️ MoeKernel_Desktop — Windows XP 风格个人桌面系统\n\n> 一个以 Windows XP / Y2K 梦幻核美学为主题的交互式个人桌面系统。访客将像操作一台复古 PC 一样浏览作品与信息。\n\n---\n\n## 📸 项目简介\n\n**MoeKernel_Desktop** 是一个运行在浏览器中的 Windows XP 风格个人桌面系统，模拟了一套完整的 XP 操作系统体验：\n\n- 可拖拽的桌面图标与墙纸背景（多列自动排布 + 自由拖拽 + 边界钳制）\n- 带 Luna 风格的开始菜单（程序 + 地点两列布局）\n- 系统托盘实时时钟\n- 可拖拽、可 8 方向调整大小的多窗口管理系统（最小化 / 最大化 / 关闭）\n- 右侧 XP Classic 风格宠物启动侧边栏（亮灰色渐变 + 内嵌浮雕按钮风格）\n- 可拖拽的桌面宠物（桌宠），浮于所有窗口之上（z-index 9999）\n- **配置驱动型应用**：所有应用顶部均有 `CONFIG` 对象，无需改组件逻辑即可定制内容\n- **博客系统**：XP 资源管理器风格博客文件夹 + Markdown 文章阅读器 + 分类过滤 Tab 栏\n\n---\n\n## 🛠️ 技术栈\n\n| 层级 | 技术 |\n|------|------|\n| 框架 | React 19、TanStack Start（SSR）、TanStack Router |\n| 样式 | Tailwind CSS v4、CSS Variables（OKLCH 色彩空间）、Inline CSS（XP 主题） |\n| 组件库 | shadcn/ui（Radix UI 底层） |\n| Markdown | react-markdown + remark-gfm（博客、简历阅读器）|\n| 客户端数据 | TanStack React Query v5、tRPC v11 Options Proxy |\n| 服务端 | tRPC on H3、Deno Edge Function |\n| 构建工具 | Vite 7、Nitro、TypeScript 5.9 |\n| 表单验证 | React Hook Form + Zod v4 |\n| 数据序列化 | SuperJSON |\n\n---\n\n## 📁 项目目录结构\n\n```\n项目根目录/\n├── public/                         # 静态资源（可直接替换你的素材）\n│   ├── assets/\n│   │   ├── wallpapers/             # 桌面壁纸 (.webp / .jpg / .png)\n│   │   ├── icons/                  # 应用图标 (.png / .ico)\n│   │   │   └── tray/               # 系统托盘小图标 (16–20px)\n│   │   └── pets/                   # 桌宠素材\n│   │       ├── avatars/            # 侧栏按钮图标 (推荐 22px)\n│   │       └── sprites/            # 桌宠本体图像 (推荐 .gif 动图)\n│   └── home/styles/                # XP 主题 CSS 文件（勿随意修改）\n│\n├── src/\n│   ├── client/                     # 客户端代码\n│   │   ├── apps/                   # ★ 插件层 — 每个桌面应用一个独立文件夹\n│   │   │   ├── registry.ts         # 应用注册中心（OsApp 接口 + APP_REGISTRY）\n│   │   │   ├── my-computer/        # 我的电脑（驱动器网格）\n│   │   │   ├── games-folder/       # 游戏文件夹（可配置 H5 游戏启动器）\n│   │   │   ├── about-me/           # 关于我（配置驱动，含背景图层）\n│   │   │   ├── contact/            # 联系方式（XP 资源管理器风格）\n│   │   │   ├── winamp/             # Winamp 音乐播放器（HTML5 Audio 真实引擎）\n│   │   │   ├── msn/                # MSN Messenger（Bot 自动回复 + 表情包）\n│   │   │   ├── paint/              # MS Paint 画板（铅笔/橡皮/填充 + 调色板）\n│   │   │   ├── resume/             # 通用 Markdown 文档查看器（含背景图层）\n│   │   │   ├── video-player/       # 双引擎视频播放器（B站 iframe + 原生 mp4）\n│   │   │   ├── portfolio/          # 作品集文件夹（分类 Tab + 灯箱预览）\n│   │   │   └── blog/               # 博客系统\n│   │   │       ├── index.tsx       # 博客文件夹（XP 资源管理器 + 分类 Tab 过滤）\n│   │   │       ├── viewer.tsx      # 博客文章 Markdown 阅读器\n│   │   │       └── posts/          # 静态 .md 文章文件\n│   │   │\n│   │   ├── config/                 # ★ 个性化配置文件 — 改这里来定制内容\n│   │   │   ├── theme.config.ts     # 壁纸URL、Windows Logo、系统托盘图标\n│   │   │   ├── icons.config.ts     # 桌面快捷图标列表（DESKTOP_ICON_DEFS）\n│   │   │   ├── pets.config.ts      # 桌宠列表（PET_DEFS）\n│   │   │   └── blog.config.ts      # 博客文章列表（BLOG_POSTS）\n│   │   │\n│   │   ├── trpc/                   # tRPC 客户端配置（勿修改）\n│   │   └── views/                  # 页面级视图组件\n│   │       ├── home.tsx            # 🖥️ XP 桌面主组件（内核）\n│   │       ├── xp-window.tsx       # 可拖拽/可 8 方向缩放的 XP 窗口组件\n│   │       ├── start-menu.tsx      # 开始菜单（Luna 风格）\n│   │       ├── right-sidebar.tsx   # 右侧桌宠启动栏（XP Classic 亮灰风格）\n│   │       └── desktop-pet.tsx     # 桌宠组件（可拖拽，浮层 z-index 9999）\n│   │\n│   ├── hooks/                      # 自定义 React Hooks\n│   │   ├── use-desktop-icons.ts    # 桌面图标拖拽、选中、自动排布逻辑\n│   │   ├── use-window-drag.ts      # 窗口拖拽（指针事件捕获）\n│   │   └── use-mobile.ts           # 移动端检测（768px 断点）\n│   │\n│   ├── routes/                     # 文件路由（路径即URL）\n│   │   ├── __root.tsx              # 根布局（HTML Shell、全局CSS注入）\n│   │   ├── index.tsx               # 主路由 / → 渲染 HomePage\n│   │   └── api/trpc.$.ts           # tRPC HTTP 端点（catch-all）\n│   │\n│   └── server/                     # 服务端代码（tRPC procedures）\n│\n├── docs/                           # 项目文档（AI 记忆系统）\n├── package.json\n└── tsconfig.json\n```\n\n---\n\n## 🏗️ 核心架构设计\n\n### 微内核 + 插件层架构\n\n本项目采用**微内核 + 插件层**的架构模式，将桌面操作系统内核逻辑与各窗口应用彻底解耦：\n\n```\n┌─────────────────────────────────────────────────────────────────┐\n│                      内核层 (home.tsx)                           │\n│  窗口管理 · 图标拖拽 · 任务栏 · 开始菜单 · 桌宠系统              │\n│  + xp-open-window CustomEvent 监听器（博客窗口内开新窗口）        │\n└───────────────────────┬─────────────────────────────────────────┘\n                        │ 通过 APP_REGISTRY 查找\n┌───────────────────────▼─────────────────────────────────────────┐\n│                   注册中心 (registry.ts)                          │\n│   APP_REGISTRY: Record<id, OsApp>  ← 单一数据源                  │\n│   + 启动时自动注册 BLOG_POSTS 每篇文章为独立 OsApp                │\n└──┬────┬────┬────┬────┬────┬────┬────┬────┬────┬────┬───────────┘\n   │    │    │    │    │    │    │    │    │    │    │\n  MC  Games  Me  Contact Winamp MSN Paint Resume Video Portfolio Blog\n  插件  插件  插件  插件   插件  插件  插件   插件   插件   插件   插件\n```\n\n### OsApp 接口规范\n\n每个桌面应用必须实现以下接口：\n\n```typescript\ninterface OsApp {\n  id: string;           // 唯一标识符，需与 icons.config.ts 中的 id 一致\n  title: string;        // 窗口标题栏 & 任务栏显示名\n  icon: string;         // 16–32px 标题栏图标 URL\n  defaultWidth: number; // 窗口默认宽度（像素）\n  defaultHeight: number;// 窗口默认高度（像素）\n  AppComponent: React.ComponentType; // 窗口内容组件\n}\n```\n\n### 配置驱动型应用\n\n所有应用均在文件顶部暴露配置对象，直接修改即可定制：\n\n| 应用 | 配置对象 | 可定制内容 |\n|------|---------|-----------|\n| About Me | `ABOUT_CONFIG` | 头像、背景图+透明度、个人信息、技能标签、Markdown 正文 |\n| Winamp | `WINAMP_CONFIG` + `SONG_LIST` | 主题配色、歌曲列表（标题/艺术家/音源/封面） |\n| Video Player | `VIDEO_CONFIG` + `VIDEO_LIST` | 主题配色、视频列表（B站BV号 或 mp4 URL） |\n| Portfolio | `PORTFOLIO_CONFIG` + `PORTFOLIO_ITEMS` | 侧栏颜色、背景图、作品条目 |\n| Contact | `CONTACT_CONFIG` | 联系方式链接（图标、标签、href、颜色） |\n| Games | `GAMES_LIST` | 游戏条目（标题、图标、URL，支持 /public/games/ 本地游戏） |\n| Blog | `BLOG_POSTS`（blog.config.ts）| 文章列表（id、标题、图标、分类、.md 文件导入） |\n| Resume/README | `DOC_CONFIG` | Markdown 文件、背景图+透明度 |\n\n---\n\n## 🖥️ WelcomeGuard 欢迎动画\n\n文件：`src/client/views/welcome-guard.tsx`\n\n首次进入时自动播放 Boot → Login 两阶段动画，同一会话内刷新不重复播放。\n\n**修改文字内容：** 文件顶部有完整索引注释，按注释搜索关键词即可定位：\n\n| 需要修改的内容 | 搜索关键词 |\n|--------------|-----------|\n| Boot 用户名大字 | `MoeKernel`（BootStage 内） |\n| Boot 红色 xp 后缀 | `>xp<`（BootStage 内 `<span>` 红色斜体） |\n| Boot 副标题 | `>Welcome<` |\n| Boot 持续时间 | `setTimeout(onDone, 3000)` 中的毫秒数 |\n| Login 左侧用户名 | `MoeKernel`（LoginStage 左栏） |\n| Login 左侧角色说明 | `>Software Developer<`（左栏） |\n| Login 左侧引导语 | `>To begin, click your user name<` |\n| Login 右侧头像图片 | `src=\"/assets/avatarSrc.jpg\"` |\n| Login 右侧头像卡用户名 | `NNNullptr`（LoginStage 右栏头像卡） |\n| Login 右侧头像卡角色 | `>Software Developer<`（右栏） |\n| 底部 Restart 按钮 | `>Restart<` |\n\n**调试命令（浏览器 console）：**\n```js\n// 重新播放欢迎流程\nsessionStorage.removeItem('xp:welcomed'); location.reload();\n\n// 跳过欢迎流程\nsessionStorage.setItem('xp:welcomed', '1'); location.reload();\n```\n\n---\n\n## ✏️ 如何添加新应用\n\n只需 3 步，完全不触碰内核代码：\n\n**第一步：** 创建应用组件\n```\nsrc/client/apps/your-app/index.tsx\n```\n```tsx\nexport function YourApp() {\n  return <div>你的应用内容</div>;\n}\n```\n\n**第二步：** 在注册中心登记（`src/client/apps/registry.ts`）\n```typescript\nimport { YourApp } from './your-app';\n\nexport const APP_REGISTRY = {\n  // ...现有应用\n  yourApp: {\n    id: 'yourApp',\n    title: '你的应用',\n    icon: '/assets/icons/your-icon.png',\n    defaultWidth: 500,\n    defaultHeight: 400,\n    AppComponent: YourApp,\n  },\n};\n```\n\n**第三步：** 添加桌面图标（`src/client/config/icons.config.ts`）\n```typescript\nexport const DESKTOP_ICON_DEFS = [\n  // ...现有图标\n  { id: 'yourApp', label: '你的应用', src: '/assets/icons/your-icon.png' },\n];\n```\n\n完成！应用将自动出现在桌面，双击图标即可打开。\n\n---\n\n## 📝 如何添加博客文章\n\n**第一步：** 在 `src/client/apps/blog/posts/` 创建 `.md` 文件\n\n**第二步：** 在 `src/client/config/blog.config.ts` 添加条目：\n```typescript\nimport rawMyPost from '../apps/blog/posts/my-post.md?raw';\n\nexport const BLOG_POSTS: BlogPost[] = [\n  // ...现有文章\n  {\n    id: 'blog-my-post',    // 必须以 'blog-' 开头\n    title: '我的新文章',\n    icon: '图标URL',\n    category: '技术',      // 分类标签（自动出现在 Tab 栏）\n    raw: rawMyPost,\n  },\n];\n```\n\n完成！文章自动出现在博客文件夹，并动态注册为独立阅读器窗口。\n\n---\n\n## 🎨 个性化定制\n\n### 替换壁纸\n```typescript\n// src/client/config/theme.config.ts\nexport const WALLPAPER_URL = '/assets/wallpapers/your-wallpaper.jpg';\n```\n\n### 添加/修改桌宠\n```typescript\n// src/client/config/pets.config.ts\nexport const PET_DEFS: PetDef[] = [\n  {\n    id: 'my-pet',\n    name: '我的宠物',\n    iconSrc: '/assets/pets/avatars/icon.png',  // 侧栏按钮图标\n    petSrc: '/assets/pets/sprites/sprite.gif', // 桌面宠物图像（支持 GIF）\n  },\n];\n```\n\n---\n\n## 🚀 本地开发\n\n```bash\n# 安装依赖\npnpm install\n\n# 启动开发服务器\npnpm dev\n\n# 类型检查\npnpm lint\n\n# 构建生产版本\npnpm build\n```\n\n---\n\n## 📂 静态资源目录\n\n将你自己的素材放入 `public/assets/` 对应子目录，然后在配置文件中引用路径即可：\n\n| 目录 | 用途 | 推荐格式 |\n|------|------|---------|\n| `public/assets/wallpapers/` | 桌面壁纸 | `.webp`、`.jpg` |\n| `public/assets/icons/` | 应用 & 快捷方式图标 | `.png`、`.ico` |\n| `public/assets/icons/tray/` | 系统托盘小图标 | `.png`（16–20px）|\n| `public/assets/pets/avatars/` | 桌宠侧栏按钮图标 | `.png`（22px）|\n| `public/assets/pets/sprites/` | 桌宠本体图像 | `.gif`（动图）|\n\n---\n\n## 🗂️ 路由映射\n\n| URL 路径 | 文件 | 说明 |\n|----------|------|------|\n| `/` | `routes/index.tsx` | XP 桌面主页面 |\n| `/api/trpc/*` | `routes/api/trpc.$.ts` | tRPC API 端点 |\n| `*` | `routes/__root.tsx` | 根布局（HTML Shell）|\n\n---\n\n## 📝 开发历史摘要\n\n| 版本 | 主要内容 |\n|------|---------|\n| V1 | 开始菜单、Luna 风格 Start 按钮、系统托盘实时时钟 |\n| V2 | 多窗口管理系统（可拖拽、最小化/最大化/关闭、任务栏按钮）|\n| V3 | 桌面图标自由拖拽、单击选中、双击打开、边界自动钳制 |\n| V4 | 修复图标重叠与小屏消失问题，多列自动排布算法 |\n| V5 | 右侧桌宠启动栏（Frutiger Aero 风格）、可拖拽桌宠 |\n| V6 | 窗口 8 方向调整大小、桌宠图标/图像分离（iconSrc + petSrc）|\n| V7 | 10 个窗口应用完整内容（Winamp、MSN、Paint、简历等）|\n| V8 | 新增视频播放器（Bilibili 嵌入）和作品集文件夹窗口 |\n| V9 | 配置文件架构重构，静态资源目录规范化 |\n| V10 | **微内核+插件层**架构重构，10 个独立应用模块 + 统一注册中心 |\n| V11 | 右侧边栏视觉重构 → XP Classic 亮灰渐变风格（取代 Frutiger Aero）|\n| V12 | Resume 重构为通用 Markdown 文档查看器，支持背景图层 + 透明度滑块 |\n| V13 | About Me 配置驱动重构（ABOUT_CONFIG）+ 固定技能页脚 + 背景图层 |\n| V14 | Contact 重构为 XP 资源管理器界面（含菜单栏 + 地址栏）|\n| V15 | Winamp 升级为 HTML5 Audio 真实播放引擎 + Winamp 2.x 复古 UI |\n| V16 | Winamp 窗口默认尺寸修复（350×230）|\n| V17 | Portfolio 配置驱动重构 + 动态分类 Tab + 灯箱图片预览 |\n| V18 | 删除 \"Help Me Clippy\" 桌面快捷方式 |\n| V19–V20 | Video Player 双引擎升级（B站 iframe + 原生 mp4 真实控制）|\n| V21 | Games Folder 配置化重构 + iframe 沙盒游戏视图切换 |\n| V22–V23 | **博客系统**：XP 资源管理器博客文件夹 + Markdown 阅读器 + 分类过滤 Tab |\n| V24 | 修复最大化窗口被右侧边栏遮挡（`calc(100vw - 34px)`）|\n| V25 | **WelcomeGuard 入口保护**：Boot（银色胶囊进度条）→ Login（银灰主题头像卡）两阶段欢迎动画，sessionStorage 控制每会话仅播放一次 |\n| V26 | **My Computer 重构**：静态文件树映射 `public/assets/`，文件夹导航（地址栏 + Back 按钮），默认图标 `file.png` 支持逐项覆盖 |\n| V27 | **Start 菜单双侧联动**：左侧程序列表自动同步 `DESKTOP_ICON_DEFS`，右侧文件夹列表来自 `FILE_SYSTEM`（最多 5 行），点击定位 My Computer 对应目录 |\n| V28 | **修复 Deno Deploy 生产部署**：将 `preset: 'deno-deploy'` 移入 `nitro()` 插件配置，解决客户端 JS/CSS 资源 500/404 导致桌面不可交互的问题 |\n| V29 | **My Computer 文件预览**：图片缩略图、视频帧缩略图，点击文件自动打开对应窗口（图片→ImageViewer、mp4→VideoPlayer、mp3→Winamp），新增 `inferFileType` / `getPublicUrl` / Pending File Store |\n| V30 | **项目正式命名为 MoeKernel_Desktop**：更新 README 标题与项目简介 |\n\n";
 const DOC_CONFIG = {
@@ -2728,7 +2759,7 @@ function OpacityControl$1({
     fontSize: "10px",
     color: "#555",
     boxShadow: "0 1px 4px rgba(0,0,0,0.15)"
-  }, "data-cid": "UHxI8uEd", children: [
+  }, "data-cid": "dDfgkvkn", children: [
     /* @__PURE__ */ jsx("span", { style: {
       whiteSpace: "nowrap"
     }, children: "背景透明度" }),
@@ -2753,7 +2784,7 @@ function ResumeApp() {
     position: "relative",
     overflow: "hidden",
     fontFamily: DOC_CONFIG.fontFamily
-  }, "data-cid": "kmmbCypG", children: [
+  }, "data-cid": "oh_MaJ89", children: [
     hasBg && /* @__PURE__ */ jsx("div", { "aria-hidden": "true", style: {
       position: "absolute",
       inset: 0,
@@ -3025,7 +3056,7 @@ function VideoPlayerApp() {
     background: VIDEO_CONFIG.bgColor,
     fontFamily: FONT$5,
     userSelect: "none"
-  }, "data-cid": "1rimRPdS", children: [
+  }, "data-cid": "6L9hiL7c", children: [
     /* @__PURE__ */ jsx("div", { style: {
       background: VIDEO_CONFIG.menuBarBg,
       borderBottom: `1px solid ${VIDEO_CONFIG.menuBarBorder}`,
@@ -3241,7 +3272,7 @@ function VideoPlayerApp() {
           if (!isDisabled) {
             e.currentTarget.style.background = `linear-gradient(180deg, ${VIDEO_CONFIG.buttonBgTop}, ${VIDEO_CONFIG.buttonBgBottom})`;
           }
-        }, "data-cid": "B_6fuX9C", children: iconStr }, id);
+        }, "data-cid": "8kUdIZ9m", children: iconStr }, id);
       }),
       /* @__PURE__ */ jsx("span", { style: {
         fontSize: "10px",
@@ -3385,7 +3416,7 @@ function Lightbox({
     justifyContent: "center",
     fontFamily: FONT$4,
     padding: "24px"
-  }, onClick: onClose, "data-cid": "Z8Ahd3Kf", children: [
+  }, onClick: onClose, "data-cid": "nNrVL0J7", children: [
     /* @__PURE__ */ jsx("button", { onClick: onClose, style: {
       position: "absolute",
       top: "12px",
@@ -3466,7 +3497,7 @@ function ExplorerToolbar$1({
     fontFamily: FONT$4,
     fontSize: "12px",
     flexShrink: 0
-  }, "data-cid": "3hfQUOER", children: [
+  }, "data-cid": "_Cwo9pA_", children: [
     /* @__PURE__ */ jsxs("div", { style: {
       display: "flex",
       gap: "2px",
@@ -3555,7 +3586,7 @@ function PortfolioApp() {
     flexDirection: "column",
     fontFamily: FONT$4,
     overflow: "hidden"
-  }, "data-cid": "FhkXFPjW", children: [
+  }, "data-cid": "iQ-kq_jP", children: [
     hasBackground && /* @__PURE__ */ jsx("div", { style: {
       position: "absolute",
       inset: 0,
@@ -3798,7 +3829,7 @@ function ImageViewerApp() {
     flexDirection: "column",
     background: "#2b2b2b",
     fontFamily: FONT$3
-  }, "data-cid": "6I3SYyov", children: [
+  }, "data-cid": "fMO00AGW", children: [
     /* @__PURE__ */ jsxs("div", { style: {
       background: "#ece9d8",
       borderBottom: "1px solid #aca899",
@@ -3931,7 +3962,7 @@ function ExplorerToolbar({
     fontFamily: FONT$2,
     fontSize: "12px",
     flexShrink: 0
-  }, "data-cid": "7TBicyDJ", children: [
+  }, "data-cid": "A5EgGKVH", children: [
     /* @__PURE__ */ jsx("div", { style: {
       display: "flex",
       gap: "2px",
@@ -3980,7 +4011,7 @@ function CategoryTabBar({
     borderBottom: "1px solid #aca899",
     flexShrink: 0,
     overflowX: "auto"
-  }, "data-cid": "-OtWdUKz", children: categories.map((cat) => {
+  }, "data-cid": "YIICJaD0", children: categories.map((cat) => {
     const isActive = cat === activeCategory;
     return /* @__PURE__ */ jsx("button", { onClick: () => onSelect(cat), style: {
       fontFamily: FONT$2,
@@ -4000,7 +4031,7 @@ function CategoryTabBar({
       outline: "none",
       boxShadow: isActive ? "none" : "inset 0 -1px 0 #aca899",
       transition: "background 0.1s"
-    }, "data-cid": "9Htf_8TH", children: cat }, cat);
+    }, "data-cid": "TX62S0Wc", children: cat }, cat);
   }) });
 }
 function ArticleTile({
@@ -4025,7 +4056,7 @@ function ArticleTile({
     borderRadius: "4px",
     padding: "8px 4px",
     userSelect: "none"
-  }, "data-cid": "t-LcEO_F", children: [
+  }, "data-cid": "5eUIs1xd", children: [
     /* @__PURE__ */ jsx("img", { src: icon, alt: label, style: {
       width: "48px",
       height: "48px",
@@ -4043,21 +4074,31 @@ function ArticleTile({
 }
 function BlogFolderApp() {
   const [activeCategory, setActiveCategory] = useState(ALL_LABEL);
+  const {
+    data: dbPosts,
+    isLoading
+  } = useQuery({
+    ...trpc.site.getBlogPosts.queryOptions(),
+    staleTime: 0,
+    refetchOnWindowFocus: true
+  });
+  console.log("[BlogFolderApp] API Data:", dbPosts);
+  const posts = dbPosts ?? BLOG_POSTS;
   const categories = useMemo(() => {
-    const unique = Array.from(new Set(BLOG_POSTS.map((p) => p.category).filter(Boolean)));
+    const unique = Array.from(new Set(posts.map((p) => p.category).filter(Boolean)));
     return [ALL_LABEL, ...unique];
-  }, []);
+  }, [posts]);
   const filteredPosts = useMemo(() => {
-    if (activeCategory === ALL_LABEL) return BLOG_POSTS;
-    return BLOG_POSTS.filter((p) => p.category === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === ALL_LABEL) return posts;
+    return posts.filter((p) => p.category === activeCategory);
+  }, [activeCategory, posts]);
   const addressPath = activeCategory === ALL_LABEL ? "My Blog" : `My Blog > ${activeCategory}`;
   return /* @__PURE__ */ jsxs("div", { style: {
     height: "100%",
     display: "flex",
     flexDirection: "column",
     background: "#fff"
-  }, "data-cid": "MxCd8Ftd", children: [
+  }, "data-cid": "pL9gPupv", children: [
     /* @__PURE__ */ jsx(ExplorerToolbar, { address: addressPath }),
     /* @__PURE__ */ jsx(CategoryTabBar, { categories, activeCategory, onSelect: setActiveCategory }),
     /* @__PURE__ */ jsxs("div", { style: {
@@ -4095,11 +4136,11 @@ function BlogFolderApp() {
             fontWeight: activeCategory === ALL_LABEL ? "bold" : "normal"
           }, children: [
             "全部文章 (",
-            BLOG_POSTS.length,
+            posts.length,
             ")"
           ] }),
           categories.filter((c) => c !== ALL_LABEL).map((cat) => {
-            const count = BLOG_POSTS.filter((p) => p.category === cat).length;
+            const count = posts.filter((p) => p.category === cat).length;
             const isActive = activeCategory === cat;
             return /* @__PURE__ */ jsxs("div", { onClick: () => setActiveCategory(cat), style: {
               fontSize: "11px",
@@ -4109,7 +4150,7 @@ function BlogFolderApp() {
               cursor: "pointer",
               textDecoration: isActive ? "none" : "underline",
               fontWeight: isActive ? "bold" : "normal"
-            }, "data-cid": "cPQ-V-UY", children: [
+            }, "data-cid": "Oa10FJQL", children: [
               cat,
               " (",
               count,
@@ -4132,7 +4173,7 @@ function BlogFolderApp() {
             color: "#333",
             fontFamily: FONT$2,
             lineHeight: "1.6"
-          }, children: activeCategory === ALL_LABEL ? `共 ${BLOG_POSTS.length} 篇文章` : `${activeCategory} 分类下共 ${filteredPosts.length} 篇文章` }),
+          }, children: isLoading && !dbPosts ? "正在同步..." : activeCategory === ALL_LABEL ? `共 ${posts.length} 篇文章` : `${activeCategory} 分类下共 ${filteredPosts.length} 篇文章` }),
           /* @__PURE__ */ jsx("div", { style: {
             fontSize: "10px",
             color: "#555",
@@ -4367,7 +4408,7 @@ function OpacityControl({
     fontSize: "10px",
     color: "#555",
     boxShadow: "0 1px 4px rgba(0,0,0,0.15)"
-  }, "data-cid": "rVweDxG0", children: [
+  }, "data-cid": "-DZSJAEQ", children: [
     /* @__PURE__ */ jsx("span", { style: {
       whiteSpace: "nowrap"
     }, children: "背景透明度" }),
@@ -4385,16 +4426,36 @@ function OpacityControl({
   ] });
 }
 function BlogPostViewer({
-  post
+  postId
 }) {
-  const [bgOpacity, setBgOpacity] = useState(post.bgOpacity);
-  const hasBg = Boolean(post.backgroundImage);
+  const {
+    data: dbPosts
+  } = useQuery({
+    ...trpc.site.getBlogPosts.queryOptions(),
+    staleTime: 6e4
+  });
+  const post = dbPosts?.find((p) => p.id === postId) ?? BLOG_POSTS.find((p) => p.id === postId);
+  const [bgOpacity, setBgOpacity] = useState(post?.bgOpacity ?? 1);
+  const hasBg = Boolean(post?.backgroundImage);
+  if (!post) {
+    return /* @__PURE__ */ jsx("div", { style: {
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#fff",
+      fontFamily: FONT$1
+    }, "data-cid": "Dp5Rvs81", children: /* @__PURE__ */ jsx("span", { style: {
+      color: "#888",
+      fontSize: "12px"
+    }, children: "正在加载文章内容..." }) });
+  }
   return /* @__PURE__ */ jsxs("div", { style: {
     height: "100%",
     position: "relative",
     overflow: "hidden",
     fontFamily: FONT$1
-  }, "data-cid": "3ZZZ0ECI", children: [
+  }, "data-cid": "PCZ1XWNd", children: [
     hasBg && /* @__PURE__ */ jsx("div", { "aria-hidden": "true", style: {
       position: "absolute",
       inset: 0,
@@ -4564,7 +4625,7 @@ BLOG_POSTS.forEach((post) => {
     defaultWidth: 700,
     defaultHeight: 560,
     // Capture post in closure — each article gets its own viewer instance
-    AppComponent: () => React.createElement(BlogPostViewer, { post })
+    AppComponent: () => React.createElement(BlogPostViewer, { postId: post.id })
   };
 });
 function formatTime(date) {
@@ -4582,13 +4643,13 @@ function WindowContent({
     const {
       AppComponent
     } = app;
-    return /* @__PURE__ */ jsx(AppComponent, { "data-cid": "-tW0LUBD" });
+    return /* @__PURE__ */ jsx(AppComponent, { "data-cid": "W6uSSm5T" });
   }
   return /* @__PURE__ */ jsx("div", { style: {
     padding: "20px",
     fontFamily: '"Trebuchet MS", Tahoma, sans-serif',
     fontSize: "13px"
-  }, "data-cid": "Jp-muMJ2", children: /* @__PURE__ */ jsxs("p", { children: [
+  }, "data-cid": "MYKvNYfe", children: /* @__PURE__ */ jsxs("p", { children: [
     "Content for ",
     /* @__PURE__ */ jsx("strong", { children: id }),
     " coming soon!"
@@ -4600,13 +4661,28 @@ function HomePage() {
   const [openWindows, setOpenWindows] = useState([]);
   const [activePetIds, setActivePetIds] = useState(/* @__PURE__ */ new Set());
   const zCounter = useRef(100);
+  const settings = useSiteSettings();
+  const {
+    data: dbIcons
+  } = useQuery({
+    ...trpc.site.getDesktopIcons.queryOptions(),
+    staleTime: 6e4
+  });
+  const iconDefs = dbIcons ?? DESKTOP_ICON_DEFS;
+  const {
+    data: dbMascots
+  } = useQuery({
+    ...trpc.site.getMascots.queryOptions(),
+    staleTime: 6e4
+  });
+  const petDefs = dbMascots ?? PET_DEFS;
   const {
     icons,
     selectedId,
     startDrag,
     deselectAll,
     selectIcon
-  } = useDesktopIcons(DESKTOP_ICON_DEFS);
+  } = useDesktopIcons(iconDefs);
   const lastClick = useRef(null);
   useEffect(() => {
     const id = setInterval(() => setClockTime(formatTime(/* @__PURE__ */ new Date())), 1e3);
@@ -4744,9 +4820,9 @@ function HomePage() {
     });
   }, []);
   return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs("div", { id: "root", onClick: handleDesktopClick, "data-cid": "ArAcWLSK", children: [
+    /* @__PURE__ */ jsxs("div", { id: "root", onClick: handleDesktopClick, "data-cid": "5GsckznY", children: [
       /* @__PURE__ */ jsxs("div", { className: "_desktop_1d92e_1", style: {
-        backgroundImage: `url("${WALLPAPER_URL}")`,
+        backgroundImage: `url("${settings.wallpaperUrl}")`,
         position: "relative"
       }, children: [
         /* @__PURE__ */ jsx("div", { style: {
@@ -4784,7 +4860,7 @@ function HomePage() {
           letterSpacing: "0.5px",
           flexShrink: 0
         }, children: [
-          /* @__PURE__ */ jsx("img", { src: WINDOWS_LOGO_URL, alt: "Windows", style: {
+          /* @__PURE__ */ jsx("img", { src: settings.logoUrl, alt: "Windows", style: {
             width: "20px",
             height: "20px",
             objectFit: "contain"
@@ -4800,7 +4876,7 @@ function HomePage() {
           overflow: "hidden"
         }, children: openWindows.map((win) => /* @__PURE__ */ jsx(TaskbarWindowBtn, { win, onClick: () => handleTaskbarBtn(win.id) }, win.id)) }),
         /* @__PURE__ */ jsxs("div", { className: "_system-tray_oqlpl_86", children: [
-          SYSTEM_TRAY_ICONS.map((iconUrl, i) => /* @__PURE__ */ jsx("div", { className: "_system-tray-item-wrapper_oqlpl_147", children: /* @__PURE__ */ jsx("div", { className: "_system-tray-item_oqlpl_100", style: {
+          settings.systemTrayIcons.map((iconUrl, i) => /* @__PURE__ */ jsx("div", { className: "_system-tray-item-wrapper_oqlpl_147", children: /* @__PURE__ */ jsx("div", { className: "_system-tray-item_oqlpl_100", style: {
             backgroundImage: `url("${iconUrl}")`
           } }) }, i)),
           /* @__PURE__ */ jsx("div", { className: "_time_oqlpl_108", children: clockTime })
@@ -4818,8 +4894,8 @@ function HomePage() {
     ] }, "1"),
     openWindows.map((win) => /* @__PURE__ */ jsx(XpWindow, { win, onFocus: handleWindowFocus, onClose: handleWindowClose, onMinimize: handleWindowMinimize, onPositionChange: handlePositionChange, onSizeChange: handleSizeChange, children: /* @__PURE__ */ jsx(WindowContent, { id: win.id }) }, win.id)),
     isStartMenuOpen && /* @__PURE__ */ jsx(StartMenu, { onItemClick: handleMenuItemClick, onLogOff: () => setIsStartMenuOpen(false), onTurnOff: () => setIsStartMenuOpen(false) }),
-    /* @__PURE__ */ jsx(RightSidebar, { pets: PET_DEFS, activePetIds, onToggle: handlePetToggle }),
-    PET_DEFS.filter((p) => activePetIds.has(p.id)).map((pet) => /* @__PURE__ */ jsx(DesktopPet, { pet, onDismiss: handlePetDismiss }, pet.id)),
+    /* @__PURE__ */ jsx(RightSidebar, { pets: petDefs, activePetIds, onToggle: handlePetToggle }),
+    petDefs.filter((p) => activePetIds.has(p.id)).map((pet) => /* @__PURE__ */ jsx(DesktopPet, { pet, onDismiss: handlePetDismiss }, pet.id)),
     /* @__PURE__ */ jsx("iframe", { height: "1", width: "1", style: {
       border: "none",
       left: "0px",
@@ -4865,7 +4941,7 @@ function DesktopIcon({
     border: selected ? "1px dotted rgba(255,255,255,0.7)" : "1px solid transparent",
     userSelect: "none",
     WebkitUserSelect: "none"
-  }, "data-cid": "g4F5gU6_", children: [
+  }, "data-cid": "5krIQ22M", children: [
     /* @__PURE__ */ jsx("img", { alt: label, src, draggable: false, style: {
       width: "45px",
       height: "45px",
@@ -4920,7 +4996,7 @@ function TaskbarWindowBtn({
     textShadow: "1px 1px 1px rgba(255,255,255,0.4)",
     overflow: "hidden",
     flexShrink: 0
-  }, "data-cid": "PeNZCUsV", children: [
+  }, "data-cid": "L05ZjlBB", children: [
     /* @__PURE__ */ jsx("img", { src: win.icon, alt: "", style: {
       width: "14px",
       height: "14px",
@@ -4954,7 +5030,7 @@ function BootStage({
     alignItems: "center",
     justifyContent: "center",
     fontFamily: FONT
-  }, "data-cid": "1oa9MReF", children: [
+  }, "data-cid": "u-9HMEez", children: [
     /* @__PURE__ */ jsx("style", { children: `
         @keyframes xpBoot {
           from { transform: translateX(-100px); }
@@ -5042,7 +5118,7 @@ function LoginStage({
     opacity: exiting ? 0 : 1,
     transition: exiting ? `transform ${EXIT_MS}ms ease-in, opacity ${EXIT_MS}ms ease-in` : "none",
     pointerEvents: exiting ? "none" : "auto"
-  }, "data-cid": "2YJnDxl4", children: [
+  }, "data-cid": "zg6i-kIt", children: [
     /* @__PURE__ */ jsx("div", { style: {
       height: 80,
       background: "#3a3a3a",

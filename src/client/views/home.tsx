@@ -13,7 +13,7 @@
  * 8. Taskbar shows a button for each open window; clicking it toggles minimize/restore.
  */
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { StartMenu } from './start-menu';
 import { XpWindow } from './xp-window';
@@ -28,6 +28,7 @@ import { useSiteSettings } from '@/client/hooks/use-site-config';
 import { PET_DEFS } from '@/client/config/pets.config';
 // ── App Registry — single source of truth for all window apps ───────────────
 import { APP_REGISTRY } from '@/client/apps/registry';
+import { BlogPostViewer } from '@/client/apps/blog/viewer';
 
 /** Format a Date into "H:MM AM/PM" like the real XP clock */
 function formatTime(date: Date): string {
@@ -73,6 +74,13 @@ export function HomePage() {
     staleTime: 60_000,
   });
   const iconDefs = dbIcons ?? DESKTOP_ICON_DEFS;
+
+  // ── 吉祥物 — DB 优先，静态配置兜底 ──────────────────────────────────────────
+  const { data: dbMascots } = useQuery({
+    ...trpc.site.getMascots.queryOptions(),
+    staleTime: 60_000,
+  });
+  const petDefs = dbMascots ?? PET_DEFS;
 
   const { icons, selectedId, startDrag, deselectAll, selectIcon } = useDesktopIcons(iconDefs);
 
@@ -145,8 +153,22 @@ export function HomePage() {
   // enabling "window inside a window" navigation without prop drilling.
   useEffect(() => {
     const handler = (e: Event) => {
-      const id = (e as CustomEvent<string>).detail;
-      if (id) openWindow(id);
+      const detail = (e as CustomEvent).detail;
+      if (!detail) return;
+      const id: string = typeof detail === 'string' ? detail : detail.id;
+      if (!id) return;
+      if (!APP_REGISTRY[id] && typeof detail === 'object') {
+        const { title, icon } = detail as { title: string; icon: string };
+        APP_REGISTRY[id] = {
+          id,
+          title,
+          icon,
+          defaultWidth: 700,
+          defaultHeight: 560,
+          AppComponent: () => React.createElement(BlogPostViewer, { postId: id }),
+        };
+      }
+      openWindow(id);
     };
     window.addEventListener('xp-open-window', handler);
     return () => window.removeEventListener('xp-open-window', handler);
@@ -380,13 +402,13 @@ export function HomePage() {
 
       {/* ── Right Sidebar pet launcher ── */}
       <RightSidebar
-        pets={PET_DEFS}
+        pets={petDefs}
         activePetIds={activePetIds}
         onToggle={handlePetToggle}
       />
 
       {/* ── Active desktop pets ── */}
-      {PET_DEFS.filter((p) => activePetIds.has(p.id)).map((pet) => (
+      {petDefs.filter((p) => activePetIds.has(p.id)).map((pet) => (
         <DesktopPet
           key={pet.id}
           pet={pet}

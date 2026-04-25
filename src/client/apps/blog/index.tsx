@@ -137,7 +137,7 @@ function ArticleTile({ icon, label, postId }: { icon: string; label: string; pos
   const [hov, setHov] = useState(false);
 
   const handleClick = () => {
-    window.dispatchEvent(new CustomEvent('xp-open-window', { detail: postId }));
+    window.dispatchEvent(new CustomEvent('xp-open-window', { detail: { id: postId, title: label, icon } }));
   };
 
   return (
@@ -185,7 +185,6 @@ export function BlogFolderApp() {
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
-  console.log('[BlogFolderApp] API Data:', dbPosts);
   const posts = dbPosts ?? BLOG_POSTS;
 
   // 自动提取所有不重复的分类，并在最前面插入"全部"

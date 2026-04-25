@@ -8,7 +8,12 @@
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}, indent=2\\)\\)\")",
       "Bash(xargs grep *)",
       "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\({scripts:p.scripts,name:p.name},null,2\\)\\)\")",
-      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\(p.scripts,null,2\\)\\)\")"
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\(p.scripts,null,2\\)\\)\")",
+      "Bash(node -e \"const r = require\\('./node_modules/@tanstack/react-router/dist/llms/rules/routing.js'\\); console.log\\(typeof r.default === 'string' ? r.default.substring\\(0, 4000\\) : JSON.stringify\\(r\\).substring\\(0, 4000\\)\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/@tanstack/react-router/dist/llms/rules/routing.js'\\)\\)\")",
+      "Bash(node -e \"const r = require\\('./node_modules/@tanstack/react-router/dist/llms/rules/guide.js'\\); const txt = typeof r.default === 'string' ? r.default : JSON.stringify\\(r\\); const idx = txt.indexOf\\('pathless'\\); console.log\\(txt.substring\\(Math.max\\(0,idx-200\\), idx+3000\\)\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const p = require\\('./node_modules/@uiw/react-md-editor/package.json'\\); console.log\\('version:', p.version\\); console.log\\('exports:', Object.keys\\(p.exports || {}\\).slice\\(0,8\\).join\\(', '\\)\\)\")"
     ]
   }
 }
