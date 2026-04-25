@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { icon: '🎨', label: '主题设置',   href: '/admin/theme'    },
   { icon: '📝', label: '博客管理',   href: '/admin/blog'     },
   { icon: '🖼️', label: '图标管理',   href: '/admin/icons'    },
-  { icon: '🐾', label: '吉祥物管理', href: '/admin/mascots'  },
+  { icon: '🐾', label: '桌宠管理',   href: '/admin/mascots'  },
   { icon: '💬', label: '评论系统',   href: '/admin/comments' },
 ] as const;
 

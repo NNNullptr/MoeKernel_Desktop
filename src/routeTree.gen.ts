@@ -15,8 +15,12 @@ import { Route as AdminLayoutRouteImport } from './routes/admin/_layout'
 import { Route as AdminLayoutIndexRouteImport } from './routes/admin/_layout/index'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc.$'
 import { Route as AdminLayoutThemeRouteImport } from './routes/admin/_layout/theme'
+import { Route as AdminLayoutMascotsRouteImport } from './routes/admin/_layout/mascots'
+import { Route as AdminLayoutIconsRouteImport } from './routes/admin/_layout/icons'
+import { Route as AdminLayoutCommentsRouteImport } from './routes/admin/_layout/comments'
 import { Route as AdminLayoutBlogIndexRouteImport } from './routes/admin/_layout/blog/index'
 import { Route as AdminLayoutBlogNewRouteImport } from './routes/admin/_layout/blog/new'
+import { Route as AdminLayoutBlogIdRouteImport } from './routes/admin/_layout/blog/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -48,6 +52,21 @@ const AdminLayoutThemeRoute = AdminLayoutThemeRouteImport.update({
   path: '/theme',
   getParentRoute: () => AdminLayoutRoute,
 } as any)
+const AdminLayoutMascotsRoute = AdminLayoutMascotsRouteImport.update({
+  id: '/mascots',
+  path: '/mascots',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutIconsRoute = AdminLayoutIconsRouteImport.update({
+  id: '/icons',
+  path: '/icons',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutCommentsRoute = AdminLayoutCommentsRouteImport.update({
+  id: '/comments',
+  path: '/comments',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 const AdminLayoutBlogIndexRoute = AdminLayoutBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -58,23 +77,36 @@ const AdminLayoutBlogNewRoute = AdminLayoutBlogNewRouteImport.update({
   path: '/blog/new',
   getParentRoute: () => AdminLayoutRoute,
 } as any)
+const AdminLayoutBlogIdRoute = AdminLayoutBlogIdRouteImport.update({
+  id: '/blog/$id',
+  path: '/blog/$id',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminLayoutRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/admin/comments': typeof AdminLayoutCommentsRoute
+  '/admin/icons': typeof AdminLayoutIconsRoute
+  '/admin/mascots': typeof AdminLayoutMascotsRoute
   '/admin/theme': typeof AdminLayoutThemeRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/admin/': typeof AdminLayoutIndexRoute
+  '/admin/blog/$id': typeof AdminLayoutBlogIdRoute
   '/admin/blog/new': typeof AdminLayoutBlogNewRoute
   '/admin/blog/': typeof AdminLayoutBlogIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/comments': typeof AdminLayoutCommentsRoute
+  '/admin/icons': typeof AdminLayoutIconsRoute
+  '/admin/mascots': typeof AdminLayoutMascotsRoute
   '/admin/theme': typeof AdminLayoutThemeRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/admin': typeof AdminLayoutIndexRoute
+  '/admin/blog/$id': typeof AdminLayoutBlogIdRoute
   '/admin/blog/new': typeof AdminLayoutBlogNewRoute
   '/admin/blog': typeof AdminLayoutBlogIndexRoute
 }
@@ -83,9 +115,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin/_layout': typeof AdminLayoutRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/admin/_layout/comments': typeof AdminLayoutCommentsRoute
+  '/admin/_layout/icons': typeof AdminLayoutIconsRoute
+  '/admin/_layout/mascots': typeof AdminLayoutMascotsRoute
   '/admin/_layout/theme': typeof AdminLayoutThemeRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/admin/_layout/': typeof AdminLayoutIndexRoute
+  '/admin/_layout/blog/$id': typeof AdminLayoutBlogIdRoute
   '/admin/_layout/blog/new': typeof AdminLayoutBlogNewRoute
   '/admin/_layout/blog/': typeof AdminLayoutBlogIndexRoute
 }
@@ -95,18 +131,26 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/login'
+    | '/admin/comments'
+    | '/admin/icons'
+    | '/admin/mascots'
     | '/admin/theme'
     | '/api/trpc/$'
     | '/admin/'
+    | '/admin/blog/$id'
     | '/admin/blog/new'
     | '/admin/blog/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin/login'
+    | '/admin/comments'
+    | '/admin/icons'
+    | '/admin/mascots'
     | '/admin/theme'
     | '/api/trpc/$'
     | '/admin'
+    | '/admin/blog/$id'
     | '/admin/blog/new'
     | '/admin/blog'
   id:
@@ -114,9 +158,13 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/_layout'
     | '/admin/login'
+    | '/admin/_layout/comments'
+    | '/admin/_layout/icons'
+    | '/admin/_layout/mascots'
     | '/admin/_layout/theme'
     | '/api/trpc/$'
     | '/admin/_layout/'
+    | '/admin/_layout/blog/$id'
     | '/admin/_layout/blog/new'
     | '/admin/_layout/blog/'
   fileRoutesById: FileRoutesById
@@ -172,6 +220,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLayoutThemeRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
+    '/admin/_layout/mascots': {
+      id: '/admin/_layout/mascots'
+      path: '/mascots'
+      fullPath: '/admin/mascots'
+      preLoaderRoute: typeof AdminLayoutMascotsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/icons': {
+      id: '/admin/_layout/icons'
+      path: '/icons'
+      fullPath: '/admin/icons'
+      preLoaderRoute: typeof AdminLayoutIconsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/comments': {
+      id: '/admin/_layout/comments'
+      path: '/comments'
+      fullPath: '/admin/comments'
+      preLoaderRoute: typeof AdminLayoutCommentsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
     '/admin/_layout/blog/': {
       id: '/admin/_layout/blog/'
       path: '/blog'
@@ -186,19 +255,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLayoutBlogNewRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
+    '/admin/_layout/blog/$id': {
+      id: '/admin/_layout/blog/$id'
+      path: '/blog/$id'
+      fullPath: '/admin/blog/$id'
+      preLoaderRoute: typeof AdminLayoutBlogIdRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
   }
 }
 
 interface AdminLayoutRouteChildren {
+  AdminLayoutCommentsRoute: typeof AdminLayoutCommentsRoute
+  AdminLayoutIconsRoute: typeof AdminLayoutIconsRoute
+  AdminLayoutMascotsRoute: typeof AdminLayoutMascotsRoute
   AdminLayoutThemeRoute: typeof AdminLayoutThemeRoute
   AdminLayoutIndexRoute: typeof AdminLayoutIndexRoute
+  AdminLayoutBlogIdRoute: typeof AdminLayoutBlogIdRoute
   AdminLayoutBlogNewRoute: typeof AdminLayoutBlogNewRoute
   AdminLayoutBlogIndexRoute: typeof AdminLayoutBlogIndexRoute
 }
 
 const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
+  AdminLayoutCommentsRoute: AdminLayoutCommentsRoute,
+  AdminLayoutIconsRoute: AdminLayoutIconsRoute,
+  AdminLayoutMascotsRoute: AdminLayoutMascotsRoute,
   AdminLayoutThemeRoute: AdminLayoutThemeRoute,
   AdminLayoutIndexRoute: AdminLayoutIndexRoute,
+  AdminLayoutBlogIdRoute: AdminLayoutBlogIdRoute,
   AdminLayoutBlogNewRoute: AdminLayoutBlogNewRoute,
   AdminLayoutBlogIndexRoute: AdminLayoutBlogIndexRoute,
 }

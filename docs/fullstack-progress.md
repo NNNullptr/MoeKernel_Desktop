@@ -38,7 +38,7 @@
 | Phase 0：基础设施 | ✅ 完成 | 2026-04-22 | 4 张表已在 Turso 云端就绪 |
 | Phase 1：tRPC 数据层 | ✅ 完成 | 2026-04-23 | seed 待执行（1.8），其余全部就绪 |
 | Phase 2：组件数据源切换 | ✅ 完成 | 2026-04-25 | 全部 4 个组件已切换至 tRPC，静态配置退为 fallback |
-| Phase 3：管理后台 UI | 🔄 进行中 | — | — |
+| Phase 3：管理后台 UI | ✅ 完成 | 2026-04-26 | 9 个子步骤全部完成 |
 | Phase 4：评论系统 | 🔲 未开始 | — | — |
 
 > 状态说明：🔲 未开始 / 🔄 进行中 / ✅ 完成 / ❌ 阻塞
@@ -140,7 +140,7 @@
 
 ### 问题记录
 
-<!-- -->
+- **新建文章点击无法打开**：`APP_REGISTRY` 只在模块加载时注册静态 `BLOG_POSTS`，DB 创建的文章（nanoid id）不在其中。修复：`ArticleTile` 点击 dispatch 改为携带 `{ id, title, icon }` 对象；`home.tsx` 事件处理器在找不到注册项时动态写入 `APP_REGISTRY`（避免从 `blog/index.tsx` 反向 import registry 造成循环依赖）。
 
 ---
 
@@ -158,10 +158,10 @@
 - [x] **3.3** `/admin/theme` — 壁纸 URL、Logo URL、托盘图标列表（含 adminMiddleware JWT 升级）
 - [x] **3.4** `/admin/blog/index` — 文章列表，支持删除（双缓存失效：blog.list + site.getBlogPosts）
 - [x] **3.5** `/admin/blog/new` — 新建文章，含 Markdown 编辑器（MDEditor lazy 加载规避 SSR）
-- [ ] **3.6** `/admin/blog/$id` — 编辑文章
-- [ ] **3.7** `/admin/icons` — 图标显示/隐藏、拖拽排序
-- [ ] **3.8** `/admin/mascots` — 吉祥物管理
-- [ ] **3.9** `/admin/comments` — 评论系统选择与参数填写
+- [x] **3.6** `/admin/blog/$id` — 编辑文章（从 blog.list 按 id 过滤预填表单；保存后双缓存失效；成功弹窗提供"继续编辑/返回列表"两个出口）
+- [x] **3.7** `/admin/icons` — 图标显示/隐藏（立即保存）、内联编辑名称/路径/排序、添加/删除图标
+- [x] **3.8** `/admin/mascots` — 桌宠管理（缩略图网格视图；添加/编辑/删除弹窗；实时预览精灵+图标；尺寸滑块）
+- [x] **3.9** `/admin/comments` — 评论方案选择（disabled/Giscus/Waline）+ 动态表单 + Key 预览面板
 
 ### 完成标志验证
 
