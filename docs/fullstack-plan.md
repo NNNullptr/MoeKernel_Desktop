@@ -55,10 +55,13 @@ src/
 │   └── trpc/
 │       └── routes/
 │           ├── example.ts            （保持不动）
-│           ├── site.ts               ← 新增：公开读取接口
-│           ├── blog.ts               ← 新增：博客管理接口（需鉴权）
-│           ├── settings.ts           ← 新增：站点设置接口（需鉴权）
-│           └── auth.ts               ← 新增：管理员认证接口
+│           ├── site.ts               ← 公开读取接口（含 portfolio/media）
+│           ├── blog.ts               ← 博客管理接口（需鉴权）
+│           ├── settings.ts           ← 站点设置 + Resume 内容（需鉴权）
+│           ├── auth.ts               ← 管理员认证接口
+│           ├── chatbox.ts            ← 留言板（Phase 4，公开写 + 管理删）
+│           ├── portfolio.ts          ← 作品集管理（Phase 5，需鉴权）
+│           └── media.ts              ← 曲目管理（Phase 5，需鉴权）
 │
 └── routes/
     └── admin/
@@ -68,7 +71,13 @@ src/
         ├── theme.tsx                 ← 主题设置（壁纸、Logo）
         ├── icons.tsx                 ← 桌面图标管理
         ├── mascots.tsx               ← 吉祥物管理
-        ├── comments.tsx              ← 评论系统配置
+        ├── comments.tsx              ← 评论方案配置（已完成）
+        ├── chatbox.tsx               ← 留言板管理（Phase 4）
+        ├── portfolio.tsx             ← 作品集管理（Phase 5）
+        ├── media.tsx                 ← 曲目管理（Phase 5）
+        ├── contact.tsx               ← 联系方式（Phase 5）
+        ├── about.tsx                 ← 关于我（Phase 5）
+        ├── resume.tsx                ← 简历管理（Phase 6）
         └── blog/
             ├── index.tsx             ← 文章列表
             ├── new.tsx               ← 新建文章
@@ -359,32 +368,150 @@ export function useSiteSettings() {
 
 ---
 
-## Phase 4：评论系统（可选）
+## Phase 4：ChatBox 留言板系统
 
-**目标**：支持多种评论方案，用户在后台选择配置，无需改代码。
-**预估耗时**：2-4 小时
+**目标**：在 XP 桌面新增独立"留言板"窗口，访客可公开留言，站长可在后台管理（删除/置顶）。
+**预估耗时**：半天
 
-### 实现方式
+### 4.1 数据表：`chat_messages`
 
-`site_settings` 中存储评论配置：
+```typescript
+export const chatMessages = sqliteTable('chat_messages', {
+  id:        text('id').primaryKey(),                                   // nanoid
+  name:      text('name').notNull(),                                    // 访客昵称
+  content:   text('content').notNull(),                                 // 留言内容（纯文本，限 500 字）
+  ipHash:    text('ip_hash').notNull(),                                 // SHA-256(IP)，用于限流，不存明文
+  isPinned:  integer('is_pinned', { mode: 'boolean' }).notNull().default(false),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+});
+```
 
-| key | 示例值 | 说明 |
+### 4.2 tRPC 接口设计
+
+**公开接口**（`publicProcedure`，无需登录）：
+
+```typescript
+// 分页读取留言（倒序，置顶消息永远排最前）
+chatbox.listMessages({ limit?: number, cursor?: string }) → { items, nextCursor }
+
+// 访客发送留言（防刷机制）
+chatbox.createMessage({ name: string, content: string })
+// 防刷逻辑：查询同 ip_hash 最近一条消息，若距现在 < 60s 则抛 TOO_MANY_REQUESTS
+// name 限 20 字，content 限 500 字（Zod 验证）
+```
+
+**管理接口**（`adminProcedure`，需鉴权）：
+
+```typescript
+chatbox.deleteMessage({ id: string })
+chatbox.togglePin({ id: string })     // 切换置顶状态
+```
+
+### 4.3 前台组件：`ChatBox` 窗口
+
+- 在 XP 桌面注册为一个可开关的独立窗口（与博客、Portfolio 平级）
+- 窗口内显示留言列表（时间倒序，置顶消息顶部特显）
+- 底部输入区：昵称 + 内容 + 发送按钮
+- 发送成功后乐观更新，失败时展示限流提示
+
+### 4.4 后台管理：`/admin/chatbox`
+
+- 留言列表（含 IP hash 显示供参考）
+- 删除按钮（单条）
+- 置顶/取消置顶切换
+
+---
+
+## Phase 5：Portfolio / Media / Winamp / Contact / About 后台管理
+
+**目标**：将桌面核心组件的内容全部云端化，通过后台可视化配置。
+**预估耗时**：2-3 天
+
+### 5.1 新增数据表
+
+```typescript
+// My Portfolio — 作品集
+export const portfolioItems = sqliteTable('portfolio_items', {
+  id:          text('id').primaryKey(),
+  title:       text('title').notNull(),
+  description: text('description').notNull().default(''),
+  techStack:   text('tech_stack').notNull().default(''),  // 逗号分隔或 JSON 数组字符串
+  link:        text('link').notNull().default(''),
+  imageUrl:    text('image_url').notNull().default(''),
+  order:       integer('order').notNull().default(0),
+  visible:     integer('visible', { mode: 'boolean' }).notNull().default(true),
+});
+
+// Media Player / Winamp 共用播放列表
+export const mediaTracks = sqliteTable('media_tracks', {
+  id:       text('id').primaryKey(),
+  title:    text('title').notNull(),
+  artist:   text('artist').notNull().default(''),
+  src:      text('src').notNull(),           // 外链 URL 或相对路径
+  coverUrl: text('cover_url').notNull().default(''),
+  order:    integer('order').notNull().default(0),
+});
+```
+
+**Contact Me / About Me**：内容结构相对简单（一段文本 + 若干链接），使用 `site_settings` 存储 JSON 字符串，无需独立建表。
+
+### 5.2 新增 tRPC 路由
+
+- `portfolio.ts`（`adminProcedure`）：CRUD + 排序
+- `media.ts`（`adminProcedure`）：CRUD + 排序；公开读取接口注册到 `site.ts`
+- `site.ts` 追加：`getPortfolioItems` / `getMediaTracks`（公开）
+
+### 5.3 新增后台页面
+
+| 页面 | 路径 | 功能 |
 |---|---|---|
-| `comment_provider` | `giscus` / `waline` / `disabled` | 选择方案 |
-| `giscus_repo` | `username/repo` | Giscus 用 |
-| `giscus_repo_id` | `R_xxx` | Giscus 用 |
-| `giscus_category_id` | `DIC_xxx` | Giscus 用 |
-| `waline_server_url` | `https://xxx.vercel.app` | Waline 用 |
+| 作品集管理 | `/admin/portfolio` | 卡片列表 + 添加/编辑/删除 |
+| 曲目管理 | `/admin/media` | 表格列表 + 拖拽排序 + CRUD |
+| 联系方式 | `/admin/contact` | 文本 + 社交链接 key-value 编辑 |
+| 关于我 | `/admin/about` | 富文本/Markdown 编辑器 |
 
-博客阅读器底部根据 `comment_provider` 动态渲染对应组件。
+### 5.4 前台组件切换
 
-### 方案对比
+各组件从静态 config → `trpc.site.getXxx`，模式与 Phase 2 相同，改一个验一个。
 
-| 方案 | 成本 | 集成难度 | 数据归属 | 适用场景 |
-|---|---|---|---|---|
-| **Giscus** | 完全免费 | 极低（填 3 个 ID） | GitHub | 读者有 GitHub 账号 |
-| **Waline** | 免费自部署（Vercel） | 低（配置环境变量） | 自有 | 想要完整评论功能 |
-| **不启用** | 零 | 零 | — | 纯展示站点 |
+---
+
+## Phase 6：Resume 全栈化改造
+
+**目标**：简历内容从硬编码转为后台可编辑，前台动态渲染，参考 My Blog 的实现思路。
+**预估耗时**：1-2 天
+
+### 6.1 数据表：`resume_sections`
+
+简历采用**结构化 JSON 存储**方案——每个板块（基本信息、工作经历、项目、技能）是 `site_settings` 中的一条长文本 key，value 为 JSON 字符串，无需单独建表，便于灵活扩展。
+
+| key | 说明 | 示例结构 |
+|---|---|---|
+| `resume_basics` | 姓名、头衔、联系方式 | `{"name":"...","title":"...","email":"..."}` |
+| `resume_experience` | 工作/实习经历数组 | `[{"company":"...","role":"...","period":"...","bullets":[]}]` |
+| `resume_projects` | 项目经历数组 | `[{"name":"...","tech":"...","desc":"...","link":"..."}]` |
+| `resume_skills` | 技能分组 | `[{"category":"...","items":["..."]}]` |
+| `resume_education` | 教育经历数组 | `[{"school":"...","degree":"...","period":"..."}]` |
+
+### 6.2 tRPC 接口
+
+复用现有 `settings.ts`：
+- `settings.get` 读取所有 `resume_*` 键
+- `settings.setBatch` 批量保存（与主题设置页同一接口）
+
+公开侧：`site.getSettings` 已包含所有 key-value，前台 Resume 组件直接读取并 JSON.parse。
+
+### 6.3 后台页面：`/admin/resume`
+
+- 分 Tab 管理各板块（基本信息 / 工作经历 / 项目 / 技能 / 教育）
+- 经历类板块支持增删条目（动态表单）
+- 保存调用 `settings.setBatch`
+- 右侧可选实时预览面板
+
+### 6.4 前台 Resume 组件改造
+
+- 读取 `trpc.site.getSettings`，提取 `resume_*` 键并 JSON.parse
+- 原有硬编码内容退为 fallback 默认值（未配置时不崩溃）
 
 ---
 

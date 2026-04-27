@@ -20,9 +20,14 @@ export function useSiteSettings() {
     ? (JSON.parse(trayIconsRaw) as string[])
     : SYSTEM_TRAY_ICONS;
 
+  const rawOpacity = data?.chatbox_bg_opacity;
+
   return {
-    wallpaperUrl:    data?.wallpaper_url     ?? WALLPAPER_URL,
-    logoUrl:         data?.windows_logo_url  ?? WINDOWS_LOGO_URL,
-    systemTrayIcons: trayIcons,
+    isLoaded:         !!data,
+    wallpaperUrl:     data?.wallpaper_url     ?? WALLPAPER_URL,
+    logoUrl:          data?.windows_logo_url  ?? WINDOWS_LOGO_URL,
+    systemTrayIcons:  trayIcons,
+    chatboxBgUrl:     data?.chatbox_bg_url    ?? '',
+    chatboxBgOpacity: rawOpacity ? parseFloat(rawOpacity) : 0.15,
   };
 }

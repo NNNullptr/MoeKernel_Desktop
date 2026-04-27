@@ -18,6 +18,7 @@ import { Route as AdminLayoutThemeRouteImport } from './routes/admin/_layout/the
 import { Route as AdminLayoutMascotsRouteImport } from './routes/admin/_layout/mascots'
 import { Route as AdminLayoutIconsRouteImport } from './routes/admin/_layout/icons'
 import { Route as AdminLayoutCommentsRouteImport } from './routes/admin/_layout/comments'
+import { Route as AdminLayoutChatboxRouteImport } from './routes/admin/_layout/chatbox'
 import { Route as AdminLayoutBlogIndexRouteImport } from './routes/admin/_layout/blog/index'
 import { Route as AdminLayoutBlogNewRouteImport } from './routes/admin/_layout/blog/new'
 import { Route as AdminLayoutBlogIdRouteImport } from './routes/admin/_layout/blog/$id'
@@ -67,6 +68,11 @@ const AdminLayoutCommentsRoute = AdminLayoutCommentsRouteImport.update({
   path: '/comments',
   getParentRoute: () => AdminLayoutRoute,
 } as any)
+const AdminLayoutChatboxRoute = AdminLayoutChatboxRouteImport.update({
+  id: '/chatbox',
+  path: '/chatbox',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 const AdminLayoutBlogIndexRoute = AdminLayoutBlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminLayoutRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/admin/chatbox': typeof AdminLayoutChatboxRoute
   '/admin/comments': typeof AdminLayoutCommentsRoute
   '/admin/icons': typeof AdminLayoutIconsRoute
   '/admin/mascots': typeof AdminLayoutMascotsRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/login': typeof AdminLoginRoute
+  '/admin/chatbox': typeof AdminLayoutChatboxRoute
   '/admin/comments': typeof AdminLayoutCommentsRoute
   '/admin/icons': typeof AdminLayoutIconsRoute
   '/admin/mascots': typeof AdminLayoutMascotsRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin/_layout': typeof AdminLayoutRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
+  '/admin/_layout/chatbox': typeof AdminLayoutChatboxRoute
   '/admin/_layout/comments': typeof AdminLayoutCommentsRoute
   '/admin/_layout/icons': typeof AdminLayoutIconsRoute
   '/admin/_layout/mascots': typeof AdminLayoutMascotsRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/login'
+    | '/admin/chatbox'
     | '/admin/comments'
     | '/admin/icons'
     | '/admin/mascots'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin/login'
+    | '/admin/chatbox'
     | '/admin/comments'
     | '/admin/icons'
     | '/admin/mascots'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/_layout'
     | '/admin/login'
+    | '/admin/_layout/chatbox'
     | '/admin/_layout/comments'
     | '/admin/_layout/icons'
     | '/admin/_layout/mascots'
@@ -241,6 +253,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLayoutCommentsRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
+    '/admin/_layout/chatbox': {
+      id: '/admin/_layout/chatbox'
+      path: '/chatbox'
+      fullPath: '/admin/chatbox'
+      preLoaderRoute: typeof AdminLayoutChatboxRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
     '/admin/_layout/blog/': {
       id: '/admin/_layout/blog/'
       path: '/blog'
@@ -266,6 +285,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminLayoutRouteChildren {
+  AdminLayoutChatboxRoute: typeof AdminLayoutChatboxRoute
   AdminLayoutCommentsRoute: typeof AdminLayoutCommentsRoute
   AdminLayoutIconsRoute: typeof AdminLayoutIconsRoute
   AdminLayoutMascotsRoute: typeof AdminLayoutMascotsRoute
@@ -277,6 +297,7 @@ interface AdminLayoutRouteChildren {
 }
 
 const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
+  AdminLayoutChatboxRoute: AdminLayoutChatboxRoute,
   AdminLayoutCommentsRoute: AdminLayoutCommentsRoute,
   AdminLayoutIconsRoute: AdminLayoutIconsRoute,
   AdminLayoutMascotsRoute: AdminLayoutMascotsRoute,

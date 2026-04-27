@@ -7,6 +7,22 @@
 
 ## 架构变更日志
 
+### 2026-04-25 · 需求变更：评论系统取消 → 全局 ChatBox + 多组件后台扩容
+
+| 项目 | 原方案 | 新方案 |
+|---|---|---|
+| 评论系统 | 博客文章下方嵌入 Giscus/Waline | 取消；改为 XP 桌面独立"留言板"窗口（自研 ChatBox） |
+| Phase 4 定义 | 评论系统配置 | ChatBox 留言板系统（独立数据表 + tRPC + 前台窗口） |
+| 后台管理范围 | Blog / 图标 / 桌宠 | 新增：My Portfolio、Media Player/Winamp、Contact Me、About Me |
+| Resume 组件 | 前端硬编码 | Phase 6 全栈化：后台编辑，前台动态渲染（数据存 site_settings JSON） |
+
+**新增数据表**：`chat_messages`（Phase 4）、`portfolio_items`（Phase 5）、`media_tracks`（Phase 5）。
+Resume 不新建表，复用 `site_settings` 存储 `resume_*` 系列 JSON 字段。
+
+**影响范围**：不修改任何已完成代码，所有变更为纯增量添加。Phase 3.9（`/admin/comments`）已完成的评论配置页面保留，不删除。
+
+---
+
 ### 2026-04-22 · 部署方案重定位：Deno Deploy → 自有服务器 + Cloudflare
 
 | 项目 | 原方案 | 新方案 |
@@ -39,7 +55,9 @@
 | Phase 1：tRPC 数据层 | ✅ 完成 | 2026-04-23 | seed 待执行（1.8），其余全部就绪 |
 | Phase 2：组件数据源切换 | ✅ 完成 | 2026-04-25 | 全部 4 个组件已切换至 tRPC，静态配置退为 fallback |
 | Phase 3：管理后台 UI | ✅ 完成 | 2026-04-26 | 9 个子步骤全部完成 |
-| Phase 4：评论系统 | 🔲 未开始 | — | — |
+| Phase 4：ChatBox 留言板 | ✅ 完成 | 2026-04-26 | 含后台管理 + 皮肤系统全栈化 |
+| Phase 5：Portfolio/Media/Contact/About 后台 | 🔲 未开始 | — | — |
+| Phase 6：Resume 全栈化 | 🔲 未开始 | — | — |
 
 > 状态说明：🔲 未开始 / 🔄 进行中 / ✅ 完成 / ❌ 阻塞
 
@@ -176,22 +194,76 @@
 
 ---
 
-## Phase 4：评论系统（可选）
+## Phase 4：ChatBox 留言板系统
 
-**目标**：支持多种评论方案，后台可配置切换
+**目标**：XP 桌面新增"留言板"独立窗口，访客公开留言，后台可管理
 
 ### 步骤检查
 
-- [ ] **4.1** 在 `site_settings` 中约定评论相关 key 的命名规范
-- [ ] **4.2** 创建 `GiscusWidget` 组件，从 settings 读取参数
-- [ ] **4.3** 创建 `WalineWidget` 组件，从 settings 读取参数
-- [ ] **4.4** 博客阅读器底部根据 `comment_provider` 动态渲染对应组件
-- [ ] **4.5** `/admin/comments` 页面完善（选择方案 + 填写参数）
+- [x] **4.1** 在 `schema.ts` 添加 `chat_messages` 表，执行 `drizzle-kit push`
+- [x] **4.2** 创建 `src/server/trpc/routes/chatbox.ts`（公开 listMessages + createMessage；管理 deleteMessage + togglePin）
+- [x] **4.3** 注册 `chatbox` 路由到 `router.ts`
+- [x] **4.4** 创建前台 `ChatBox` 窗口组件（`src/client/apps/chatbox/index.tsx`），注册到 APP_REGISTRY
+- [x] **4.5** 在 XP 桌面添加留言板图标入口（`icons.config.ts`，使用 MSN.png 图标）
+- [x] **4.6** 创建 `/admin/chatbox` 后台管理页（留言删除/置顶 + 外观皮肤设置）
+- [x] **4.7** `use-site-config.ts` 新增 `chatboxBgUrl` / `chatboxBgOpacity` 字段（含 `isLoaded` 信号）
+- [x] **4.8** 前台 `ChatBoxApp` 从 `useSiteSettings()` 初始化默认背景，用户可临时覆盖
 
 ### 完成标志验证
 
-- [ ] 在后台选择 Giscus，填入 repo 参数，博客底部出现评论区
-- [ ] 在后台切换为 `disabled`，博客底部评论区消失
+- [x] 访客填写昵称 + 内容后点发送，留言出现在列表
+- [x] 同一 IP 60 秒内连续发送第二条，返回限流提示
+- [x] 后台可删除留言，前台刷新后消失
+- [x] 后台可置顶留言，前台列表顶部显示
+- [x] 后台外观页修改背景 URL，前台 ChatBox 窗口重新打开后自动应用
+
+### 问题记录
+
+<!-- -->
+
+---
+
+## Phase 5：Portfolio / Media / Winamp / Contact / About 后台管理
+
+**目标**：将上述组件内容全部云端化，通过 /admin 可视化配置
+
+### 步骤检查
+
+- [ ] **5.1** `schema.ts` 添加 `portfolio_items` / `media_tracks` 表，执行 push
+- [ ] **5.2** 创建 `routes/portfolio.ts`（CRUD + 排序），注册路由
+- [ ] **5.3** 创建 `routes/media.ts`（CRUD + 排序），注册路由
+- [ ] **5.4** `routes/site.ts` 追加 `getPortfolioItems` / `getMediaTracks` 公开接口
+- [ ] **5.5** 创建 `/admin/portfolio` 后台页（卡片列表 + CRUD）
+- [ ] **5.6** 创建 `/admin/media` 后台页（表格 + 拖拽排序）
+- [ ] **5.7** 创建 `/admin/contact` / `/admin/about` 后台页（site_settings JSON 编辑）
+- [ ] **5.8** 前台各组件切换至 tRPC 数据源（改一个验一个）
+
+### 完成标志验证
+
+- [ ] 在后台添加一个 Portfolio 项目，前台 My Portfolio 出现新卡片
+- [ ] 在后台添加一首曲目，Media Player 播放列表出现新歌
+- [ ] 修改 Contact 联系方式，前台 Contact Me 窗口内容更新
+
+### 问题记录
+
+<!-- -->
+
+---
+
+## Phase 6：Resume 全栈化改造
+
+**目标**：简历内容后台可编辑，前台动态渲染
+
+### 步骤检查
+
+- [ ] **6.1** 约定 `site_settings` 中 `resume_*` 系列 key 的 JSON 结构（基本信息/经历/项目/技能/教育）
+- [ ] **6.2** 创建 `/admin/resume` 后台页（分 Tab，动态表单，调用 settings.setBatch 保存）
+- [ ] **6.3** 前台 Resume 组件改为读取 `trpc.site.getSettings`，JSON.parse 各板块，原硬编码退为 fallback
+
+### 完成标志验证
+
+- [ ] 在后台修改基本信息中的职位标题，前台 Resume 窗口显示新标题
+- [ ] 添加一条工作经历，前台简历中出现该条目
 
 ### 问题记录
 

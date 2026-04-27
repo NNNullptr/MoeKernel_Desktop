@@ -13,7 +13,25 @@
       "Bash(node -e \"console.log\\(require\\('./node_modules/@tanstack/react-router/dist/llms/rules/routing.js'\\)\\)\")",
       "Bash(node -e \"const r = require\\('./node_modules/@tanstack/react-router/dist/llms/rules/guide.js'\\); const txt = typeof r.default === 'string' ? r.default : JSON.stringify\\(r\\); const idx = txt.indexOf\\('pathless'\\); console.log\\(txt.substring\\(Math.max\\(0,idx-200\\), idx+3000\\)\\)\")",
       "Bash(node -e ' *)",
-      "Bash(node -e \"const p = require\\('./node_modules/@uiw/react-md-editor/package.json'\\); console.log\\('version:', p.version\\); console.log\\('exports:', Object.keys\\(p.exports || {}\\).slice\\(0,8\\).join\\(', '\\)\\)\")"
+      "Bash(node -e \"const p = require\\('./node_modules/@uiw/react-md-editor/package.json'\\); console.log\\('version:', p.version\\); console.log\\('exports:', Object.keys\\(p.exports || {}\\).slice\\(0,8\\).join\\(', '\\)\\)\")",
+      "Bash(npx drizzle-kit *)",
+      "Bash(npx tsc *)",
+      "Bash(python3 -c ' *)",
+      "Bash(node --input-type=module)",
+      "Bash(curl -s \"http://localhost:3000/api/trpc/chatbox.listMessages?batch=1&input=%7B%220%22%3A%7B%22json%22%3A%7B%22limit%22%3A50%7D%7D%7D\")",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(jobs -l)",
+      "Bash(kill %1)",
+      "Bash(find /d/MoeKernel/src -type f \\\\\\( -name \"*.ts\" -o -name \"*.tsx\" \\\\\\) -exec grep -l \"useSiteSettings\\\\|use-site-settings\" {} \\\\;)",
+      "Bash(curl -s \"http://localhost:3000/admin/chatbox\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(pnpm tsc *)",
+      "Bash(curl -s -c /tmp/admin_cookies.txt -X POST \"http://localhost:3000/api/trpc/auth.login?batch=1\" -H \"Content-Type: application/json\" -d '{\"0\":{\"json\":{\"password\":\"admin\"}}}')",
+      "Bash(curl -si -c /tmp/admin_cookies.txt -X POST \"http://localhost:3000/api/trpc/auth.login?batch=1\" -H \"Content-Type: application/json\" -d '{\"0\":{\"json\":{\"password\":\"minami\"}}}')",
+      "Bash(curl -s -c /tmp/admin_cookies.txt -X POST \"http://localhost:3000/api/trpc/auth.login?batch=1\" -H \"Content-Type: application/json\" -d '{\"0\":{\"json\":{\"password\":\"minami\"}}}')",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(curl -s -c /tmp/admin_cookies.txt -b /tmp/admin_cookies.txt -X POST \"http://localhost:3000/api/trpc/auth.login?batch=1\" -H \"Content-Type: application/json\" -d '{\"0\":{\"json\":{\"password\":\"minami\"}}}')",
+      "Bash(curl -s -c /tmp/admin_cookies.txt -X POST 'http://localhost:3000/api/trpc/auth.login?batch=1' -H 'Content-Type: application/json' -d '{\"0\":{\"json\":{\"password\":\"minami\"}}}')",
+      "Bash(curl -s \"http://localhost:3000/\" -o /dev/null -w \"%{http_code}\\\\n\")"
     ]
   }
 }

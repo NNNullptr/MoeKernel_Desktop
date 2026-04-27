@@ -44,6 +44,9 @@ import { ImageViewerApp }  from './image-viewer';
 import { BlogFolderApp }   from './blog';
 import { BlogPostViewer }  from './blog/viewer';
 
+// ── Phase 4 ──────────────────────────────────────────────────────────────────
+import { ChatBoxApp }      from './chatbox';
+
 // ── Blog post configuration ──────────────────────────────────────────────────
 import { BLOG_POSTS }      from '@/client/config/blog.config';
 
@@ -163,6 +166,16 @@ export const APP_REGISTRY: Record<string, OsApp> = {
     defaultWidth: 640,
     defaultHeight: 500,
     AppComponent: ImageViewerApp,
+  },
+
+  // ── Phase 4：留言板 ───────────────────────────────────────────────────────
+  chatbox: {
+    id: 'chatbox',
+    title: 'ChatBox - 留言板',
+    icon: '/assets/icons/MSN.png',
+    defaultWidth: 520,
+    defaultHeight: 540,
+    AppComponent: ChatBoxApp,
   },
 
   // ── Blog folder — opens the blog article grid ────────────────────────────

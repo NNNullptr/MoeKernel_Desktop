@@ -37,5 +37,6 @@ export const DESKTOP_ICON_DEFS: DesktopIconDef[] = [
   { id: 'video', label: 'Media Player', src: '/assets/icons/Media.png' },
   { id: 'portfolio', label: 'My Portfolio', src: '/assets/icons/Portfolio.png' },
   { id: 'blog', label: 'My Blog', src: '/assets/icons/Blog.png' },
+  { id: 'chatbox', label: 'ChatBox', src: '/assets/icons/MSN.png' },
   { id: 'recycleBin', label: 'Recycle Bin', src: '/assets/icons/Recycle.png' },
 ];

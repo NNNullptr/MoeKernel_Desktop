@@ -38,3 +38,14 @@ export const mascots = sqliteTable('mascots', {
   size:    integer('size').notNull().default(80),
   order:   integer('order').notNull().default(0),
 });
+
+// Phase 4：ChatBox 留言板
+// ipHash 存储 SHA-256(IP)，仅用于限流，不存明文 IP
+export const chatMessages = sqliteTable('chat_messages', {
+  id:        text('id').primaryKey(),
+  name:      text('name').notNull(),
+  content:   text('content').notNull(),
+  ipHash:    text('ip_hash').notNull(),
+  isPinned:  integer('is_pinned', { mode: 'boolean' }).notNull().default(false),
+  createdAt: integer('created_at', { mode: 'timestamp' }).$defaultFn(() => new Date()),
+});
