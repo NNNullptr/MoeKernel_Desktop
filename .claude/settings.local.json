@@ -31,7 +31,9 @@
       "Bash(echo \"EXIT:$?\")",
       "Bash(curl -s -c /tmp/admin_cookies.txt -b /tmp/admin_cookies.txt -X POST \"http://localhost:3000/api/trpc/auth.login?batch=1\" -H \"Content-Type: application/json\" -d '{\"0\":{\"json\":{\"password\":\"minami\"}}}')",
       "Bash(curl -s -c /tmp/admin_cookies.txt -X POST 'http://localhost:3000/api/trpc/auth.login?batch=1' -H 'Content-Type: application/json' -d '{\"0\":{\"json\":{\"password\":\"minami\"}}}')",
-      "Bash(curl -s \"http://localhost:3000/\" -o /dev/null -w \"%{http_code}\\\\n\")"
+      "Bash(curl -s \"http://localhost:3000/\" -o /dev/null -w \"%{http_code}\\\\n\")",
+      "Bash(python3 -c \" import sys,json d=json.load\\(sys.stdin\\) for i in d[0]['result']['data']['json']: print\\(f\\\\\" {i['order']:>2} {i['id']:<15} {i['label']}\\\\\"\\) \" kill %1)",
+      "Bash(python3 -c \" import sys,json d=json.load\\(sys.stdin\\) icons=d[0]['result']['data']['json'] print\\('Public visible icons:', len\\(icons\\)\\) for i in icons: print\\(f\\\\\" {i['order']:>2} {i['id']}\\\\\"\\) \")"
     ]
   }
 }
