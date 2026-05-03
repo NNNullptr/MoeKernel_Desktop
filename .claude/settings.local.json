@@ -41,7 +41,10 @@
       "Bash(where curl.exe)",
       "Bash(curl.exe --version)",
       "Bash(curl.exe -v http://localhost:3000/api/trpc/portfolio.list)",
-      "Bash(curl -s \"http://localhost:3000/\")"
+      "Bash(curl -s \"http://localhost:3000/\")",
+      "Bash(Get-Content \"D:\\\\MoeKernel\\\\README.md\")",
+      "Bash(Measure-Object -Line)",
+      "Bash(Select-Object -ExpandProperty Lines)"
     ]
   }
 }
