@@ -12,12 +12,26 @@ const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 // ─── 主组件 ───────────────────────────────────────────────────────────────────
 
 function ThemePage() {
+  // ── 主题外观字段 ──────────────────────────────────────────────────────────────
   const [wallpaperUrl,  setWallpaperUrl]  = useState('');
   const [logoUrl,       setLogoUrl]       = useState('');
   const [trayIconsText, setTrayIconsText] = useState('');
   const [initialized,   setInitialized]   = useState(false);
   const [showSuccess,   setShowSuccess]   = useState(false);
   const [errorMsg,      setErrorMsg]      = useState('');
+
+  // ── 站点身份信息字段 ──────────────────────────────────────────────────────────
+  const [siteTitle,       setSiteTitle]       = useState('');
+  const [siteDescription, setSiteDescription] = useState('');
+  const [siteAuthor,      setSiteAuthor]      = useState('');
+  const [siteBrand,       setSiteBrand]       = useState('');
+  const [bootSubtitle,    setBootSubtitle]    = useState('');
+  const [siteRole,        setSiteRole]        = useState('');
+  const [siteUsername,    setSiteUsername]    = useState('');
+  const [siteAvatarUrl,   setSiteAvatarUrl]   = useState('');
+  const [identityInitialized, setIdentityInitialized] = useState(false);
+  const [identitySuccess, setIdentitySuccess] = useState(false);
+  const [identityError,   setIdentityError]   = useState('');
 
   // ── 读取当前设置 ────────────────────────────────────────────���─────────────
   const { data: settings, isPending: isLoading } = useQuery({
@@ -37,11 +51,25 @@ function ThemePage() {
     }
   }, [settings, initialized]);
 
-  // ── 保存 ──────────────────────────────────────────────────────────────────
+  // 身份信息初始化（与主题表单独立，避免互相覆盖）
+  useEffect(() => {
+    if (settings && !identityInitialized) {
+      setSiteTitle(settings['site_title']       ?? '');
+      setSiteDescription(settings['site_description'] ?? '');
+      setSiteAuthor(settings['site_author']     ?? '');
+      setSiteBrand(settings['site_brand']       ?? '');
+      setBootSubtitle(settings['boot_subtitle'] ?? '');
+      setSiteRole(settings['site_role']         ?? '');
+      setSiteUsername(settings['site_username'] ?? '');
+      setSiteAvatarUrl(settings['site_avatar_url'] ?? '');
+      setIdentityInitialized(true);
+    }
+  }, [settings, identityInitialized]);
+
+  // ── 保存主题外观 ───────────────────────────────────────────────────────────
   const { mutate: save, isPending: isSaving } = useMutation({
     ...trpc.settings.setBatch.mutationOptions(),
     onSuccess: () => {
-      // 失效前台 site.getSettings 缓存，下次访问首页自动重新拉取
       queryClient.invalidateQueries({
         queryKey: trpc.site.getSettings.queryOptions().queryKey,
       });
@@ -50,6 +78,21 @@ function ThemePage() {
     },
     onError: (err) => {
       setErrorMsg(err.message ?? '保存失败，请重试');
+    },
+  });
+
+  // ── 保存身份信息 ───────────────────────────────────────────────────────────
+  const { mutate: saveIdentity, isPending: isSavingIdentity } = useMutation({
+    ...trpc.settings.setBatch.mutationOptions(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: trpc.site.getSettings.queryOptions().queryKey,
+      });
+      setIdentityError('');
+      setIdentitySuccess(true);
+    },
+    onError: (err) => {
+      setIdentityError(err.message ?? '保存失败，请重试');
     },
   });
 
@@ -65,6 +108,19 @@ function ThemePage() {
       system_tray_icons: JSON.stringify(trayIcons),
     });
   }, [save, wallpaperUrl, logoUrl, trayIconsText]);
+
+  const handleSaveIdentity = useCallback(() => {
+    saveIdentity({
+      site_title:       siteTitle.trim(),
+      site_description: siteDescription.trim(),
+      site_author:      siteAuthor.trim(),
+      site_brand:       siteBrand.trim(),
+      boot_subtitle:    bootSubtitle.trim(),
+      site_role:        siteRole.trim(),
+      site_username:    siteUsername.trim(),
+      site_avatar_url:  siteAvatarUrl.trim(),
+    });
+  }, [saveIdentity, siteTitle, siteDescription, siteAuthor, siteBrand, bootSubtitle, siteRole, siteUsername, siteAvatarUrl]);
 
   // ── 渲染 ──────────────────────────────────────────────────────────────────
   return (
@@ -129,7 +185,7 @@ function ThemePage() {
             <TrayPreview text={trayIconsText} />
           </Section>
 
-          {/* 错误提示 */}
+          {/* 错误提示（主题） */}
           {errorMsg && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: 8,
@@ -141,7 +197,7 @@ function ThemePage() {
             </div>
           )}
 
-          {/* 操作栏 */}
+          {/* 主题操作栏 */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 4 }}>
             <XpButton onClick={handleSave} disabled={isSaving} primary>
               {isSaving ? '保存中…' : '💾  保存设置'}
@@ -150,11 +206,86 @@ function ThemePage() {
               重置
             </XpButton>
           </div>
+
+          {/* ── 站点身份信息 ────────────────────────────────────────────────── */}
+          <div style={{ marginTop: 24 }}>
+            <Section title="🪪  站点身份信息">
+              <p style={{ margin: '0 0 10px', fontSize: 11, color: '#555' }}>
+                配置浏览器标签页标题、欢迎屏内容与开始菜单显示信息，保存后前台刷新生效。
+              </p>
+
+              {/* 网页信息 */}
+              <div style={{ fontSize: 11, fontWeight: 'bold', color: '#444', margin: '8px 0 6px', borderBottom: '1px solid #d0d0c0', paddingBottom: 3 }}>
+                网页信息
+              </div>
+              <FieldRow label="站点标题">
+                <XpInput value={siteTitle} onChange={setSiteTitle} placeholder="NNNullptr" width={340} />
+              </FieldRow>
+              <FieldRow label="站点描述">
+                <XpInput value={siteDescription} onChange={setSiteDescription} placeholder="个人主页描述文字" width={340} />
+              </FieldRow>
+              <FieldRow label="作者署名">
+                <XpInput value={siteAuthor} onChange={setSiteAuthor} placeholder="NNNullptr" width={340} />
+              </FieldRow>
+
+              {/* 欢迎屏 / 开始菜单 */}
+              <div style={{ fontSize: 11, fontWeight: 'bold', color: '#444', margin: '14px 0 6px', borderBottom: '1px solid #d0d0c0', paddingBottom: 3 }}>
+                欢迎屏 &amp; 开始菜单
+              </div>
+              <FieldRow label="品牌大字">
+                <XpInput value={siteBrand} onChange={setSiteBrand} placeholder="MoeKernel（Boot/Login 左栏大字）" width={340} />
+              </FieldRow>
+              <FieldRow label="Boot 副标题">
+                <XpInput value={bootSubtitle} onChange={setBootSubtitle} placeholder="Welcome" width={340} />
+              </FieldRow>
+              <FieldRow label="角色/头衔">
+                <XpInput value={siteRole} onChange={setSiteRole} placeholder="Software Developer" width={340} />
+              </FieldRow>
+              <FieldRow label="用户名">
+                <XpInput value={siteUsername} onChange={setSiteUsername} placeholder="NNNullptr（Login 右栏 + Start 菜单）" width={340} />
+              </FieldRow>
+              <FieldRow label="头像图片 URL">
+                <XpInput value={siteAvatarUrl} onChange={setSiteAvatarUrl} placeholder="/assets/avatarSrc.jpg 或 https://..." width={300} />
+                {siteAvatarUrl && (
+                  <img
+                    src={siteAvatarUrl}
+                    alt="头像预览"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.opacity = '0.3'; }}
+                    style={{ width: 40, height: 40, objectFit: 'cover', border: '2px solid #aaa', borderRadius: 2, flexShrink: 0 }}
+                  />
+                )}
+              </FieldRow>
+
+              {/* 错误提示（身份） */}
+              {identityError && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  background: '#fff4ce', border: '1px solid #e0a000',
+                  borderRadius: 2, padding: '6px 10px', marginBottom: 10,
+                }}>
+                  <span style={{ fontSize: 16 }}>⚠️</span>
+                  <span style={{ fontSize: 11, color: '#7a4900' }}>{identityError}</span>
+                </div>
+              )}
+
+              {/* 身份操作栏 */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
+                <XpButton onClick={handleSaveIdentity} disabled={isSavingIdentity} primary>
+                  {isSavingIdentity ? '保存中…' : '💾  保存身份信息'}
+                </XpButton>
+                <XpButton onClick={() => setIdentityInitialized(false)} disabled={isSavingIdentity}>
+                  重置
+                </XpButton>
+              </div>
+            </Section>
+          </div>
         </>
       )}
 
-      {/* 成功对话框 */}
-      {showSuccess && <SuccessDialog onClose={() => setShowSuccess(false)} />}
+      {/* 成功对话框（主题 / 身份信息共用） */}
+      {(showSuccess || identitySuccess) && (
+        <SuccessDialog onClose={() => { setShowSuccess(false); setIdentitySuccess(false); }} />
+      )}
     </div>
   );
 }

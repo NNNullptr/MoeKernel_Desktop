@@ -647,6 +647,155 @@ documents.delete({ id })
 
 ---
 
+## Phase 7：站点身份信息自定义
+
+**目标**：让站长通过管理后台自定义网页标题、欢迎屏用户名/头像/角色、开始菜单用户名等身份信息，无需改代码。  
+**预估耗时**：2–4 小时  
+**依赖**：Phase 0–3 全部完成（`site_settings` 表、`useSiteSettings` hook、`/admin/theme` 页已存在）
+
+---
+
+### 设计原则
+
+- 不新建数据表，不新建 tRPC 路由 — 全部复用现有 `site_settings` key-value 表和 `settings.setBatch` 接口
+- 与现有 `useSiteSettings()` 模式完全一致：DB 值优先，静态兜底
+- `<title>` / `<meta>` SSR 问题用客户端 `document.title` 覆盖方案（对个人主页 SEO 无实质影响）
+- `WelcomeGuard` 加载中显示静态 Fallback，数据到达后若动画仍在播放则已渲染正确值
+
+---
+
+### 7.1 新增 site_settings keys
+
+不需执行任何 migration，key-value 表按需写入即可。
+
+| Key | 说明 | 静态 Fallback |
+|-----|------|--------------|
+| `site_title` | 浏览器标签页标题 + og:title | `'NNNullptr'` |
+| `site_description` | meta description + og:description | `'NNNullptr'` |
+| `site_author` | meta author + twitter 署名 | `'NNNullptr'` |
+| `site_username` | Login 右栏用户名 + Start 菜单用户名 | `'NNNullptr'` |
+| `site_avatar_url` | Login 右栏头像 + Start 菜单头像 | `'/assets/avatarSrc.jpg'` |
+| `site_role` | Login 左/右栏角色说明 | `'Software Developer'` |
+| `site_brand` | Boot/Login 左栏品牌大字 | `'MoeKernel'` |
+| `boot_subtitle` | Boot 阶段副标题文字 | `'Welcome'` |
+
+---
+
+### 7.2 更新 `useSiteSettings()`
+
+文件：`src/client/hooks/use-site-config.ts`
+
+在 return 对象中新增以下字段：
+
+```typescript
+siteTitle:       data?.site_title       ?? 'NNNullptr',
+siteDescription: data?.site_description ?? 'NNNullptr',
+siteAuthor:      data?.site_author      ?? 'NNNullptr',
+siteUsername:    data?.site_username    ?? 'NNNullptr',
+siteAvatarUrl:   data?.site_avatar_url  ?? '/assets/avatarSrc.jpg',
+siteRole:        data?.site_role        ?? 'Software Developer',
+siteBrand:       data?.site_brand       ?? 'MoeKernel',
+bootSubtitle:    data?.boot_subtitle    ?? 'Welcome',
+```
+
+---
+
+### 7.3 更新 `welcome-guard.tsx`
+
+文件：`src/client/views/welcome-guard.tsx`
+
+- 在 `WelcomeGuard` 组件内调用 `useSiteSettings()`（已有 hook，直接 import）
+- 将 identity 字段以 props 向下传给 `BootStage` 和 `LoginStage`
+- 加载中（`isLoaded === false`）时使用静态 Fallback（`useSiteSettings()` 已内置，无需额外处理）
+- 替换所有写死字符串：
+
+| 原硬编码 | 替换为 |
+|---------|--------|
+| `MoeKernel`（Boot 大字） | `settings.siteBrand` |
+| `Welcome`（Boot 副标题） | `settings.bootSubtitle` |
+| `MoeKernel`（Login 左栏） | `settings.siteBrand` |
+| `Software Developer`（左栏） | `settings.siteRole` |
+| `To begin, click your user name` | 保持硬编码（通用引导语） |
+| `/assets/avatarSrc.jpg`（头像） | `settings.siteAvatarUrl` |
+| `NNNullptr`（右栏用户名） | `settings.siteUsername` |
+| `Software Developer`（右栏） | `settings.siteRole` |
+
+---
+
+### 7.4 更新 `start-menu.tsx`
+
+文件：`src/client/views/start-menu.tsx`
+
+- 在 `StartMenu` 组件内调用 `useSiteSettings()`
+- 替换头部头像 URL（硬编码的 `static.step1.dev` URL）→ `settings.siteAvatarUrl`
+- 替换用户名 `NNNullptr` → `settings.siteUsername`
+
+---
+
+### 7.5 更新 `__root.tsx`（页面标题与 meta）
+
+文件：`src/routes/__root.tsx`
+
+`__root.tsx` 是 SSR 渲染的，`useQuery` 无法在服务端获取 DB 数据，采用**客户端覆盖**方案：
+
+**步骤 A**：`<title>` 等 meta 标签保留静态默认值作为 SSR 骨架（SEO 爬虫首帧）  
+**步骤 B**：在 `src/routes/index.tsx`（或新建 `SiteHead` 组件）中：
+
+```typescript
+const settings = useSiteSettings();
+useEffect(() => {
+  if (!settings.isLoaded) return;
+  document.title = settings.siteTitle;
+  document.querySelector('meta[name="description"]')
+    ?.setAttribute('content', settings.siteDescription);
+  document.querySelector('meta[property="og:title"]')
+    ?.setAttribute('content', settings.siteTitle);
+  // ...其余 meta 同理
+}, [settings.isLoaded, settings.siteTitle, settings.siteDescription]);
+```
+
+此方案不改 SSR 数据流，实现代价最低。
+
+---
+
+### 7.6 管理后台：主题设置页新增「站点信息」分区
+
+文件：`src/routes/admin/_layout/theme.tsx`
+
+在现有表单末尾追加新的 `<fieldset>` 分区：
+
+```
+┌─────────────────────────────────────────────────────┐
+│ 🪪 站点身份信息                                       │
+│                                                     │
+│ 站点标题（<title>）     [___________________]        │
+│ 站点描述（description）  [___________________]       │
+│ 作者署名（author）       [___________________]       │
+│ ─────────────────────────────────────────────────── │
+│ 欢迎屏品牌大字           [___________________]       │
+│ Boot 副标题              [___________________]       │
+│ 角色/头衔说明            [___________________]       │
+│ 用户名（Login + Start）  [___________________]       │
+│ 头像图片 URL             [___________________] [预览]│
+│                                                     │
+│                              [💾 保存站点信息]       │
+└─────────────────────────────────────────────────────┘
+```
+
+保存时调用 `trpc.settings.setBatch`，传入所有 8 个 key-value 对，并 invalidate `site.getSettings` 缓存。
+
+---
+
+### 完成标志验证
+
+- [ ] 后台修改「站点标题」，浏览器标签页显示新标题
+- [ ] 后台修改「用户名」，Start 菜单头部用户名更新
+- [ ] 后台修改「头像 URL」，Login 屏和 Start 菜单头像同步更新
+- [ ] 后台修改「品牌大字」，WelcomeGuard Boot/Login 阶段显示新内容
+- [ ] 删除 Turso 连接（断网测试），所有位置显示静态 Fallback，不报错
+
+---
+
 ## 部署目标流程（最终用户体验）
 
 **运行环境**：Ubuntu 云服务器 + 宝塔面板 + Nginx 反向代理 + Cloudflare 代理 + Node.js 20

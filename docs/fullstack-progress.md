@@ -76,6 +76,7 @@ Resume 不新建表，复用 `site_settings` 存储 `resume_*` 系列 JSON 字�
 | Phase 4：ChatBox 留言板 | ✅ 完成 | 2026-04-26 | 含后台管理 + 皮肤系统全栈化 |
 | Phase 5：Portfolio/Media/Contact/About 后台 | ✅ 完成 | 2026-04-29 | 5.1 Portfolio / 5.2 Media / 5.3 Contact+About 全部完成 |
 | Phase 6：通用文档窗口管理系统 | ✅ 完成 | 2026-05-03 | Task A ✅ Task B ✅ Task C ✅（含 Bug Fix）|
+| Phase 7：站点身份信息自定义 | ✅ 完成 | 2026-05-03 | 5 个文件，8 个字段，后台独立保存分区 |
 
 > 状态说明：🔲 未开始 / 🔄 进行中 / ✅ 完成 / ❌ 阻塞
 
@@ -367,6 +368,32 @@ Resume 不新建表，复用 `site_settings` 存储 `resume_*` 系列 JSON 字�
 
 - **[BugFix 1 / 2026-05-03]** 新建文档打开始终显示 README.md 内容：`resume/index.tsx` 中 `doc?.content || FALLBACK.content` 使用 `||`，将空字符串 content（新文档默认值）视为 falsy 触发 Fallback。修复：改用 `doc !== undefined` 显式判断，四个派生值（content / bgUrl / bgOpacity / title）统一走三元表达式。
 - **[BugFix 2 / 2026-05-03]** 桌面图标堆叠、单次双击开多窗口：`home.tsx` 每次渲染都对 `documents.filter()` 和展开 `[...iconDefs, ...docIconDefs]` 生成新数组引用，`useDesktopIcons` 内部 `useEffect([defs])` 检测到引用变化→ `setIcons()` → 重渲染→ 再次生成新数组，形成无限循环。修复：用 `useMemo` 包裹 `dynamicDocuments`（依赖 `[documents]`）和 `allIconDefs`（依赖 `[iconDefs, dynamicDocuments]`），稳定引用后循环消除。
+
+---
+
+## Phase 7：站点身份信息自定义
+
+**目标**：后台可视化配置网页标题、欢迎屏、Start 菜单等身份信息，无需改代码。
+
+### 步骤检查
+
+- [x] **7.1** `useSiteSettings()` 新增 8 个字段（`siteTitle` / `siteDescription` / `siteAuthor` / `siteUsername` / `siteAvatarUrl` / `siteRole` / `siteBrand` / `bootSubtitle`）
+- [x] **7.2** `welcome-guard.tsx`：引入 `useSiteSettings()`，新增 `IdentityProps` 接口，替换 7 处硬编码身份字符串，通过 props 向下传递
+- [x] **7.3** `start-menu.tsx`：引入 `useSiteSettings()`，替换头像 URL 和用户名 2 处硬编码
+- [x] **7.4** `src/routes/index.tsx`：新建 `SiteHead` 组件，`useEffect` 客户端覆盖 `document.title` 及 7 处 `<meta>` 标签
+- [x] **7.5** `/admin/theme` 页面末尾新增「🪪 站点身份信息」`fieldset`，8 个输入项 + 独立保存 mutation + 重置按钮
+
+### 完成标志验证
+
+- [ ] 后台修改站点标题，浏览器标签页显示新内容
+- [ ] 后台修改用户名，Start 菜单头部和 Login 屏右栏同步更新
+- [ ] 后台修改头像 URL，Login 屏和 Start 菜单头像同步更新
+- [ ] 后台修改品牌大字，Boot 和 Login 左栏同步更新
+- [ ] 断开 Turso 连接，所有位置显示静态 Fallback，不报错崩溃
+
+### 问题记录
+
+<!-- 执行时遇到的报错和偏差记录在此 -->
 
 ---
 

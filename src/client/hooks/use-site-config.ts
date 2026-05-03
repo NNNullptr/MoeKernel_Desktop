@@ -82,5 +82,14 @@ export function useSiteSettings() {
     contactBgOpacity:   rawContactOpacity   ? parseFloat(rawContactOpacity)   : 0.15,
     contactLinks:       safeParse<ContactItem[]>(data?.contact_content, DEFAULT_CONTACT),
     aboutConfig:        safeParse<AboutConfig>(data?.about_content, DEFAULT_ABOUT),
+    // ── Phase 7：站点身份信息 ──────────────────────────────────────────────────
+    siteTitle:          data?.site_title        ?? 'NNNullptr',
+    siteDescription:    data?.site_description  ?? 'NNNullptr',
+    siteAuthor:         data?.site_author       ?? 'NNNullptr',
+    siteUsername:       data?.site_username     ?? 'NNNullptr',
+    siteAvatarUrl:      data?.site_avatar_url   ?? '/assets/avatarSrc.jpg',
+    siteRole:           data?.site_role         ?? 'Software Developer',
+    siteBrand:          data?.site_brand        ?? 'MoeKernel',
+    bootSubtitle:       data?.boot_subtitle     ?? 'Welcome',
   };
 }

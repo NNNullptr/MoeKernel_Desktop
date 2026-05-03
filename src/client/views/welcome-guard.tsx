@@ -1,7 +1,17 @@
 import { useState, useEffect, useTransition, type ReactNode } from 'react';
+import { useSiteSettings } from '@/client/hooks/use-site-config';
 
 const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 const LOGO_URL = 'https://static.step1.dev/g9nbov/assets/608befa6aa8f.ico';
+
+// 身份信息 props — 由 WelcomeGuard 从 useSiteSettings() 读取后传入
+interface IdentityProps {
+  brand:      string;
+  subtitle:   string;
+  username:   string;
+  avatarUrl:  string;
+  role:       string;
+}
 
 // ─── 可自定义内容 ────────────────────────────────────────────────────────────
 //
@@ -28,7 +38,7 @@ const LOGO_URL = 'https://static.step1.dev/g9nbov/assets/608befa6aa8f.ico';
 // 退出动画总时长（毫秒），与下方 CSS transition 保持一致
 const EXIT_MS = 700;
 
-function BootStage({ onDone }: { onDone: () => void }) {
+function BootStage({ onDone, identity }: { onDone: () => void; identity: IdentityProps }) {
   // 修改 3000 可调整 Boot 阶段持续时间（单位：毫秒）
   useEffect(() => {
     const t = setTimeout(onDone, 3000);
@@ -50,14 +60,14 @@ function BootStage({ onDone }: { onDone: () => void }) {
 
       <img src={LOGO_URL} alt="Windows" style={{ width: 64, height: 64, marginBottom: 24, imageRendering: 'pixelated' }} />
 
-      {/* Boot 第 1、2 行：用户名 + xp 后缀 */}
+      {/* Boot 第 1、2 行：品牌大字 + xp 后缀 */}
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 6 }}>
-        <span style={{ color: '#fff', fontSize: 36, fontWeight: 'bold' }}>MoeKernel</span>
+        <span style={{ color: '#fff', fontSize: 36, fontWeight: 'bold' }}>{identity.brand}</span>
         <span style={{ color: '#c0392b', fontSize: 28, fontStyle: 'italic', fontWeight: 'bold' }}>xp</span>
       </div>
 
       {/* Boot 第 3 行：副标题 */}
-      <div style={{ color: '#ccc', fontSize: 14, marginBottom: 80 }}>Welcome</div>
+      <div style={{ color: '#ccc', fontSize: 14, marginBottom: 80 }}>{identity.subtitle}</div>
 
       {/* 银色胶囊进度条 */}
       <div style={{
@@ -82,7 +92,7 @@ function BootStage({ onDone }: { onDone: () => void }) {
   );
 }
 
-function LoginStage({ onEnter }: { onEnter: () => void }) {
+function LoginStage({ onEnter, identity }: { onEnter: () => void; identity: IdentityProps }) {
   const [hovered, setHovered] = useState(false);
   const [exiting, setExiting] = useState(false);
 
@@ -131,14 +141,14 @@ function LoginStage({ onEnter }: { onEnter: () => void }) {
         }}>
           <img src={LOGO_URL} alt="Windows" style={{ width: 72, height: 72, imageRendering: 'pixelated', marginBottom: 8 }} />
 
-          {/* 左栏：用户名 + xp 后缀 */}
+          {/* 左栏：品牌大字 + xp 后缀 */}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-            <span style={{ color: '#fff', fontSize: 32, fontWeight: 'bold', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>MoeKernel</span>
+            <span style={{ color: '#fff', fontSize: 32, fontWeight: 'bold', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>{identity.brand}</span>
             <span style={{ color: '#c0392b', fontSize: 24, fontStyle: 'italic', fontWeight: 'bold' }}>xp</span>
           </div>
 
           {/* 左栏：角色说明 */}
-          <div style={{ color: '#eee', fontSize: 13, textShadow: '1px 1px 2px rgba(0,0,0,0.4)' }}>Software Developer</div>
+          <div style={{ color: '#eee', fontSize: 13, textShadow: '1px 1px 2px rgba(0,0,0,0.4)' }}>{identity.role}</div>
 
           {/* 左栏：引导语 */}
           <div style={{ color: '#ddd', fontSize: 12, marginTop: 16, textShadow: '1px 1px 2px rgba(0,0,0,0.4)' }}>To begin, click your user name</div>
@@ -160,17 +170,17 @@ function LoginStage({ onEnter }: { onEnter: () => void }) {
               transition: 'background 0.15s',
             }}
           >
-            {/* 头像：替换 src 可更换图片 */}
+            {/* 头像 */}
             <img
-              src="/assets/avatarSrc.jpg"
-              alt="NNNullptr"
+              src={identity.avatarUrl}
+              alt={identity.username}
               style={{ width: 80, height: 80, border: '2px solid #fff', borderRadius: 4, objectFit: 'cover' }}
             />
             <div>
               {/* 右栏：头像卡用户名 */}
-              <div style={{ color: '#fff', fontSize: 18, fontWeight: 'bold', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>NNNullptr</div>
+              <div style={{ color: '#fff', fontSize: 18, fontWeight: 'bold', textShadow: '1px 1px 3px rgba(0,0,0,0.5)' }}>{identity.username}</div>
               {/* 右栏：头像卡角色 */}
-              <div style={{ color: '#ddd', fontSize: 12, textShadow: '1px 1px 2px rgba(0,0,0,0.4)' }}>Software Developer</div>
+              <div style={{ color: '#ddd', fontSize: 12, textShadow: '1px 1px 2px rgba(0,0,0,0.4)' }}>{identity.role}</div>
             </div>
           </div>
         </div>
@@ -209,6 +219,16 @@ export function WelcomeGuard({ children }: { children: ReactNode }) {
   // 彻底避免 SSR 水合不匹配导致 React 崩溃、欢迎动画卡死的问题。
   const [stage, setStage] = useState<'init' | 'boot' | 'login' | 'desktop'>('init');
 
+  // 身份信息：isLoaded=false 时自动使用静态 Fallback，动画开始前数据通常已到达
+  const settings = useSiteSettings();
+  const identity: IdentityProps = {
+    brand:     settings.siteBrand,
+    subtitle:  settings.bootSubtitle,
+    username:  settings.siteUsername,
+    avatarUrl: settings.siteAvatarUrl,
+    role:      settings.siteRole,
+  };
+
   useEffect(() => {
     const welcomed = sessionStorage.getItem('xp:welcomed') === '1';
     setStage(welcomed ? 'desktop' : 'boot');
@@ -222,8 +242,8 @@ export function WelcomeGuard({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
-      {stage === 'boot' && <BootStage onDone={() => setStage('login')} />}
-      {stage === 'login' && <LoginStage onEnter={enterDesktop} />}
+      {stage === 'boot' && <BootStage onDone={() => setStage('login')} identity={identity} />}
+      {stage === 'login' && <LoginStage onEnter={enterDesktop} identity={identity} />}
     </>
   );
 }

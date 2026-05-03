@@ -1,6 +1,7 @@
 import React from 'react';
 import { DESKTOP_ICON_DEFS } from '../config/icons.config';
 import { FILE_SYSTEM, DEFAULT_FILE_ICON, setPendingInitialPath } from '../config/filesystem.config';
+import { useSiteSettings } from '../hooks/use-site-config';
 
 const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 
@@ -19,6 +20,8 @@ interface StartMenuProps {
 }
 
 export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) {
+  const settings = useSiteSettings();
+
   const handleFolderClick = (folderName: string) => {
     setPendingInitialPath([folderName]);
     window.dispatchEvent(new CustomEvent<string[]>('xp-navigate-mycomputer', { detail: [folderName] }));
@@ -43,11 +46,11 @@ export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) 
         borderBottom: '2px solid #888',
       }}>
         <img
-          src="https://static.step1.dev/g9nbov/assets/58721f37b0c0.png"
-          alt="User"
+          src={settings.siteAvatarUrl}
+          alt={settings.siteUsername}
           style={{ width: '50px', height: '50px', border: '2px solid #b8b8b8', borderRadius: '2px', objectFit: 'cover', background: '#fff' }}
         />
-        <span style={{ color: '#000', fontWeight: 'bold', fontSize: '15px', textShadow: '1px 1px 3px rgba(255,255,255,0.5)' }}>NNNullptr</span>
+        <span style={{ color: '#000', fontWeight: 'bold', fontSize: '15px', textShadow: '1px 1px 3px rgba(255,255,255,0.5)' }}>{settings.siteUsername}</span>
       </div>
 
       {/* Body */}
