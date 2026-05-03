@@ -27,6 +27,8 @@
  */
 
 import { useRef, useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { trpc } from '@/client/trpc';
 import { consumePendingViewFile } from '@/client/config/filesystem.config';
 
 // ============================================================
@@ -100,34 +102,6 @@ type VideoItem =
   | { type: 'bilibili'; title: string; bvid: string; cover: string }
   | { type: 'mp4'; title: string; src: string; cover: string };
 
-const VIDEO_LIST: VideoItem[] = [
-  {
-    type: 'bilibili',
-    title: 'おちゃめ機能',
-    bvid: 'BV1sx411c7sB',
-    cover: '',
-  },
-  {
-    type: 'bilibili',
-    title: '河蟹你全家【原版】',
-    bvid: 'BV1xx411c7BF',
-    cover: '',
-  },
-  {
-    type: 'mp4',
-    title: 'リリリリ★バーニングナイトを踊ってみた',
-    src: '/assets/video/1.mp4',  // 放在 public/assets/ 下的文件
-    cover: '/assets/video/1.webp',
-  },
-  // ── mp4 示例（取消注释并填入真实 src 即可启用）──
-  // {
-  //   type: 'mp4',
-  //   title: 'My Portfolio Showreel',
-  //   src: '/assets/showreel.mp4',  // 放在 public/assets/ 下的文件
-  //   cover: '/assets/showreel-cover.jpg',
-  // },
-];
-
 const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 
 // ============================================================
@@ -156,13 +130,32 @@ interface TransportButton {
  * - progress: 播放进度 0~1（仅 mp4 模式有效）
  */
 export function VideoPlayerApp() {
-  const [videoList, setVideoList] = useState<VideoItem[]>(() => {
+  // 从 DB 加载视频曲目（type='video' 或 'bilibili'）
+  const { data: rawTracks = [] } = useQuery({
+    ...trpc.media.list.queryOptions(),
+    staleTime: 30_000,
+  });
+
+  // 将 DB 曲目映射到 VideoItem 联合类型
+  const dbVideos: VideoItem[] = rawTracks
+    .filter((t) => t.type === 'video' || t.type === 'bilibili')
+    .map((t) => {
+      if (t.type === 'bilibili') {
+        return { type: 'bilibili', title: t.title, bvid: t.bvid ?? '', cover: t.cover };
+      }
+      return { type: 'mp4', title: t.title, src: t.src, cover: t.cover };
+    });
+
+  // pending file（拖入的视频文件）放最前面
+  const [pendingVideo] = useState<VideoItem | null>(() => {
     const pending = consumePendingViewFile();
     if (pending?.type === 'video') {
-      return [{ type: 'mp4', title: pending.title, src: pending.url, cover: '' }, ...VIDEO_LIST];
+      return { type: 'mp4', title: pending.title, src: pending.url, cover: '' };
     }
-    return [...VIDEO_LIST];
+    return null;
   });
+
+  const videoList: VideoItem[] = pendingVideo ? [pendingVideo, ...dbVideos] : dbVideos;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isStopped, setIsStopped] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -214,7 +207,9 @@ export function VideoPlayerApp() {
       video.removeEventListener('pause', onPause);
       video.removeEventListener('ended', onEnded);
     };
-  }, [currentIndex, isStopped]);
+  // isMp4 加入 deps：当 rawTracks 加载后 isMp4 从 false 变 true，
+  // 此时 <video> 元素刚出现，需要重新绑定事件监听器
+  }, [currentIndex, isStopped, isMp4]);
 
   // ── 切换视频时重置状态 ────────────────────────────────
   const switchTo = useCallback((index: number) => {
@@ -260,18 +255,19 @@ export function VideoPlayerApp() {
   };
 
   const handleSeekBack = () => {
-    if (isMp4 && videoRef.current) {
-      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 10);
-    }
+    const video = videoRef.current;
+    if (!isMp4 || !video) return;
+    // duration 未加载时（NaN）不操作，避免跳回开头
+    if (!isFinite(video.duration) || video.duration === 0) return;
+    video.currentTime = Math.max(0, video.currentTime - 10);
   };
 
   const handleSeekForward = () => {
-    if (isMp4 && videoRef.current) {
-      videoRef.current.currentTime = Math.min(
-        videoRef.current.duration || 0,
-        videoRef.current.currentTime + 10
-      );
-    }
+    const video = videoRef.current;
+    if (!isMp4 || !video) return;
+    // 关键修复：原先 `duration || 0` 在 duration=NaN 时变成 0，导致跳回开头
+    if (!isFinite(video.duration) || video.duration === 0) return;
+    video.currentTime = Math.min(video.duration, video.currentTime + 10);
   };
 
   const handlePrev = () => switchTo((currentIndex - 1 + videoList.length) % videoList.length);

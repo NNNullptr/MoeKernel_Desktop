@@ -61,7 +61,8 @@ src/
 │           ├── auth.ts               ← 管理员认证接口
 │           ├── chatbox.ts            ← 留言板（Phase 4，公开写 + 管理删）
 │           ├── portfolio.ts          ← 作品集管理（Phase 5，需鉴权）
-│           └── media.ts              ← 曲目管理（Phase 5，需鉴权）
+│           ├── media.ts              ← 曲目管理（Phase 5，需鉴权）
+│           └── documents.ts          ← 通用文档窗口管理（Phase 6，公开读 + 管理 CRUD）
 │
 └── routes/
     └── admin/
@@ -77,7 +78,7 @@ src/
         ├── media.tsx                 ← 曲目管理（Phase 5）
         ├── contact.tsx               ← 联系方式（Phase 5）
         ├── about.tsx                 ← 关于我（Phase 5）
-        ├── resume.tsx                ← 简历管理（Phase 6）
+        ├── documents.tsx             ← 通用文档窗口管理（Phase 6）
         └── blog/
             ├── index.tsx             ← 文章列表
             ├── new.tsx               ← 新建文章
@@ -476,42 +477,173 @@ export const mediaTracks = sqliteTable('media_tracks', {
 
 ---
 
-## Phase 6：Resume 全栈化改造
+## Phase 6：通用文档窗口管理系统
 
-**目标**：简历内容从硬编码转为后台可编辑，前台动态渲染，参考 My Blog 的实现思路。
+> ⚠️ **2026-04-29 需求变更**：原 Phase 6「Resume 结构化分区表单」方案已废弃。
+> 原因：`src/client/apps/resume/index.tsx` 的实际设计是**通用 Markdown 文档查看器**，
+> 顶部注释明确提供了复用指南（复制文件夹 → 改 DOC_CONFIG → 注册到 APP_REGISTRY）。
+> 将其改造为结构化表单完全背离了组件的设计意图，且引入了不必要的复杂度。
+> 正确路径：以「通用文档窗口管理系统」替代，Resume 作为第一个迁入实例。
+
+**目标**：在桌面上支持任意数量的 Markdown 文档窗口，每个窗口的内容与外观均可在后台管理，无需改代码。
 **预估耗时**：1-2 天
 
-### 6.1 数据表：`resume_sections`
+---
 
-简历采用**结构化 JSON 存储**方案——每个板块（基本信息、工作经历、项目、技能）是 `site_settings` 中的一条长文本 key，value 为 JSON 字符串，无需单独建表，便于灵活扩展。
+### 核心设计原则
 
-| key | 说明 | 示例结构 |
+`ResumeApp`（以及通过复用指南创建的任何文档窗口）本质上只需三个输入：
+
+| 输入 | 旧方案（静态） | 新方案（DB 驱动） |
 |---|---|---|
-| `resume_basics` | 姓名、头衔、联系方式 | `{"name":"...","title":"...","email":"..."}` |
-| `resume_experience` | 工作/实习经历数组 | `[{"company":"...","role":"...","period":"...","bullets":[]}]` |
-| `resume_projects` | 项目经历数组 | `[{"name":"...","tech":"...","desc":"...","link":"..."}]` |
-| `resume_skills` | 技能分组 | `[{"category":"...","items":["..."]}]` |
-| `resume_education` | 教育经历数组 | `[{"school":"...","degree":"...","period":"..."}]` |
+| Markdown 内容 | `import readme?raw` 硬编码 | `documents.content` 字段 |
+| 背景图 URL | `DOC_CONFIG.backgroundImage` 硬编码 | `documents.bg_url` 字段 |
+| 背景透明度 | `DOC_CONFIG.backgroundOpacity` 硬编码 | `documents.bg_opacity` 字段 |
 
-### 6.2 tRPC 接口
+组件逻辑完全不变，只需将数据来源从静态 `DOC_CONFIG` 切换到 tRPC 查询结果。
 
-复用现有 `settings.ts`：
-- `settings.get` 读取所有 `resume_*` 键
-- `settings.setBatch` 批量保存（与主题设置页同一接口）
+---
 
-公开侧：`site.getSettings` 已包含所有 key-value，前台 Resume 组件直接读取并 JSON.parse。
+### 6.1 新增数据表 `documents`
 
-### 6.3 后台页面：`/admin/resume`
+```typescript
+export const documents = sqliteTable('documents', {
+  id:         text('id').primaryKey(),                                // nanoid，同时作为 APP_REGISTRY 键
+  title:      text('title').notNull(),                               // 窗口标题 & 桌面图标文字
+  iconSrc:    text('icon_src').notNull().default(''),                // 桌面图标图片 URL
+  content:    text('content').notNull().default(''),                 // Markdown 全文
+  bgUrl:      text('bg_url').notNull().default(''),                  // 背景图 URL（空字符串 = 无背景）
+  bgOpacity:  real('bg_opacity').notNull().default(0.12),            // 背景透明度 0.0–1.0
+  order:      integer('order').notNull().default(0),                 // 桌面图标排列顺序
+  visible:    integer('visible', { mode: 'boolean' }).notNull().default(true),
+});
+```
 
-- 分 Tab 管理各板块（基本信息 / 工作经历 / 项目 / 技能 / 教育）
-- 经历类板块支持增删条目（动态表单）
-- 保存调用 `settings.setBatch`
-- 右侧可选实时预览面板
+执行 `npx drizzle-kit push` 建表。
 
-### 6.4 前台 Resume 组件改造
+**Seed 数据**：将现有 `README.md` 内容作为 id=`'resume'`、title=`'My Resume'` 的第一条记录写入，完成 Resume 迁移。
 
-- 读取 `trpc.site.getSettings`，提取 `resume_*` 键并 JSON.parse
-- 原有硬编码内容退为 fallback 默认值（未配置时不崩溃）
+---
+
+### 6.2 新增 tRPC 路由 `src/server/trpc/routes/documents.ts`
+
+**公开接口**（`publicProcedure`）：
+```typescript
+documents.list()  // 返回 visible=true 的文档列表，按 order asc
+```
+
+**管理接口**（`adminProcedure`）：
+```typescript
+documents.listAll()                    // 返回所有文档（含隐藏）
+documents.create({ title, iconSrc?, content?, bgUrl?, bgOpacity?, order? })
+documents.update({ id, ...partial })   // partial 更新，id 不存在抛 NOT_FOUND
+documents.delete({ id })
+```
+
+注册到 `router.ts`：`documents: documentsRouter`。
+
+`site.ts` 追加公开接口 `getDocuments`（等价于 `documents.list`，供前台 `useSiteSettings` 外的组件直接调用）。
+
+---
+
+### 6.3 前台组件改造：`ResumeApp` → 通用 `DocumentApp`
+
+**改造范围**：`src/client/apps/resume/index.tsx`
+
+- 移除静态 `DOC_CONFIG` 对象和 `import readme?raw`
+- 接收 `documentId: string` prop（通过 APP_REGISTRY 的 `props` 字段传入）
+- 调用 `trpc.site.getDocuments.useQuery()` 或 `trpc.documents.list.useQuery()`，按 id 找到当前文档
+- 渲染逻辑不变：背景图层 + 内容层 + Markdown 渲染
+- **移除窗口内透明度滑块**（OpacityControl 组件），透明度由后台「外观设置」控制，与 About/Contact 保持一致
+- 工具栏文件名改为动态显示 `document.title`
+
+**工具栏文件名**：`{document.title} — 只读`（原来是硬编码的 `README.md`）
+
+---
+
+### 6.4 桌面动态注册机制
+
+每个 `documents` 表中的记录，需要在前台桌面上注册为可点击的图标和可打开的窗口。
+
+**方案**：复用 Phase 2 解决博客 nanoid 文章的动态注册模式：
+
+1. 桌面组件（`home.tsx` 或图标层）调用 `trpc.site.getDocuments` 获取文档列表
+2. 对每条文档，生成 APP_REGISTRY 条目：
+   ```typescript
+   APP_REGISTRY[`doc-${doc.id}`] = {
+     id:           `doc-${doc.id}`,
+     title:        doc.title,
+     icon:         doc.iconSrc || '/assets/icons/document.png',
+     defaultWidth: 720,
+     defaultHeight: 560,
+     AppComponent: (props) => <DocumentApp documentId={doc.id} {...props} />,
+   };
+   ```
+3. 同时渲染桌面图标（直接由 `documents` 列表驱动，**不**写入 `desktop_icons` 表，避免两处数据源）
+4. 点击图标 dispatch `OPEN_APP` 事件，与现有窗口系统完全兼容
+
+**注意**：文档的桌面图标独立于 `desktop_icons` 表管理，两套系统互不干扰：
+- `desktop_icons` 表管理应用入口图标（博客、Portfolio、ChatBox 等）
+- `documents` 表自带图标信息，直接在桌面渲染
+
+---
+
+### 6.5 管理后台 `/admin/documents`
+
+**布局**：左侧文档列表 + 右侧编辑面板（仿 Blog 管理页风格）
+
+**文档列表区**：
+- 每行显示：标题、可见状态徽标、排序序号、「编辑」「删除」按钮
+- 顶部「＋ 新建文档」按钮（新建后自动切到右侧编辑该文档）
+
+**编辑面板区**（选中文档后显示）：
+
+```
+┌─────────────────────────────────────────────────────┐
+│ Section: 📄 文档信息                                  │
+│   标题：[_________________________]                   │
+│   图标 URL：[_____________________]  [预览]           │
+│   排序：[___]  可见：[✓]                              │
+├─────────────────────────────────────────────────────┤
+│ Section: 📝 Markdown 内容                             │
+│   [大文本框，rows=20，等宽字体]                        │
+│                                    [💾 保存内容]      │
+├─────────────────────────────────────────────────────┤
+│ Section: 🎨 外观设置（全局默认背景）                   │
+│   背景图 URL：[_____________________]                  │
+│   [200×120 实时预览缩略图]                             │
+│   透明度：[════════════] 12%                           │
+│                                    [💾 保存外观]      │
+└─────────────────────────────────────────────────────┘
+```
+
+保存内容调用 `documents.update({ id, title, iconSrc, content, visible, order })`。
+保存外观调用 `documents.update({ id, bgUrl, bgOpacity })`。
+两个保存按钮独立，避免大文本框内容与外观设置相互干扰。
+
+**删除**：二次确认对话框，删除后文档从桌面消失。
+
+---
+
+### 6.6 侧边栏导航
+
+在 `src/routes/admin/_layout.tsx` 的 `NAV_ITEMS` 中追加：
+
+```typescript
+{ icon: '📄', label: '文档窗口', href: '/admin/documents' },
+```
+
+---
+
+### 与现有系统的关系
+
+| 系统 | 交互方式 |
+|---|---|
+| `desktop_icons` 表 | 无关，文档图标由 `documents` 表自带，独立渲染 |
+| `blog_posts` 表 | 无关，博客是列表窗口，文档是单文档阅读窗口 |
+| `site_settings` 表 | 无关，文档独立建表，结构更清晰 |
+| APP_REGISTRY | 运行时动态写入（与 Phase 2 博客文章方案相同） |
+| `settings.ts` tRPC | 不复用，文档有独立 `documents.ts` 路由 |
 
 ---
 

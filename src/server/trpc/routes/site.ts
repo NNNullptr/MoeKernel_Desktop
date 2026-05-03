@@ -1,6 +1,6 @@
 import { asc, eq } from 'drizzle-orm';
 import { db } from '../../db/client';
-import { blogPosts, desktopIcons, mascots, siteSettings } from '../../db/schema';
+import { blogPosts, desktopIcons, documents, mascots, mediaTracks, portfolioItems, siteSettings } from '../../db/schema';
 import { publicProcedure } from '../procedure';
 
 export const siteRouter = {
@@ -47,5 +47,40 @@ export const siteRouter = {
       .select()
       .from(mascots)
       .orderBy(asc(mascots.order));
+  }),
+
+  /**
+   * 读取 visible=true 的作品集条目，按 order 升序排列。
+   */
+  getPortfolioItems: publicProcedure.query(async () => {
+    return db
+      .select()
+      .from(portfolioItems)
+      .where(eq(portfolioItems.visible, true))
+      .orderBy(asc(portfolioItems.order));
+  }),
+
+  /**
+   * 读取 visible=true 的多媒体曲目，按 order 升序排列。
+   * 前台 Winamp 过滤 type='audio'，Video Player 过滤 type='video'|'bilibili'。
+   */
+  getMediaTracks: publicProcedure.query(async () => {
+    return db
+      .select()
+      .from(mediaTracks)
+      .where(eq(mediaTracks.visible, true))
+      .orderBy(asc(mediaTracks.order));
+  }),
+
+  /**
+   * 读取 visible=true 的文档窗口，按 order 升序排列。
+   * 管理后台全量读取见 documents.ts → list。
+   */
+  getDocuments: publicProcedure.query(async () => {
+    return db
+      .select()
+      .from(documents)
+      .where(eq(documents.visible, true))
+      .orderBy(asc(documents.order));
   }),
 };

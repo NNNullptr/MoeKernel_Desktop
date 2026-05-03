@@ -7,6 +7,24 @@
 
 ## 架构变更日志
 
+### 2026-04-29 · 需求变更：Phase 6 Resume 结构化方案废弃 → 通用文档窗口管理系统
+
+| 项目 | 原方案（废弃） | 新方案 |
+|---|---|---|
+| Phase 6 目标 | Resume 组件改为结构化分区表单（basics / experience / projects / skills / education） | 通用文档窗口管理系统，Resume 作为第一个迁入实例 |
+| 数据存储 | `site_settings` 存储 `resume_basics` / `resume_experience` 等多个 JSON 键 | 独立 `documents` 表，每条记录 = 一个 XP 文档窗口（id / title / iconSrc / content / bgUrl / bgOpacity / order / visible） |
+| tRPC 路由 | 复用 `settings.ts` 的 setBatch | 新建 `documents.ts`（公开 `list` + 管理 CRUD） |
+| 后台页面 | `/admin/resume`，分 Tab 的动态表单 | `/admin/documents`，左侧列表 + 右侧编辑面板（内容区 + 外观区各自独立保存） |
+| 前台组件 | `ResumeApp` 改为读取结构化字段并渲染各分区 | `ResumeApp` → 通用 `DocumentApp`，接收 `documentId` prop，从 `documents.list` 按 id 取内容 |
+| 桌面注册 | 静态写死在 APP_REGISTRY | 运行时动态注册（复用 Phase 2 博客 nanoid 文章方案） |
+| 透明度滑块 | 保留在前台窗口内（OpacityControl 组件） | 迁移到后台外观设置（与 About / Contact 保持一致） |
+
+**变更原因**：仔细阅读 `src/client/apps/resume/index.tsx` 后发现，该组件的实际设计是**通用 Markdown 文档查看器**，顶部注释提供了完整的复用指南（修改 `DOC_CONFIG` + 复制文件夹），与「简历结构化表单」的规划完全背离。新方案尊重组件的原始设计意图，通过数据库驱动的方式实现同等目标，同时为未来增加任意文档窗口提供了扩展路径。
+
+**影响范围**：已完成的 Phase 0–5 代码无需改动。`documents` 新表与现有 `desktop_icons`、`site_settings` 表完全独立。
+
+---
+
 ### 2026-04-25 · 需求变更：评论系统取消 → 全局 ChatBox + 多组件后台扩容
 
 | 项目 | 原方案 | 新方案 |
@@ -56,8 +74,8 @@ Resume 不新建表，复用 `site_settings` 存储 `resume_*` 系列 JSON 字�
 | Phase 2：组件数据源切换 | ✅ 完成 | 2026-04-25 | 全部 4 个组件已切换至 tRPC，静态配置退为 fallback |
 | Phase 3：管理后台 UI | ✅ 完成 | 2026-04-26 | 9 个子步骤全部完成 |
 | Phase 4：ChatBox 留言板 | ✅ 完成 | 2026-04-26 | 含后台管理 + 皮肤系统全栈化 |
-| Phase 5：Portfolio/Media/Contact/About 后台 | 🔲 未开始 | — | — |
-| Phase 6：Resume 全栈化 | 🔲 未开始 | — | — |
+| Phase 5：Portfolio/Media/Contact/About 后台 | ✅ 完成 | 2026-04-29 | 5.1 Portfolio / 5.2 Media / 5.3 Contact+About 全部完成 |
+| Phase 6：通用文档窗口管理系统 | ✅ 完成 | 2026-05-03 | Task A ✅ Task B ✅ Task C ✅（含 Bug Fix）|
 
 > 状态说明：🔲 未开始 / 🔄 进行中 / ✅ 完成 / ❌ 阻塞
 
@@ -229,20 +247,72 @@ Resume 不新建表，复用 `site_settings` 存储 `resume_*` 系列 JSON 字�
 
 ### 步骤检查
 
-- [ ] **5.1** `schema.ts` 添加 `portfolio_items` / `media_tracks` 表，执行 push
-- [ ] **5.2** 创建 `routes/portfolio.ts`（CRUD + 排序），注册路由
-- [ ] **5.3** 创建 `routes/media.ts`（CRUD + 排序），注册路由
-- [ ] **5.4** `routes/site.ts` 追加 `getPortfolioItems` / `getMediaTracks` 公开接口
-- [ ] **5.5** 创建 `/admin/portfolio` 后台页（卡片列表 + CRUD）
-- [ ] **5.6** 创建 `/admin/media` 后台页（表格 + 拖拽排序）
-- [ ] **5.7** 创建 `/admin/contact` / `/admin/about` 后台页（site_settings JSON 编辑）
-- [ ] **5.8** 前台各组件切换至 tRPC 数据源（改一个验一个）
+**Phase 5.1 — Portfolio 全栈化（2026-04-27 完成）**
+
+- [x] **5.1a** `schema.ts` 添加 `portfolio_items` 表（9 字段），执行 `drizzle-kit push`
+- [x] **5.1b** 创建 `src/server/trpc/routes/portfolio.ts`（`list` 公开 / `listAll` 管理 / `create` / `update` / `delete`）
+- [x] **5.1c** `routes/site.ts` 追加 `getPortfolioItems` 公开接口
+- [x] **5.1d** 注册 `portfolio: portfolioRouter` 到 `router.ts`
+- [x] **5.1e** 创建 `/admin/portfolio` 后台页（条目卡片列表 + 编辑器弹窗 CRUD + 外观设置）
+- [x] **5.1f** `use-site-config.ts` 新增 `portfolioBgUrl` / `portfolioBgOpacity` 字段
+- [x] **5.1g** 重写前台 `src/client/apps/portfolio/index.tsx`：
+  - 数据源切换为 `trpc.portfolio.list`（仅 visible=true，按 order 升序）
+  - 背景改为从 `useSiteSettings()` 读取（`portfolioBgUrl` / `portfolioBgOpacity`）
+  - `fileName` → `imageUrl`（直接使用完整 URL）
+  - 灯箱新增：技术栈标签气泡 + 项目链接按钮
+  - 移除工具栏透明度滑块（现由管理后台控制）
+- [x] **5.1h** 管理后台侧边栏新增「🗂️ 作品集」导航项
+
+**Phase 5.2 — Media & Winamp 全栈化（2026-04-28 完成）**
+
+- [x] **5.2a** `schema.ts` 添加 `media_tracks` 表（9 字段 type='audio'|'video'|'bilibili'），执行 push
+- [x] **5.2b** 创建 `src/server/trpc/routes/media.ts`（`list` / `listAll` / `create` / `update` / `delete`）
+- [x] **5.2c** `routes/site.ts` 追加 `getMediaTracks` 公开接口
+- [x] **5.2d** 注册 `media: mediaRouter` 到 `router.ts`
+- [x] **5.2e** 创建 `/admin/media` 后台页（表格 + 类型 Tab 过滤 + 编辑器弹窗 + Winamp 外观设置）
+- [x] **5.2f** `use-site-config.ts` 新增 `winampBgUrl` / `winampBgOpacity`
+- [x] **5.2g** 重写 Winamp（`apps/winamp/index.tsx`）：
+  - 数据源切换为 `trpc.media.list`（过滤 type='audio'，按 order 升序）
+  - 背景改为从 `useSiteSettings()` 读取（`winampBgUrl` / `winampBgOpacity`）
+  - 保留 `consumePendingViewFile()` 拖入文件逻辑
+- [x] **5.2h** 重写 Video Player（`apps/video-player/index.tsx`）：
+  - 数据源切换为 `trpc.media.list`（过滤 type='video'|'bilibili'，按 order 升序）
+  - DB `type='video'` → mp4 模式；`type='bilibili'` → B站 iframe 模式
+  - 保留 `consumePendingViewFile()` 拖入视频逻辑
+- [x] **5.2i** 管理后台侧边栏新增「🎵 媒体库」导航项
+
+**Phase 5.3 — Contact / About 全栈化（2026-04-29 完成）**
+
+- [x] **5.3a** `use-site-config.ts` 新增 `ContactItem` / `AboutConfig` 类型 + 导出，添加 `contactLinks` / `aboutConfig` 字段（含 JSON 解析 + 静态 Fallback）
+- [x] **5.3b** 创建 `/admin/contact` — 社交链接表单（增删改 + 图标预览 + setBatch 保存 + 失效前台缓存）
+- [x] **5.3c** 创建 `/admin/about` — 基本信息 + Markdown TextArea（setBatch 保存 + 失效前台缓存）
+- [x] **5.3d** 前台 `ContactApp` 改为读取 `useSiteSettings().contactLinks`，fallback 到静态默认值
+- [x] **5.3e** 前台 `AboutMeApp` 改为读取 `useSiteSettings().aboutConfig`，背景透明度支持本地临时覆盖
+- [x] **5.3f** 管理后台侧边栏新增「📬 联系设置」和「👤 关于设置」两个导航项
+
+**存储结构**：
+- `site_settings` key `contact_content` → `ContactItem[]` JSON 数组（id / name / url / iconSrc / emoji）
+- `site_settings` key `about_content` → `AboutConfig` JSON 对象（name / title / location / avatarSrc / bgImageSrc / bgOpacity / markdownContent）
 
 ### 完成标志验证
 
-- [ ] 在后台添加一个 Portfolio 项目，前台 My Portfolio 出现新卡片
-- [ ] 在后台添加一首曲目，Media Player 播放列表出现新歌
-- [ ] 修改 Contact 联系方式，前台 Contact Me 窗口内容更新
+**Phase 5.1 Portfolio**
+- [x] `portfolio.list` 接口返回 200（空数组）
+- [x] `portfolio_items` 表在 Turso 已创建（drizzle-kit push 成功）
+- [x] TS 类型检查：新建文件无任何类型错误
+- [ ] 后台添加一个 Portfolio 项目，前台 My Portfolio 出现新卡片（需运行服务器手动验证）
+- [ ] 后台外观页修改背景 URL，前台窗口重新打开后自动应用
+
+**Phase 5.2 Media**
+- [x] `media_tracks` 表在 Turso 已创建（drizzle-kit push 成功）
+- [x] `media.list` 接口返回 200（空数组）
+- [x] TS 类型检查：新建/修改文件无类型错误
+- [ ] 后台添加一首 MP3 曲目，Winamp 播放列表出现新歌（需运行服务器手动验证）
+- [ ] 后台外观页修改 Winamp 背景 URL，重新打开窗口后生效
+
+**Phase 5.3 Contact / About**
+- [ ] 修改 Contact 联系方式中的邮箱地址，前台 Contact Me 窗口点击链接指向新地址（需运行服务器手动验证）
+- [ ] 修改 About Markdown 内容，前台 About Me 窗口显示新内容（需运行服务器手动验证）
 
 ### 问题记录
 
@@ -250,33 +320,66 @@ Resume 不新建表，复用 `site_settings` 存储 `resume_*` 系列 JSON 字�
 
 ---
 
-## Phase 6：Resume 全栈化改造
+## Phase 6：通用文档窗口管理系统
 
-**目标**：简历内容后台可编辑，前台动态渲染
+> ⚠️ **2026-04-29 方案已重新定义**，见架构变更日志。原 Resume 结构化分区方案已废弃。
+
+**目标**：建立通用文档窗口管理系统，Resume 作为第一个迁入实例
 
 ### 步骤检查
 
-- [ ] **6.1** 约定 `site_settings` 中 `resume_*` 系列 key 的 JSON 结构（基本信息/经历/项目/技能/教育）
-- [ ] **6.2** 创建 `/admin/resume` 后台页（分 Tab，动态表单，调用 settings.setBatch 保存）
-- [ ] **6.3** 前台 Resume 组件改为读取 `trpc.site.getSettings`，JSON.parse 各板块，原硬编码退为 fallback
+**6.1 数据层（2026-04-30 完成）**
+- [x] `schema.ts` 添加 `documents` 表（id / title / iconSrc / content / bgUrl / bgOpacity / order / visible），执行 `drizzle-kit push`
+- [x] 创建 `src/server/trpc/routes/documents.ts`（管理 `list` / `create` / `update` / `delete`）
+- [x] `routes/site.ts` 追加 `getDocuments` 公开接口（visible=true 过滤）
+- [x] 注册 `documents: documentsRouter` 到 `router.ts`
+
+**6.2 前台改造（2026-04-30 完成）**
+- [x] `src/client/apps/resume/index.tsx`：移除静态 `DOC_CONFIG` 和 `OpacityControl`，接收 `documentId` prop，从 `trpc.site.getDocuments` 按 id 取数据
+- [x] `readmeContent` 保留为静态 Fallback（数据库中无对应文档时自动降级）
+- [x] 工具栏文件名动态显示 `doc.title`；背景由 `doc.bgUrl` / `doc.bgOpacity` 驱动
+- [x] `registry.ts` 修改 resume 条目：`AppComponent` 改为闭包 `() => createElement(ResumeApp, { documentId: 'resume' })`
+
+**6.3 管理后台（2026-04-30 完成）**
+- [x] 创建 `/admin/documents`（左侧文档列表 + 右侧两栏编辑面板）
+- [x] 编辑面板：文档信息区（标题、图标 URL、排序、可见性）+ Markdown 内容区（MDEditor）+ 外观设置区（背景图 URL + 透明度预览缩略图）
+- [x] 三区各自独立保存按钮，保存后同时 invalidate `documents.list` 和 `site.getDocuments`
+- [x] 新建文档按钮（自动取最大 order+1）+ 删除确认对话框
+- [x] 侧边栏 `NAV_ITEMS` 追加「📄 文档管理」入口
+- [x] `routeTree.gen.ts` 注册 `/admin/_layout/documents` 路由
+
+**6.4 桌面动态图标（2026-05-01 完成，2026-05-03 Bug 修复）**
+- [x] `home.tsx` 新增 `trpc.site.getDocuments` 查询，过滤掉已在 APP_REGISTRY 的文档，合并进 `useDesktopIcons` 渲染
+- [x] `documentsRef` + 空依赖 `openWindow` 双路径：APP_REGISTRY 优先，fallback 到 documents 查动态文档元数据
+- [x] `WindowContent` 增加路径 2：`documents.some(d => d.id === id)` 时渲染 `<ResumeApp documentId={id} />`
+- [x] 不修改 APP_REGISTRY 写入逻辑，不修改 registry.ts
+- [x] **[BugFix]** `resume/index.tsx`：`||` 运算符误将空字符串 content 判为 Fallback → 改用 `doc !== undefined` 显式检查
+- [x] **[BugFix]** `home.tsx`：`useDesktopIcons` 传入每帧新数组引用，触发无限重渲染导致图标堆叠 → 用 `useMemo` 稳定 `dynamicDocuments` 与 `allIconDefs`
 
 ### 完成标志验证
 
-- [ ] 在后台修改基本信息中的职位标题，前台 Resume 窗口显示新标题
-- [ ] 添加一条工作经历，前台简历中出现该条目
+- [x] 在后台新建一个文档，桌面出现新图标，双击打开显示编辑内容
+- [x] 修改 Resume 文档的 Markdown 内容，前台窗口重新打开后显示新内容
+- [x] 在后台设置文档背景图 URL，前台窗口背景生效（无窗口内透明度滑块）
+- [x] 将某文档 `visible` 设为 false，桌面对应图标消失
 
 ### 问题记录
 
-<!-- -->
+- **[BugFix 1 / 2026-05-03]** 新建文档打开始终显示 README.md 内容：`resume/index.tsx` 中 `doc?.content || FALLBACK.content` 使用 `||`，将空字符串 content（新文档默认值）视为 falsy 触发 Fallback。修复：改用 `doc !== undefined` 显式判断，四个派生值（content / bgUrl / bgOpacity / title）统一走三元表达式。
+- **[BugFix 2 / 2026-05-03]** 桌面图标堆叠、单次双击开多窗口：`home.tsx` 每次渲染都对 `documents.filter()` 和展开 `[...iconDefs, ...docIconDefs]` 生成新数组引用，`useDesktopIcons` 内部 `useEffect([defs])` 检测到引用变化→ `setIcons()` → 重渲染→ 再次生成新数组，形成无限循环。修复：用 `useMemo` 包裹 `dynamicDocuments`（依赖 `[documents]`）和 `allIconDefs`（依赖 `[iconDefs, dynamicDocuments]`），稳定引用后循环消除。
 
 ---
 
 ## 部署验证（最终）
 
-- [ ] fork 仓库后，填入 4 个环境变量，Deno Deploy 部署成功
-- [ ] 首次访问 `/admin`，跳转登录页
-- [ ] 登录后完成基础配置，前台桌面正确显示
-- [ ] 删除 Turso DB 连接，页面 fallback 不崩溃（静态配置兜底）
+> 部署方案：Ubuntu 云服务器 + PM2 Node.js + Nginx 反代 + Cloudflare CDN（见 2026-04-22 架构变更日志）
+
+- [ ] 服务器填入 4 个必要环境变量（`TURSO_URL` / `TURSO_AUTH_TOKEN` / `JWT_SECRET` / `NODE_ENV=production`），`pm2 start ecosystem.config.cjs` 启动成功
+- [ ] 首次访问 `/admin`，自动跳转登录页
+- [ ] 使用正确密码登录，写入 httpOnly Cookie，跳转后台首页
+- [ ] 登录后完成基础配置（壁纸、图标、文档），前台桌面正确显示
+- [ ] 删除 Turso DB 连接（或断网），页面 fallback 不崩溃（静态配置兜底）
+- [ ] Cloudflare SSL 模式确认为 Full (Strict)，Cookie 在生产环境正常写入
 
 ---
 

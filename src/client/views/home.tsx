@@ -13,7 +13,7 @@
  * 8. Taskbar shows a button for each open window; clicking it toggles minimize/restore.
  */
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { StartMenu } from './start-menu';
 import { XpWindow } from './xp-window';
@@ -29,6 +29,10 @@ import { PET_DEFS } from '@/client/config/pets.config';
 // ── App Registry — single source of truth for all window apps ───────────────
 import { APP_REGISTRY } from '@/client/apps/registry';
 import { BlogPostViewer } from '@/client/apps/blog/viewer';
+import { ResumeApp } from '@/client/apps/resume';
+
+/** 动态文档窗口无自定义图标时的兜底图标 */
+const DOC_FALLBACK_ICON = '/assets/icons/file.png';
 
 /** Format a Date into "H:MM AM/PM" like the real XP clock */
 function formatTime(date: Date): string {
@@ -44,12 +48,18 @@ function formatTime(date: Date): string {
  * Looks up the APP_REGISTRY — no more manual switch/if chains.
  * To add a new app, register it in `src/client/apps/registry.ts`.
  */
-function WindowContent({ id }: { id: string }) {
+function WindowContent({ id, documents }: { id: string; documents: Array<{ id: string }> }) {
+  // 路径 1：静态注册 app（APP_REGISTRY）
   const app = APP_REGISTRY[id];
   if (app) {
     const { AppComponent } = app;
     return <AppComponent />;
   }
+  // 路径 2：动态文档窗口 — 通用 Markdown 查看器
+  if (documents.some((d) => d.id === id)) {
+    return <ResumeApp documentId={id} />;
+  }
+  // 兜底
   return (
     <div style={{ padding: '20px', fontFamily: '"Trebuchet MS", Tahoma, sans-serif', fontSize: '13px' }}>
       <p>Content for <strong>{id}</strong> coming soon!</p>
@@ -82,11 +92,44 @@ export function HomePage() {
   });
   const petDefs = dbMascots ?? PET_DEFS;
 
-  const { icons, selectedId, startDrag, deselectAll, selectIcon } = useDesktopIcons(iconDefs);
+  // ── 动态文档图标 — 从 documents 表拉取 visible 文档，排除已有静态注册的 id ────
+  const { data: rawDocuments } = useQuery({
+    ...trpc.site.getDocuments.queryOptions(),
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+  // rawDocuments 在查询失败/重试期间为 undefined，
+  // 用 useMemo 统一兜底为 []，保证引用稳定（undefined === undefined，依赖不变则不重算）
+  // ⚠️ 不能用解构默认值 `= []`：那会在每次渲染时创建新数组引用，导致 useDesktopIcons 无限触发
+  const documents = useMemo(() => rawDocuments ?? [], [rawDocuments]);
+
+  // 过滤掉已在 APP_REGISTRY 中注册的文档（如 resume），避免桌面图标重复
+  // 用 useMemo 稳定引用，防止每次渲染生成新数组导致 useDesktopIcons 内部 useEffect 无限触发
+  const dynamicDocuments = useMemo(
+    () => documents.filter((doc) => !APP_REGISTRY[doc.id]),
+    [documents],
+  );
+
+  const allIconDefs = useMemo(
+    () => [
+      ...iconDefs,
+      ...dynamicDocuments.map((doc) => ({
+        id:    doc.id,
+        label: doc.title,
+        src:   doc.iconSrc || DOC_FALLBACK_ICON,
+      })),
+    ],
+    [iconDefs, dynamicDocuments],
+  );
+
+  const { icons, selectedId, startDrag, deselectAll, selectIcon } = useDesktopIcons(allIconDefs);
 
   // ── Double-click detection ───────────────────────────────────────────────────
   // We track single vs. double-click manually: if same icon clicked within 350ms → double-click
   const lastClick = useRef<{ id: string; time: number } | null>(null);
+  // 持有最新 documents 的 ref，让 openWindow useCallback 保持空依赖数组（引用稳定）
+  const documentsRef = useRef(documents);
+  documentsRef.current = documents;
 
   // Update clock every second
   useEffect(() => {
@@ -118,7 +161,14 @@ export function HomePage() {
   /** Open a window by icon id (or bring to front if already open) */
   const openWindow = useCallback((iconId: string) => {
     const app = APP_REGISTRY[iconId];
-    if (!app) return;
+    // 若非静态注册 app，查动态文档列表（通过 ref 读取，保持回调引用稳定）
+    const doc = !app ? documentsRef.current.find((d) => d.id === iconId) : undefined;
+    if (!app && !doc) return;
+
+    const winTitle  = app?.title         ?? doc!.title;
+    const winIcon   = app?.icon          ?? (doc!.iconSrc || DOC_FALLBACK_ICON);
+    const winWidth  = app?.defaultWidth  ?? 700;
+    const winHeight = app?.defaultHeight ?? 560;
 
     setOpenWindows((prev) => {
       const existing = prev.find((w) => w.id === iconId);
@@ -132,13 +182,13 @@ export function HomePage() {
       const offset = (prev.length % 8) * 22;
       const newZ = ++zCounter.current;
       const newWin: WindowState = {
-        id: iconId,
-        title: app.title,
-        icon: app.icon,
-        x: 80 + offset,
-        y: 40 + offset,
-        width: app.defaultWidth,
-        height: app.defaultHeight,
+        id:     iconId,
+        title:  winTitle,
+        icon:   winIcon,
+        x:      80 + offset,
+        y:      40 + offset,
+        width:  winWidth,
+        height: winHeight,
         zIndex: newZ,
         minimized: false,
       };
@@ -387,7 +437,7 @@ export function HomePage() {
           onPositionChange={handlePositionChange}
           onSizeChange={handleSizeChange}
         >
-          <WindowContent id={win.id} />
+          <WindowContent id={win.id} documents={documents} />
         </XpWindow>
       ))}
 

@@ -10,11 +10,16 @@ export const Route = createFileRoute('/admin/_layout')({
 const FONT = '"Trebuchet MS", Tahoma, Arial, sans-serif';
 
 const NAV_ITEMS = [
-  { icon: '🎨', label: '主题设置',   href: '/admin/theme'    },
-  { icon: '📝', label: '博客管理',   href: '/admin/blog'     },
-  { icon: '🖼️', label: '图标管理',   href: '/admin/icons'    },
-  { icon: '🐾', label: '桌宠管理',   href: '/admin/mascots'  },
-  { icon: '💬', label: '留言板',     href: '/admin/chatbox'  },
+  { icon: '🎨', label: '主题设置',   href: '/admin/theme'     },
+  { icon: '📝', label: '博客管理',   href: '/admin/blog'      },
+  { icon: '🖼️', label: '图标管理',   href: '/admin/icons'     },
+  { icon: '🐾', label: '桌宠管理',   href: '/admin/mascots'   },
+  { icon: '💬', label: '留言板',     href: '/admin/chatbox'   },
+  { icon: '🗂️', label: '作品集',     href: '/admin/portfolio' },
+  { icon: '🎵', label: '媒体库',     href: '/admin/media'     },
+  { icon: '📬', label: '联系设置',   href: '/admin/contact'   },
+  { icon: '👤', label: '关于设置',   href: '/admin/about'     },
+  { icon: '📄', label: '文档管理',   href: '/admin/documents' },
 ] as const;
 
 // ─── 加载 / 验证中的过渡界面 ──────────────────────────────────────────────────

@@ -140,7 +140,8 @@ export const APP_REGISTRY: Record<string, OsApp> = {
     icon: 'https://static.step1.dev/g9nbov/assets/bb426464f8be.ico',
     defaultWidth: 700,
     defaultHeight: 560,
-    AppComponent: ResumeApp,
+    // Phase 6：通过闭包传入 documentId，让 ResumeApp 从 documents 表按 id 取内容
+    AppComponent: () => React.createElement(ResumeApp, { documentId: 'resume' }),
   },
   video: {
     id: 'video',
