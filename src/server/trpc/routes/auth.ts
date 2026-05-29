@@ -1,7 +1,9 @@
 import { TRPCError } from '@trpc/server';
+import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import z from 'zod';
 import { env } from '../../env';
+import { loginRateLimiter } from '../../rate-limiter';
 import { publicProcedure } from '../procedure';
 
 // JWT 签名密钥（TextEncoder 将字符串转为 Uint8Array，jose 要求此格式）
@@ -46,10 +48,27 @@ export const authRouter = {
   login: publicProcedure
     .input(z.object({ password: z.string().min(1) }))
     .mutation(async ({ input, ctx }) => {
-      if (input.password !== env.ADMIN_PASSWORD) {
+      // ── 速率限制：同一 IP 失败 5 次后锁定 15 分钟 ────────────────────────
+      const rateCheck = loginRateLimiter.check(ctx.ip);
+      if (!rateCheck.allowed) {
+        throw new TRPCError({
+          code: 'TOO_MANY_REQUESTS',
+          message: `登录失败次数过多，请等待 ${rateCheck.retryAfterSec} 秒后再试`,
+        });
+      }
+
+      // ── 密码校验（bcrypt 哈希比对）────────────────────────────────────────
+      // env.ADMIN_PASSWORD 存储的是 bcrypt 哈希，不再是明文。
+      // bcrypt.compare 内部使用恒定时间比较，可防止时序攻击。
+      const passwordMatch = await bcrypt.compare(input.password, env.ADMIN_PASSWORD);
+      if (!passwordMatch) {
         // 故意不区分「密码错误」和「用户不存在」，防止枚举攻击
+        loginRateLimiter.recordFailure(ctx.ip);
         throw new TRPCError({ code: 'UNAUTHORIZED', message: '密码错误' });
       }
+
+      // 登录成功：清零失败计数，防止合法管理员被误锁
+      loginRateLimiter.recordSuccess(ctx.ip);
 
       const token = await new SignJWT({ role: 'admin' })
         .setProtectedHeader({ alg: 'HS256' })

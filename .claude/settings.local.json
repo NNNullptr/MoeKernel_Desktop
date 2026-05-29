@@ -44,7 +44,9 @@
       "Bash(curl -s \"http://localhost:3000/\")",
       "Bash(Get-Content \"D:\\\\MoeKernel\\\\README.md\")",
       "Bash(Measure-Object -Line)",
-      "Bash(Select-Object -ExpandProperty Lines)"
+      "Bash(Select-Object -ExpandProperty Lines)",
+      "Bash(npm install *)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k,':',v\\) for k,v in d.get\\('scripts',{}\\).items\\(\\)]\")"
     ]
   }
 }

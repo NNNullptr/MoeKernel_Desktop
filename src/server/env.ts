@@ -7,6 +7,8 @@ const JWT_SECRET         = process.env.JWT_SECRET;
 const missing: string[] = [];
 if (!TURSO_DATABASE_URL) missing.push('TURSO_DATABASE_URL');
 if (!TURSO_AUTH_TOKEN)   missing.push('TURSO_AUTH_TOKEN');
+// ADMIN_PASSWORD 必须是 bcrypt 哈希（$2b$ 开头），不可存储明文。
+// 使用 `pnpm hash-password` 脚本从当前明文密码生成哈希后更新此值。
 if (!ADMIN_PASSWORD)     missing.push('ADMIN_PASSWORD');
 if (!JWT_SECRET)         missing.push('JWT_SECRET');
 

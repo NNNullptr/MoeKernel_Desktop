@@ -438,9 +438,14 @@ export function GamesFolderApp() {
             src={playingGame.url}
             title={playingGame.title}
             allow="fullscreen"
-            // sandbox 属性确保游戏无法访问父页面的 DOM/cookie
-            // allow-scripts 允许 JS 运行，allow-same-origin 允许本地游戏读取相对路径资源
-            sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
+            // sandbox 安全说明：
+            // ⚠️ 故意不包含 allow-same-origin —— 若同时存在 allow-scripts + allow-same-origin，
+            //    同域游戏脚本可直接操作父页面 DOM / 读取 Cookie / 访问 localStorage，
+            //    沙盒保护完全失效（MDN 明确警告此组合）。
+            // 静态资源（<script src>、<link>、<img>）由浏览器基于 iframe src 加载，
+            // 不依赖 allow-same-origin，本地游戏资源仍可正常读取。
+            // 若某款游戏确实需要 localStorage 存档，应在该游戏的注释中单独说明并评估风险。
+            sandbox="allow-scripts allow-forms allow-pointer-lock"
             style={{
               position: 'absolute',
               inset: 0,

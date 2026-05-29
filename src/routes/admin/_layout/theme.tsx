@@ -45,7 +45,16 @@ function ThemePage() {
       setWallpaperUrl(settings['wallpaper_url'] ?? '');
       setLogoUrl(settings['windows_logo_url'] ?? '');
       const raw = settings['system_tray_icons'];
-      const icons: string[] = raw ? (JSON.parse(raw) as string[]) : [];
+      const icons: string[] = raw
+        ? (() => {
+            try {
+              return JSON.parse(raw) as string[];
+            } catch {
+              console.warn('[theme] system_tray_icons 字段 JSON 解析失败，已回退为空数组。原始值：', raw);
+              return [];
+            }
+          })()
+        : [];
       setTrayIconsText(icons.join('\n'));
       setInitialized(true);
     }

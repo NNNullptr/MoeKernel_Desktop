@@ -69,12 +69,51 @@ function ChartContainer({
   );
 }
 
+// ─── CSS 注入安全校验 ────────────────────────────────────────────────────────
+//
+// ChartStyle 通过 dangerouslySetInnerHTML 向 <style> 写入 CSS 变量。
+// 以下两个函数对写入前的值进行白名单校验，防止恶意字符串
+//（如 `</style><script>alert(1)</script>`）通过 config 注入页面。
+
+/**
+ * 合法 CSS 颜色值白名单。
+ * 支持：hex / rgb[a] / hsl[a] / 现代颜色函数 / CSS var() / CSS 命名颜色。
+ * 函数参数部分禁止 `< > " ' { } ( ) ;` 以外的字符，防止嵌套注入。
+ */
+const SAFE_COLOR_PATTERNS: RegExp[] = [
+  /^#[0-9a-fA-F]{3,8}$/,                          // #rgb #rrggbb #rrggbbaa
+  /^rgba?\([^<>"'{}();]+\)$/,                      // rgb() rgba()
+  /^hsla?\([^<>"'{}();]+\)$/,                      // hsl() hsla()
+  /^(?:oklch|oklab|lch|lab|color|hwb)\([^<>"'{}();]+\)$/, // 现代颜色函数
+  /^var\(--[a-zA-Z0-9_-]+\)$/,                    // CSS 自定义属性引用
+  /^[a-z]{2,25}$/,                                 // CSS 命名颜色（red、transparent…）
+];
+
+function isSafeCssColor(value: string): boolean {
+  return SAFE_COLOR_PATTERNS.some((re) => re.test(value));
+}
+
+/**
+ * CSS 标识符白名单（用于 CSS 变量名 `--color-<key>` 和 data 属性值）。
+ * 只允许字母、数字、连字符、下划线，拒绝一切特殊字符。
+ */
+function isSafeCssIdentifier(value: string): boolean {
+  return /^[a-zA-Z0-9_-]+$/.test(value);
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color
   );
 
   if (!colorConfig.length) {
+    return null;
+  }
+
+  // id 用于 CSS 属性选择器 [data-chart=<id>]，必须是安全标识符
+  if (!isSafeCssIdentifier(id)) {
+    console.warn('[chart] 不安全的 chart id，已跳过样式注入：', id);
     return null;
   }
 
@@ -87,11 +126,27 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
+    // key 用于 CSS 变量名 --color-<key>，必须是安全标识符
+    if (!isSafeCssIdentifier(key)) {
+      console.warn('[chart] 不安全的 config key，已跳过：', key);
+      return null;
+    }
+
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+
+    if (!color) return null;
+
+    // color 值直接写入 CSS，必须通过白名单校验
+    if (!isSafeCssColor(color)) {
+      console.warn('[chart] 不安全的颜色值，已跳过：', color);
+      return null;
+    }
+
+    return `  --color-${key}: ${color};`;
   })
+  .filter(Boolean)
   .join('\n')}
 }
 `

@@ -8,6 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 out.txt
 out2.txt
+security-fix-plan.md
 
 # Node
 node_modules
@@ -37,3 +38,4 @@ tsconfig.tsbuildinfo
 .env.development.local
 .env.test.local
 .env.production.local
+
