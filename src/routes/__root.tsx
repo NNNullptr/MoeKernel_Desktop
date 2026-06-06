@@ -38,7 +38,7 @@ function RootDocument() {
         <link rel="stylesheet" href="/home/styles/style_44662de83434.css" />
         <link rel="stylesheet" href="/home/styles/style_568d4a59d1ae.css" />
         <link rel="stylesheet" href="/home/styles/merged_styles.css" />
-        <title>NNNullptr</title>
+        <title>moekernel</title>
         <link rel="stylesheet" href={globalCss} />
         <link rel="icon" href="favicon.png" />
       </head>
