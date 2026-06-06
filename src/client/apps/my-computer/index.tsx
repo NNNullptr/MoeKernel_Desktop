@@ -169,7 +169,7 @@ export function MyComputerApp() {
               <FileTile
                 key={item.name}
                 label={item.name}
-                iconSrc={item.icon ?? '/assets/icons/Games.png'}
+                iconSrc={item.icon ?? '/assets/icons/1.png'}
                 onClick={() => setCurrentPath((p) => [...p, item.name])}
               />
             );

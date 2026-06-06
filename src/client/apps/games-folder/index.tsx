@@ -445,7 +445,11 @@ export function GamesFolderApp() {
             // 静态资源（<script src>、<link>、<img>）由浏览器基于 iframe src 加载，
             // 不依赖 allow-same-origin，本地游戏资源仍可正常读取。
             // 若某款游戏确实需要 localStorage 存档，应在该游戏的注释中单独说明并评估风险。
-            sandbox="allow-scripts allow-forms allow-pointer-lock"
+            sandbox={
+              playingGame.url.startsWith('/')
+                ? 'allow-scripts allow-same-origin allow-forms allow-pointer-lock'
+                : 'allow-scripts allow-forms allow-pointer-lock'
+            }
             style={{
               position: 'absolute',
               inset: 0,

@@ -93,8 +93,8 @@ export function StartMenu({ onItemClick, onLogOff, onTurnOff }: StartMenuProps) 
         borderTop: '2px solid #888', display: 'flex',
         justifyContent: 'flex-end', gap: '8px', padding: '6px 12px',
       }}>
-        <FooterBtn label="Log Off" emoji="\uD83D\uDD13" onClick={onLogOff} />
-        <FooterBtn label="Turn Off Computer" emoji="\u23FB" onClick={onTurnOff} />
+        <FooterBtn label="Log Off" icon={<LogOffIcon />} onClick={onLogOff} />
+        <FooterBtn label="Turn Off Computer" icon={<PowerIcon />} onClick={onTurnOff} />
       </div>
     </div>
   );
@@ -164,7 +164,7 @@ function AllProgramsBtn() {
   );
 }
 
-function FooterBtn({ label, emoji, onClick }: { label: string; emoji: string; onClick?: () => void }) {
+function FooterBtn({ label, icon, onClick }: { label: string; icon: React.ReactNode; onClick?: () => void }) {
   const [hovered, setHovered] = React.useState(false);
   return (
     <button
@@ -179,8 +179,28 @@ function FooterBtn({ label, emoji, onClick }: { label: string; emoji: string; on
         boxShadow: '0 1px 2px rgba(0,0,0,0.4)',
       }}
     >
-      <span>{emoji}</span>
+      <span style={{ width: '16px', height: '16px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        {icon}
+      </span>
       <span>{label}</span>
     </button>
+  );
+}
+
+function LogOffIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M6.5 2.5H3.75A1.25 1.25 0 0 0 2.5 3.75v8.5c0 .69.56 1.25 1.25 1.25H6.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M7 8h7m-2.6-2.6L14 8l-2.6 2.6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PowerIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M8 1.75v6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M4.25 4.55a5.5 5.5 0 1 0 7.5 0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
