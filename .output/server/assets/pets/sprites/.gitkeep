@@ -1,4 +1,0 @@
-# Place desktop pet sprites here (animated GIF recommended!)
-# Reference them in: src/client/config/pets.config.ts → petSrc
-# Example: '/assets/pets/sprites/cat-walking.gif'
-# Tip: Use transparent-background GIFs for the best floating effect.
