@@ -80,93 +80,45 @@
 ## 📁 项目目录结构
 
 ```
-MoeKernel/
-├── public/                         # 静态资源（直接替换你的素材）
-│   └── assets/
-│       ├── wallpapers/             # 桌面壁纸 (.webp / .jpg)
-│       ├── icons/                  # 应用图标 (.png / .ico)
-│       │   └── tray/               # 系统托盘小图标 (16–20px)
-│       └── pets/
-│           ├── avatars/            # 桌宠侧栏按钮图标 (推荐 22px)
-│           └── sprites/            # 桌宠本体图像 (推荐 .gif 动图)
+MoeKernel_Desktop/
+├── public/
+│   ├── assets/                     # 项目自有静态资源
+│   │   ├── wallpapers/             # 桌面壁纸
+│   │   ├── icons/                  # 应用图标 / 托盘图标
+│   │   ├── pets/                   # 桌宠素材
+│   │   ├── covers/                 # 文档 / 文章封面图
+│   │   ├── portfolio/              # 作品集资源
+│   │   ├── tracks/                 # 音频资源
+│   │   ├── video/                  # 视频资源
+│   │   └── jspaint-master/         # 当前直接 vendored 的 JS Paint 运行时资源
+│   ├── games/                      # 本地 H5 游戏
+│   └── home/                       # 额外首页样式资源
 │
 ├── src/
-│   ├── client/                     # 前端代码
-│   │   ├── apps/                   # 各桌面应用（每个应用独立文件夹）
-│   │   │   ├── registry.ts         # 应用注册中心（APP_REGISTRY）
-│   │   │   ├── blog/               # 博客系统（文件夹视图 + Markdown 阅读器）
-│   │   │   ├── resume/             # 通用 Markdown 文档查看器
-│   │   │   ├── portfolio/          # 作品集（卡片 + 灯箱）
-│   │   │   ├── winamp/             # Winamp 音乐播放器
-│   │   │   ├── video-player/       # 视频播放器（B站/mp4 双引擎）
-│   │   │   ├── chatbox/            # ChatBox 留言板
-│   │   │   ├── about-me/           # 关于我
-│   │   │   ├── contact/            # 联系方式
-│   │   │   ├── my-computer/        # 我的电脑（文件树导航）
-│   │   │   ├── games-folder/       # 游戏文件夹
-│   │   │   ├── msn/                # MSN Messenger
-│   │   │   └── paint/              # MS Paint 画板
-│   │   │
-│   │   ├── config/                 # 静态兜底配置（DB 无数据时使用）
-│   │   │   ├── theme.config.ts     # 壁纸、Logo、托盘图标
-│   │   │   ├── icons.config.ts     # 桌面图标列表
-│   │   │   ├── pets.config.ts      # 桌宠列表
-│   │   │   └── blog.config.ts      # 博客文章列表（含 .md 静态导入）
-│   │   │
-│   │   ├── hooks/                  # 自定义 React Hooks
-│   │   │   ├── use-desktop-icons.ts  # 图标拖拽、选中、自动排布
-│   │   │   ├── use-site-config.ts    # DB 设置读取（含静态 Fallback）
-│   │   │   └── use-window-drag.ts    # 窗口拖拽
-│   │   │
-│   │   └── views/                  # 页面级视图组件
-│   │       ├── home.tsx            # 🖥️ XP 桌面主组件（内核）
-│   │       ├── xp-window.tsx       # 可拖拽/可缩放 XP 窗口
-│   │       ├── start-menu.tsx      # 开始菜单（Luna 风格）
-│   │       ├── welcome-guard.tsx   # Boot → Login 欢迎动画
-│   │       ├── right-sidebar.tsx   # 右侧桌宠启动栏
-│   │       └── desktop-pet.tsx     # 可拖拽桌宠
-│   │
-│   ├── routes/                     # 文件路由（路径即 URL）
-│   │   ├── __root.tsx              # 根布局（HTML Shell）
-│   │   ├── index.tsx               # / → XP 桌面主页
-│   │   ├── api/trpc.$.ts           # tRPC HTTP 端点（catch-all）
-│   │   └── admin/                  # 管理后台路由
-│   │       ├── login.tsx           # /admin/login 登录页
-│   │       ├── _layout.tsx         # 后台布局（JWT 鉴权守卫）
-│   │       └── _layout/            # 后台各功能页
-│   │           ├── index.tsx       # /admin 仪表盘
-│   │           ├── theme.tsx       # /admin/theme
-│   │           ├── blog/           # /admin/blog（列表 + 新建 + 编辑）
-│   │           ├── icons.tsx       # /admin/icons
-│   │           ├── mascots.tsx     # /admin/mascots
-│   │           ├── chatbox.tsx     # /admin/chatbox
-│   │           ├── portfolio.tsx   # /admin/portfolio
-│   │           ├── media.tsx       # /admin/media
-│   │           ├── contact.tsx     # /admin/contact
-│   │           ├── about.tsx       # /admin/about
-│   │           └── documents.tsx   # /admin/documents
-│   │
-│   └── server/                     # 服务端代码
-│       ├── env.ts                  # 环境变量校验（启动时 fail-fast）
-│       ├── db/
-│       │   ├── client.ts           # Drizzle + Turso HTTP 连接
-│       │   ├── schema.ts           # 7 张数据表定义
-│       │   └── seed.ts             # 初始数据填充脚本
-│       └── trpc/
-│           ├── router.ts           # 主路由（注册所有子路由）
-│           ├── procedure.ts        # publicProcedure / adminProcedure
-│           └── routes/             # 各功能路由
-│               ├── site.ts         # 公开读取接口
-│               ├── auth.ts         # 登录 / 登出 / 验证
-│               ├── settings.ts     # 站点设置 CRUD
-│               ├── blog.ts         # 博客文章 CRUD
-│               ├── documents.ts    # 文档窗口 CRUD
-│               ├── chatbox.ts      # 留言板 CRUD
-│               ├── portfolio.ts    # 作品集 CRUD
-│               └── media.ts        # 媒体库 CRUD
+│   ├── client/
+│   │   ├── apps/                   # 桌面应用实现（blog / paint / winamp / image-viewer ...）
+│   │   ├── config/                 # 静态兜底配置
+│   │   ├── hooks/                  # 客户端数据/状态 hooks
+│   │   ├── trpc/                   # tRPC React Query 客户端封装
+│   │   └── views/                  # XP 桌面内核与窗口视图
+│   ├── components/ui/              # UI 基础组件
+│   ├── hooks/                      # 通用 hooks
+│   ├── routes/                     # TanStack Router 文件路由
+│   │   ├── admin/_layout/          # 后台页面（about / blog / comments / media ...）
+│   │   └── api/trpc.$.ts           # tRPC HTTP 入口
+│   ├── server/
+│   │   ├── db/                     # Drizzle schema / seed / client
+│   │   ├── trpc/                   # tRPC server 初始化、context、routes
+│   │   ├── env.ts
+│   │   ├── loader.ts
+│   │   └── rate-limiter.ts
+│   ├── router.tsx                  # 前端路由入口
+│   ├── routeTree.gen.ts            # TanStack Router 生成文件
+│   └── styles/global.css
 │
-├── ecosystem.config.cjs            # PM2 进程管理配置
-├── drizzle.config.ts               # Drizzle Kit 配置
+├── scripts/hash-password.ts        # 后台密码哈希脚本
+├── drizzle.config.ts
+├── ecosystem.config.cjs
 └── package.json
 ```
 
@@ -178,7 +130,7 @@ MoeKernel/
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              Turso 云端数据库（7 张表）                    │
+│              Turso 云端数据库（8 张表）                    │
 │  site_settings / blog_posts / desktop_icons / mascots   │
 │  chat_messages / portfolio_items / media_tracks         │
 │  documents                                              │
@@ -194,7 +146,7 @@ MoeKernel/
      │                       │
 ┌────▼────────────┐   ┌──────▼────────────────────────────┐
 │  /admin 后台    │   │    / 前台（XP 桌面）               │
-│  10 个管理页面  │   │  内核层 home.tsx                   │
+│  多页面可视化管理 │   │  内核层 home.tsx                  │
 │  可视化 CRUD    │   │  窗口管理·图标拖拽·任务栏·桌宠系统 │
 └─────────────────┘   └──────────────┬─────────────────────┘
                                      │ APP_REGISTRY 查找
@@ -292,13 +244,9 @@ turso db tokens create moekernel   # 复制输出的 Token 字符串
 
 ### 第三步：配置环境变量
 
-在项目根目录创建 `.env` 文件：
+在项目根目录直接创建 `.env` 文件：
 
 ```bash
-# macOS / Linux
-cp .env.example .env   # 如果有示例文件
-
-# 或直接新建
 touch .env
 ```
 
@@ -639,7 +587,10 @@ export const APP_REGISTRY = {
 | `/admin/login` | 管理后台登录页 |
 | `/admin` | 管理后台仪表盘 |
 | `/admin/theme` | 主题设置 |
-| `/admin/blog` | 博客管理 |
+| `/admin/blog` | 博客管理列表 |
+| `/admin/blog/new` | 新建博客 |
+| `/admin/blog/$id` | 编辑博客 |
+| `/admin/comments` | 评论 / 留言管理 |
 | `/admin/icons` | 图标管理 |
 | `/admin/mascots` | 桌宠管理 |
 | `/admin/chatbox` | 留言板管理 |
@@ -661,12 +612,13 @@ npm run build     # npm 等价命令
 npm start         # 启动 .output/server/index.mjs 生产服务
 pnpm lint         # TypeScript 类型检查
 npm run lint      # npm 等价命令
+pnpm preview      # 本地预览构建结果
+pnpm hash-password  # 生成后台密码哈希
 
 pnpm exec drizzle-kit push  # 推送 schema 变更到 Turso（建表/加字段）
 npm exec drizzle-kit push   # npm 等价命令
 pnpm db:seed      # 填充初始数据到数据库
 npm run db:seed   # npm 等价命令
-pnpm db:studio    # 打开 Drizzle Studio（本地 DB 可视化界面）
 ```
 
 ---
@@ -698,7 +650,7 @@ pnpm db:studio    # 打开 Drizzle Studio（本地 DB 可视化界面）
 | **Full-Stack** | **全栈化改造**：Turso 数据库 + tRPC 服务端 + Drizzle ORM + JWT 鉴权 |
 | Phase 0–1 | 基础设施搭建：8 张表建表、tRPC 数据层（site/auth/settings/blog 路由） |
 | Phase 2 | 前端组件数据源切换至 DB，静态配置退为 Fallback |
-| Phase 3 | 管理后台 UI：10 个后台页面，完整 CRUD |
+| Phase 3 | 管理后台 UI：多页面后台 CRUD 能力补齐 |
 | Phase 4 | **ChatBox 留言板**：独立数据表 + 皮肤系统 + IP 限流 |
 | Phase 5 | **Portfolio / Media / Contact / About** 全栈化 |
 | Phase 6 | **通用文档窗口管理系统**：documents 表 + 动态桌面图标 + 后台编辑器 |
