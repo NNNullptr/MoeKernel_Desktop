@@ -81,14 +81,16 @@
 
 ```
 MoeKernel/
-├── public/                         # 静态资源（直接替换你的素材）
-│   └── assets/
-│       ├── wallpapers/             # 桌面壁纸 (.webp / .jpg)
-│       ├── icons/                  # 应用图标 (.png / .ico)
-│       │   └── tray/               # 系统托盘小图标 (16–20px)
-│       └── pets/
-│           ├── avatars/            # 桌宠侧栏按钮图标 (推荐 22px)
-│           └── sprites/            # 桌宠本体图像 (推荐 .gif 动图)
+├── public/
+│   ├── assets/                     # 项目自有静态资源（直接替换你的素材）
+│   │   ├── wallpapers/             # 桌面壁纸 (.webp / .jpg)
+│   │   ├── icons/                  # 应用图标 (.png / .ico)
+│   │   │   └── tray/               # 系统托盘小图标 (16–20px)
+│   │   └── pets/
+│   │       ├── avatars/            # 桌宠侧栏按钮图标 (推荐 22px)
+│   │       └── sprites/            # 桌宠本体图像 (推荐 .gif 动图)
+│   └── vendor/                     # 第三方前端资源快照（与项目源码分开）
+│       └── jspaint/                # JS Paint 上游项目快照
 │
 ├── src/
 │   ├── client/                     # 前端代码

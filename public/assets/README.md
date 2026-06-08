@@ -1,6 +1,8 @@
 # Static Assets Directory
 
-This folder organizes all static images and media used by the XP desktop portfolio.
+This folder organizes first-party static images and media used by the XP desktop portfolio.
+
+Third-party vendored frontend bundles should not be placed here. Keep them under `public/vendor/` so app-owned assets and upstream snapshots stay clearly separated.
 
 ## Directory Structure
 
