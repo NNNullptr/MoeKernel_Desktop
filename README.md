@@ -230,14 +230,13 @@ MoeKernel/
 - **pnpm**：安装好 Node.js 后执行 `npm install -g pnpm`
 - **Git**：[https://git-scm.com](https://git-scm.com)
 
-> 项目默认保留 pnpm 作为依赖安装方式；npm 也可用于执行脚本，例如 `npm run dev`、`npm run build`、`npm start`。
+> 本项目统一使用 pnpm 进行依赖安装和脚本执行。
 
 验证安装：
 
 ```bash
 node -v    # 应输出 v20.x.x 或更高
-pnpm -v    # 应输出 9.x.x 或更高
-npm -v     # npm 随 Node.js 一起安装
+pnpm -v    # 应输出 v10.x.x 或更高
 git --version
 ```
 
@@ -334,7 +333,6 @@ NODE_ENV=development
 
 ```bash
 pnpm exec drizzle-kit push
-# 或：npm exec drizzle-kit push
 ```
 
 这条命令会把 `src/server/db/schema.ts` 中定义的 8 张表推送到 Turso 云端。  
@@ -354,7 +352,6 @@ pnpm db:seed
 
 ```bash
 pnpm dev
-# 或：npm run dev
 ```
 
 打开浏览器访问：
@@ -372,7 +369,6 @@ pnpm dev
 
 ```bash
 pnpm build
-# 或：npm run build
 ```
 
 构建产物在 `.output/` 目录下：
@@ -382,7 +378,7 @@ pnpm build
 生产启动命令：
 
 ```bash
-npm start
+pnpm start
 ```
 
 ---
@@ -445,7 +441,7 @@ pm2 save                # 保存进程列表
 pm2 startup             # 生成开机自启命令（按提示执行输出的命令）
 ```
 
-如果不使用 PM2，也可以在构建后执行 `npm start` 直接启动生产服务。
+如果不使用 PM2，也可以在构建后执行 `pnpm start` 直接启动生产服务。
 
 验证是否启动成功：
 
@@ -553,7 +549,7 @@ pnpm build             # 重新构建
 pm2 reload moekernel   # 热重载（零停机）
 ```
 
-如果不使用 PM2，也可以在构建后执行 `npm start` 直接启动生产服务。
+如果不使用 PM2，也可以在构建后执行 `pnpm start` 直接启动生产服务。
 
 如果数据库 schema 有变更（新增表/字段）：
 
@@ -655,17 +651,12 @@ export const APP_REGISTRY = {
 
 ```bash
 pnpm dev          # 启动开发服务器（localhost:3000）
-npm run dev       # npm 等价命令
 pnpm build        # 构建生产版本
-npm run build     # npm 等价命令
-npm start         # 启动 .output/server/index.mjs 生产服务
+pnpm start        # 启动 .output/server/index.mjs 生产服务
 pnpm lint         # TypeScript 类型检查
-npm run lint      # npm 等价命令
 
 pnpm exec drizzle-kit push  # 推送 schema 变更到 Turso（建表/加字段）
-npm exec drizzle-kit push   # npm 等价命令
 pnpm db:seed      # 填充初始数据到数据库
-npm run db:seed   # npm 等价命令
 pnpm db:studio    # 打开 Drizzle Studio（本地 DB 可视化界面）
 ```
 
