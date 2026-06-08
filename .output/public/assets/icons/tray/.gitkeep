@@ -1,2 +1,0 @@
-# Place system tray icons here (small 16x16 or 20x20 px images)
-# Reference them in: src/client/config/theme.config.ts → SYSTEM_TRAY_ICONS

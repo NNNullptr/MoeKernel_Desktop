@@ -1,3 +1,0 @@
-# Place pet sidebar button icons here (22x22 px recommended)
-# Reference them in: src/client/config/pets.config.ts → iconSrc
-# Example: '/assets/pets/avatars/cat.png'
