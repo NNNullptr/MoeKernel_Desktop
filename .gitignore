@@ -14,6 +14,8 @@ security-fix-plan.md
 node_modules
 dist
 dist-ssr
+.output
+.nitro
 *.local
 
 # Editor directories and files
@@ -38,4 +40,3 @@ tsconfig.tsbuildinfo
 .env.development.local
 .env.test.local
 .env.production.local
-
