@@ -46,6 +46,12 @@ export const blogRouter = {
         .insert(blogPosts)
         .values({ id, ...input })
         .returning();
+      if (!created) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '数据库未返回新建记录',
+        });
+      }
       return created;
     }),
 

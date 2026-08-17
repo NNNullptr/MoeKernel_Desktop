@@ -139,28 +139,24 @@ function IconRow({
   const [order, setOrder] = useState(String(icon.order));
 
   // 保存成功后缓存刷新，props 更新时同步本地草稿（仅在非保存中时同步，避免覆盖在途输入）
-  const [saving, setSaving] = useState(false);
+  const { mutate: save, isPending: isSaving } = useMutation({
+    ...trpc.settings.updateIcon.mutationOptions(),
+    onSuccess: invalidateIcons,
+  });
+
   useEffect(() => {
-    if (!saving) {
+    if (!isSaving) {
       setLabel(icon.label);
       setSrc(icon.src);
       setOrder(String(icon.order));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [icon.label, icon.src, icon.order]);
+  }, [icon.label, icon.src, icon.order, isSaving]);
 
   const parsedOrder = parseInt(order) || 0;
   const isDirty =
     label.trim() !== icon.label ||
     src.trim()   !== icon.src   ||
     parsedOrder  !== icon.order;
-
-  const { mutate: save, isPending: isSaving } = useMutation({
-    ...trpc.settings.updateIcon.mutationOptions(),
-    onMutate:  () => setSaving(true),
-    onSettled: () => setSaving(false),
-    onSuccess: invalidateIcons,
-  });
 
   const { mutate: toggleVis, isPending: isToggling } = useMutation({
     ...trpc.settings.updateIcon.mutationOptions(),

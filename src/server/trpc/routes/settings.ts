@@ -72,6 +72,12 @@ export const settingsRouter = {
       const maxOrder = rows[0]?.maxOrder ?? null;
       const order = input.order ?? (maxOrder ?? -1) + 1;
       const [created] = await db.insert(desktopIcons).values({ ...input, order }).returning();
+      if (!created) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '数据库未返回新建记录',
+        });
+      }
       return created;
     }),
 
@@ -136,6 +142,12 @@ export const settingsRouter = {
       const maxOrder = rows[0]?.maxOrder ?? null;
       const order = input.order ?? (maxOrder ?? -1) + 1;
       const [created] = await db.insert(mascots).values({ id, ...input, order }).returning();
+      if (!created) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '数据库未返回新建记录',
+        });
+      }
       return created;
     }),
 
