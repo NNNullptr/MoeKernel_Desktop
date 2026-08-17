@@ -38,6 +38,10 @@ export function resolveEnv(
     throw new Error('[env] TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set together');
   }
 
+  if (!isProduction && url?.startsWith('file:') && url !== DEV_DATABASE_URL) {
+    throw new Error('[env] Development file database URLs must equal DEV_DATABASE_URL');
+  }
+
   if (legacyPasswordHash && !newPasswordHash) {
     warn('[env] ADMIN_PASSWORD is deprecated; rename it to ADMIN_PASSWORD_HASH.');
   }

@@ -25,6 +25,16 @@ test('development rejects a partial Turso configuration', () => {
   );
 });
 
+test('development rejects a non-default file database URL', () => {
+  assert.throws(
+    () => resolveEnv({
+      TURSO_DATABASE_URL: 'file:/arbitrary/path.db',
+      TURSO_AUTH_TOKEN: 'token',
+    }),
+    /Development file database URLs must equal DEV_DATABASE_URL/,
+  );
+});
+
 test('development may explicitly use Turso', () => {
   const result = resolveEnv({
     TURSO_DATABASE_URL: 'libsql://example.turso.io',
