@@ -1,17 +1,25 @@
 import { unlink } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { assertDevDatabaseTarget, devDatabaseSidecars } from '../src/server/db/dev-paths';
-import { DEV_DATABASE_PATH, resolveEnv } from '../src/server/env';
 import { setupDevelopmentDatabase } from './dev-setup';
 
 export async function resetDevelopmentDatabase(): Promise<void> {
-  assertDevDatabaseTarget(DEV_DATABASE_PATH);
   for (const file of devDatabaseSidecars()) {
+    assertDevDatabaseTarget(file);
     await unlink(file).catch((error: NodeJS.ErrnoException) => {
       if (error.code !== 'ENOENT') throw error;
     });
   }
-  const localConfig = resolveEnv({ NODE_ENV: 'development' }, () => undefined);
-  await setupDevelopmentDatabase(localConfig);
+  const [databasePath] = devDatabaseSidecars();
+  await setupDevelopmentDatabase({
+    TURSO_DATABASE_URL: `file:${databasePath}`,
+    TURSO_AUTH_TOKEN: undefined,
+    IS_LOCAL_DATABASE: true,
+  });
 }
 
-await resetDevelopmentDatabase();
+const entryPath = process.argv[1];
+if (entryPath && import.meta.url === pathToFileURL(resolve(entryPath)).href) {
+  await resetDevelopmentDatabase();
+}
