@@ -17,6 +17,7 @@ dist-ssr
 .output
 .nitro
 *.local
+.data/
 
 # Editor directories and files
 .worktrees/

@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "test": "tsx --test tests/**/*.test.ts",
-    "dev": "vite dev",
+    "dev": "pnpm dev:setup && vite dev",
+    "dev:setup": "tsx scripts/dev-setup.ts",
+    "dev:reset": "tsx scripts/dev-reset.ts",
     "build": "vite build",
     "start": "node --env-file=.env .output/server/index.mjs",
     "lint": "tsc -b --pretty --noEmit",

@@ -1,13 +1,26 @@
 import assert from 'node:assert/strict';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import test from 'node:test';
 import { eq, sql } from 'drizzle-orm';
 import { createDatabase } from '../src/server/db/client';
+import { assertDevDatabaseTarget, devDatabaseSidecars } from '../src/server/db/dev-paths';
 import { migrateDatabase } from '../src/server/db/migrate';
 import { seedDatabase } from '../src/server/db/seed';
+import { DEV_DATABASE_PATH } from '../src/server/env';
 import { blogPosts, desktopIcons, mascots, siteSettings } from '../src/server/db/schema';
+
+test('reset boundary accepts only the fixed local database path', () => {
+  assert.doesNotThrow(() => assertDevDatabaseTarget(DEV_DATABASE_PATH));
+  assert.throws(() => assertDevDatabaseTarget(resolve('.data/other.db')), /Refusing to delete/);
+  assert.throws(() => assertDevDatabaseTarget(resolve('.data')), /Refusing to delete/);
+  assert.deepEqual(devDatabaseSidecars(), [
+    DEV_DATABASE_PATH,
+    `${DEV_DATABASE_PATH}-wal`,
+    `${DEV_DATABASE_PATH}-shm`,
+  ]);
+});
 
 test('migration creates eight business tables and seed preserves edits while restoring missing defaults', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'moekernel-db-'));
