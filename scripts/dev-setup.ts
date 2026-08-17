@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { devDatabaseSidecars } from '../src/server/db/dev-paths';
+import { assertDevDatabaseTarget, devDatabaseSidecars } from '../src/server/db/dev-paths';
 import type { AppEnv } from '../src/server/env';
 
 type DevelopmentDatabaseConfig = Pick<AppEnv,
@@ -17,6 +17,7 @@ export async function setupDevelopmentDatabase(config?: DevelopmentDatabaseConfi
 
   const [databasePath] = devDatabaseSidecars();
   await mkdir(dirname(databasePath), { recursive: true });
+  assertDevDatabaseTarget(databasePath);
   const [{ createDatabase }, { migrateDatabase }, { seedDatabase }] = await Promise.all([
     import('../src/server/db/factory'),
     import('../src/server/db/migrate'),

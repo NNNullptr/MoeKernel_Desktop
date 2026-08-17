@@ -9,6 +9,7 @@ import test from 'node:test';
 const projectRoot = process.cwd();
 const tsxCli = resolve(projectRoot, 'node_modules/tsx/dist/cli.mjs');
 const resetScript = resolve(projectRoot, 'scripts/dev-reset.ts');
+const setupScript = resolve(projectRoot, 'scripts/dev-setup.ts');
 
 function runTsx(
   cwd: string,
@@ -47,6 +48,23 @@ test('reset command refuses a symlinked .data directory before deleting an exter
     assert.notEqual(result.status, 0, result.stderr);
     assert.match(`${result.stdout}${result.stderr}`, /Refusing to delete/);
     assert.equal(await readFile(externalDatabase, 'utf8'), 'external database must survive');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+    await rm(externalDirectory, { recursive: true, force: true });
+  }
+});
+
+test('setup command refuses a symlinked .data directory before creating an external database', async () => {
+  const directory = await createSetupFixture();
+  const externalDirectory = await mkdtemp(join(tmpdir(), 'moekernel-external-setup-'));
+  try {
+    await symlink(externalDirectory, join(directory, '.data'), 'dir');
+
+    const result = runTsx(directory, [setupScript]);
+
+    assert.notEqual(result.status, 0, result.stderr);
+    assert.match(`${result.stdout}${result.stderr}`, /Refusing to delete through symbolic link/);
+    await assert.rejects(readFile(join(externalDirectory, 'dev.db')));
   } finally {
     await rm(directory, { recursive: true, force: true });
     await rm(externalDirectory, { recursive: true, force: true });
