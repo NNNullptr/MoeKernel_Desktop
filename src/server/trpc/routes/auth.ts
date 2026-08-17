@@ -58,9 +58,9 @@ export const authRouter = {
       }
 
       // ── 密码校验（bcrypt 哈希比对）────────────────────────────────────────
-      // env.ADMIN_PASSWORD 存储的是 bcrypt 哈希，不再是明文。
+      // env.ADMIN_PASSWORD_HASH 存储的是 bcrypt 哈希，不再是明文。
       // bcrypt.compare 内部使用恒定时间比较，可防止时序攻击。
-      const passwordMatch = await bcrypt.compare(input.password, env.ADMIN_PASSWORD);
+      const passwordMatch = await bcrypt.compare(input.password, env.ADMIN_PASSWORD_HASH);
       if (!passwordMatch) {
         // 故意不区分「密码错误」和「用户不存在」，防止枚举攻击
         loginRateLimiter.recordFailure(ctx.ip);

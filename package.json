@@ -4,13 +4,14 @@
   "description": "",
   "type": "module",
   "scripts": {
+    "test": "tsx --test tests/**/*.test.ts",
     "dev": "vite dev",
     "build": "vite build",
     "start": "node --env-file=.env .output/server/index.mjs",
     "lint": "tsc -b --pretty --noEmit",
     "preview": "vite preview",
     "db:seed": "tsx --env-file=.env src/server/db/seed.ts",
-    "hash-password": "tsx --env-file=.env scripts/hash-password.ts"
+    "hash-password": "tsx scripts/hash-password.ts"
   },
   "keywords": [],
   "author": "",

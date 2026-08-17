@@ -1,48 +1,79 @@
-const TURSO_DATABASE_URL = process.env.TURSO_DATABASE_URL;
-const TURSO_AUTH_TOKEN   = process.env.TURSO_AUTH_TOKEN;
-const ADMIN_PASSWORD     = process.env.ADMIN_PASSWORD;
-const JWT_SECRET         = process.env.JWT_SECRET;
+import { resolve } from 'node:path';
 
-// ── 必需变量校验（启动时全量收集，一次性报告所有缺失项）───────────────────
-const missing: string[] = [];
-if (!TURSO_DATABASE_URL) missing.push('TURSO_DATABASE_URL');
-if (!TURSO_AUTH_TOKEN)   missing.push('TURSO_AUTH_TOKEN');
-// ADMIN_PASSWORD 必须是 bcrypt 哈希（$2b$ 开头），不可存储明文。
-// 使用 `pnpm hash-password` 脚本从当前明文密码生成哈希后更新此值。
-if (!ADMIN_PASSWORD)     missing.push('ADMIN_PASSWORD');
-if (!JWT_SECRET)         missing.push('JWT_SECRET');
+export const DEV_DATABASE_PATH = resolve(process.cwd(), '.data/dev.db');
+export const DEV_DATABASE_URL = `file:${DEV_DATABASE_PATH}`;
+const DEV_ADMIN_PASSWORD_HASH = '$2b$12$0KRfAzF82uZrEQ6Kv9Rhgew20/B1vkv31AXGIJSrd5Vo26Xx5l7/y';
+const DEV_JWT_SECRET = 'moekernel-local-development-only-jwt-secret';
+const BCRYPT_HASH = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/;
 
-if (missing.length > 0) {
-  throw new Error(
-    `[env] 缺少以下必需的环境变量，请在部署平台或 .env 文件中配置：\n` +
-    missing.map(k => `  - ${k}`).join('\n'),
-  );
+export type EnvSource = Record<string, string | undefined>;
+export type WarningSink = (message: string) => void;
+
+export interface AppEnv {
+  TURSO_DATABASE_URL: string;
+  TURSO_AUTH_TOKEN: string | undefined;
+  ADMIN_PASSWORD_HASH: string;
+  JWT_SECRET: string;
+  NODE_ENV: string;
+  COOKIE_DOMAIN: string;
+  IS_PRODUCTION: boolean;
+  IS_LOCAL_DATABASE: boolean;
+  USES_DEVELOPMENT_DEFAULTS: boolean;
 }
 
-// JWT_SECRET 过短会导致签名被暴力破解，要求至少 32 个字符
-if (JWT_SECRET!.length < 32) {
-  throw new Error('[env] JWT_SECRET 长度必须 ≥ 32 个字符，请使用强随机字符串');
+export function resolveEnv(
+  source: EnvSource,
+  warn: WarningSink = console.warn,
+): AppEnv {
+  const nodeEnv = source.NODE_ENV ?? 'development';
+  const isProduction = nodeEnv === 'production';
+  const url = source.TURSO_DATABASE_URL;
+  const token = source.TURSO_AUTH_TOKEN;
+  const newPasswordHash = source.ADMIN_PASSWORD_HASH;
+  const legacyPasswordHash = source.ADMIN_PASSWORD;
+  const jwtSecret = source.JWT_SECRET;
+  const cookieDomain = source.COOKIE_DOMAIN ?? '';
+
+  if (Boolean(url) !== Boolean(token)) {
+    throw new Error('[env] TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set together');
+  }
+
+  if (legacyPasswordHash && !newPasswordHash) {
+    warn('[env] ADMIN_PASSWORD is deprecated; rename it to ADMIN_PASSWORD_HASH.');
+  }
+
+  const passwordHash = newPasswordHash ?? legacyPasswordHash;
+  if (isProduction) {
+    const problems: string[] = [];
+    if (!url) problems.push('TURSO_DATABASE_URL is required');
+    if (!token) problems.push('TURSO_AUTH_TOKEN is required');
+    if (!passwordHash) problems.push('ADMIN_PASSWORD_HASH is required');
+    if (!jwtSecret) problems.push('JWT_SECRET is required');
+    if (url?.startsWith('file:')) problems.push('file: database URLs are not allowed in production');
+    if (passwordHash && !BCRYPT_HASH.test(passwordHash)) problems.push('ADMIN_PASSWORD_HASH must be a bcrypt hash');
+    if (jwtSecret && jwtSecret.length < 32) problems.push('JWT_SECRET must contain at least 32 characters');
+    if (problems.length > 0) {
+      throw new Error(`[env] Production validation failed:\n${problems.map((item) => `  - ${item}`).join('\n')}`);
+    }
+  }
+
+  const usesDefaults = !isProduction && (!url || !passwordHash || !jwtSecret);
+  if (usesDefaults) {
+    warn('[env] Development mode only — do not use local database, password, or JWT defaults in production.');
+  }
+
+  const databaseUrl = url ?? DEV_DATABASE_URL;
+  return {
+    TURSO_DATABASE_URL: databaseUrl,
+    TURSO_AUTH_TOKEN: token,
+    ADMIN_PASSWORD_HASH: passwordHash ?? DEV_ADMIN_PASSWORD_HASH,
+    JWT_SECRET: jwtSecret ?? DEV_JWT_SECRET,
+    NODE_ENV: nodeEnv,
+    COOKIE_DOMAIN: cookieDomain,
+    IS_PRODUCTION: isProduction,
+    IS_LOCAL_DATABASE: databaseUrl.startsWith('file:'),
+    USES_DEVELOPMENT_DEFAULTS: usesDefaults,
+  };
 }
 
-// ── NODE_ENV：宽松校验 ─────────────────────────────────────────────────────
-// 非 'production' 均视为开发环境，不 throw；未设置或值不规范时给出警告。
-const NODE_ENV = process.env.NODE_ENV ?? 'development';
-if (NODE_ENV !== 'production' && NODE_ENV !== 'development') {
-  console.warn(
-    `[env] NODE_ENV="${NODE_ENV}" 不是标准值（production/development），将视为开发环境处理。`,
-  );
-}
-
-// ── COOKIE_DOMAIN：可选 ────────────────────────────────────────────────────
-// 留空 = Cookie 绑定到当前主机（Host-only，最安全的默认值）。
-// 跨子域名共享时填写 ".yoursite.com"（注意前导点）。
-const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN ?? '';
-
-export const env = {
-  TURSO_DATABASE_URL: TURSO_DATABASE_URL!,
-  TURSO_AUTH_TOKEN:   TURSO_AUTH_TOKEN!,
-  ADMIN_PASSWORD:     ADMIN_PASSWORD!,
-  JWT_SECRET:         JWT_SECRET!,
-  NODE_ENV,
-  COOKIE_DOMAIN,
-} as const;
+export const env = resolveEnv(process.env);
