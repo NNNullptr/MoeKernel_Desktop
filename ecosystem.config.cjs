@@ -12,7 +12,7 @@
  * 部署前提：
  *   1. 项目根目录存在 .env 文件，包含所有必需环境变量
  *   2. 已执行 pnpm build，.output/server/index.mjs 存在
- *   3. 已执行 npx drizzle-kit push，Turso 云端表结构已就绪
+ *   3. 已执行 pnpm db:migrate，Turso 云端表结构已就绪
  *
  * ⚠️  不要使用 pm2 restart --update-env：该 flag 会用当前 shell 的空环境
  *     覆盖 PM2 内部存储的变量，导致 .env 中的 secrets 全部丢失。
@@ -32,7 +32,7 @@ module.exports = {
       cwd: '/www/wwwroot/moekernel',
 
       // ── 环境变量加载 ──────────────────────────────────────────────────────
-      // 通过 Node.js 原生 --env-file 在进程启动时加载 .env（需 Node.js ≥ 20.6）。
+      // 通过 Node.js 原生 --env-file 在进程启动时加载 .env（项目需 ^20.19.0 || >=22.12.0）。
       // 好处：与 PM2 内部 env 存储解耦，pm2 restart / reload / delete+start
       // 任何方式重启都能正确加载最新的 .env，无需 --update-env。
       node_args: '--env-file=/www/wwwroot/moekernel/.env',
@@ -44,7 +44,7 @@ module.exports = {
       exec_mode: 'fork',
 
       // ── 非敏感固定变量 ────────────────────────────────────────────────────
-      // 敏感变量（TURSO_AUTH_TOKEN、JWT_SECRET、ADMIN_PASSWORD 等）
+      // 敏感变量（TURSO_AUTH_TOKEN、JWT_SECRET、ADMIN_PASSWORD_HASH 等）
       // 由上方 node_args 的 --env-file 加载，不写在这里。
       env: {
         NODE_ENV: 'production',

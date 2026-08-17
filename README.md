@@ -29,7 +29,7 @@
 | 组件库 | shadcn/ui（Radix UI 底层） |
 | Markdown | react-markdown + remark-gfm |
 | 客户端数据 | TanStack React Query v5、tRPC v11 Options Proxy |
-| 服务端 API | tRPC on H3（Nitro）、Node.js 20 |
+| 服务端 API | tRPC on H3（Nitro）、Node.js `^20.19.0 || >=22.12.0` |
 | 数据库 | Turso（libSQL / SQLite 云端）、Drizzle ORM |
 | 鉴权 | JWT（jose HS256）、httpOnly Cookie |
 | 构建 | Vite 7、Nitro（node-server preset）、TypeScript 5.9 |
@@ -175,7 +175,7 @@ MoeKernel_Desktop/
 
 ## 🚀 本地开发（零配置）
 
-要求 Node.js 20+、pnpm 10+ 和 Git。
+要求 Node.js `^20.19.0 || >=22.12.0`、pnpm 10+ 和 Git（与 Vite 的运行时要求一致）。
 
 ```bash
 git clone https://github.com/你的用户名/MoeKernel_Desktop.git
@@ -276,6 +276,8 @@ pnpm db:migrate
 
 这会将已跟踪的迁移应用到 `.env` 中显式配置的生产数据库。
 
+**从旧版部署说明升级：** 如果数据库此前使用 `drizzle-kit push` 创建，已经存在当前 8 张业务表、但没有 Drizzle migration journal，请先备份数据库，再直接运行 `pnpm db:migrate`。命令会逐表核对现有 schema 与 baseline；只有八表结构完全一致时才会认领 baseline、写入正确 journal，并继续应用后续迁移。现有数据不会被删除或覆盖。若表不完整或 schema 有差异，命令会在写 journal 或修改业务表之前退出，请先人工核对差异，不要删除现有表。
+
 **（可选）填充初始数据：**
 
 ```bash
@@ -311,8 +313,8 @@ pnpm start
 #### 5.1 服务器安装 Node.js
 
 ```bash
-# 使用 NodeSource 安装 Node.js 20
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+# 使用 NodeSource 安装 Node.js 22（须为 22.12.0 或更高版本）
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # 安装 pnpm 和 PM2
