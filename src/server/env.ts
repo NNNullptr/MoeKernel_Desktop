@@ -1,9 +1,11 @@
 import { resolve } from 'node:path';
+import { isFileDatabaseUrl, normalizeDatabaseUrlScheme } from './db/url';
 
 export const DEV_DATABASE_PATH = resolve(process.cwd(), '.data/dev.db');
 export const DEV_DATABASE_URL = `file:${DEV_DATABASE_PATH}`;
 const DEV_ADMIN_PASSWORD_HASH = '$2b$12$0KRfAzF82uZrEQ6Kv9Rhgew20/B1vkv31AXGIJSrd5Vo26Xx5l7/y';
 const DEV_JWT_SECRET = 'moekernel-local-development-only-jwt-secret';
+const OLD_EXAMPLE_JWT_SECRET = 'replace-with-at-least-32-random-characters';
 const BCRYPT_HASH = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/;
 
 export type EnvSource = Record<string, string | undefined>;
@@ -33,12 +35,13 @@ export function resolveEnv(
   const legacyPasswordHash = source.ADMIN_PASSWORD;
   const jwtSecret = source.JWT_SECRET;
   const cookieDomain = source.COOKIE_DOMAIN ?? '';
+  const normalizedUrl = url ? normalizeDatabaseUrlScheme(url) : undefined;
 
   if (Boolean(url) !== Boolean(token)) {
     throw new Error('[env] TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set together');
   }
 
-  if (!isProduction && url?.startsWith('file:') && url !== DEV_DATABASE_URL) {
+  if (!isProduction && normalizedUrl && isFileDatabaseUrl(normalizedUrl) && normalizedUrl !== DEV_DATABASE_URL) {
     throw new Error('[env] Development file database URLs must equal DEV_DATABASE_URL');
   }
 
@@ -53,9 +56,16 @@ export function resolveEnv(
     if (!token) problems.push('TURSO_AUTH_TOKEN is required');
     if (!passwordHash) problems.push('ADMIN_PASSWORD_HASH is required');
     if (!jwtSecret) problems.push('JWT_SECRET is required');
-    if (url?.startsWith('file:')) problems.push('file: database URLs are not allowed in production');
+    if (url && isFileDatabaseUrl(url)) problems.push('file: database URLs are not allowed in production');
     if (passwordHash && !BCRYPT_HASH.test(passwordHash)) problems.push('ADMIN_PASSWORD_HASH must be a bcrypt hash');
+    if (passwordHash === DEV_ADMIN_PASSWORD_HASH) {
+      problems.push('development ADMIN_PASSWORD_HASH is not allowed in production');
+    }
     if (jwtSecret && jwtSecret.length < 32) problems.push('JWT_SECRET must contain at least 32 characters');
+    if (jwtSecret === DEV_JWT_SECRET) problems.push('development JWT_SECRET is not allowed in production');
+    if (jwtSecret === OLD_EXAMPLE_JWT_SECRET) {
+      problems.push('example JWT_SECRET placeholder is not allowed in production');
+    }
     if (problems.length > 0) {
       throw new Error(`[env] Production validation failed:\n${problems.map((item) => `  - ${item}`).join('\n')}`);
     }
@@ -66,7 +76,7 @@ export function resolveEnv(
     warn('[env] Development mode only — do not use local database, password, or JWT defaults in production.');
   }
 
-  const databaseUrl = url ?? DEV_DATABASE_URL;
+  const databaseUrl = normalizedUrl ?? DEV_DATABASE_URL;
   return {
     TURSO_DATABASE_URL: databaseUrl,
     TURSO_AUTH_TOKEN: token,
@@ -75,7 +85,7 @@ export function resolveEnv(
     NODE_ENV: nodeEnv,
     COOKIE_DOMAIN: cookieDomain,
     IS_PRODUCTION: isProduction,
-    IS_LOCAL_DATABASE: databaseUrl.startsWith('file:'),
+    IS_LOCAL_DATABASE: isFileDatabaseUrl(databaseUrl),
     USES_DEVELOPMENT_DEFAULTS: usesDefaults,
   };
 }

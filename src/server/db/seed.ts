@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Database } from './client';
+import type { Database } from './factory';
 import { blogPosts, desktopIcons, mascots, siteSettings } from './schema';
 
 export interface SeedOptions {

@@ -1,10 +1,14 @@
 import { loadEnvFileIfPresent } from './load-env-file';
+import { createDatabase } from '../src/server/db/factory';
+import { migrateDatabase } from '../src/server/db/migrate';
+import { resolveExplicitRemoteDatabaseConfig } from '../src/server/db/remote-config';
 
 loadEnvFileIfPresent();
-const [{ createDatabase }, { env }, { migrateDatabase }] = await Promise.all([
-  import('../src/server/db/client'),
-  import('../src/server/env'),
-  import('../src/server/db/migrate'),
-]);
-await migrateDatabase(createDatabase(env));
-console.log(`[db:migrate] Applied migrations to ${env.TURSO_DATABASE_URL}`);
+const config = resolveExplicitRemoteDatabaseConfig(process.env);
+const database = createDatabase(config);
+try {
+  await migrateDatabase(database);
+  console.log(`[db:migrate] Applied migrations to ${config.TURSO_DATABASE_URL}`);
+} finally {
+  database.$client.close();
+}

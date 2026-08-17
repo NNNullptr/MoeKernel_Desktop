@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { assertDevDatabaseTarget, devDatabaseSidecars } from '../src/server/db/dev-paths';
+import { assertSafeDevDatabaseFiles, devDatabaseSidecars } from '../src/server/db/dev-paths';
 import type { AppEnv } from '../src/server/env';
 
 type DevelopmentDatabaseConfig = Pick<AppEnv,
@@ -9,26 +9,37 @@ type DevelopmentDatabaseConfig = Pick<AppEnv,
 
 export async function setupDevelopmentDatabase(config?: DevelopmentDatabaseConfig): Promise<void> {
   const activeConfig = config ?? (await import('../src/server/env')).env;
-  if (!activeConfig.IS_LOCAL_DATABASE) {
-    console.log(`[dev:setup] Using configured Turso database: ${activeConfig.TURSO_DATABASE_URL}`);
+  const isLocalDatabase = activeConfig.IS_LOCAL_DATABASE;
+  const requestedDatabaseUrl = activeConfig.TURSO_DATABASE_URL;
+  if (!isLocalDatabase) {
+    console.log(`[dev:setup] Using configured Turso database: ${requestedDatabaseUrl}`);
     console.log('[dev:setup] Remote migrations remain explicit; run pnpm db:migrate when intended.');
     return;
   }
 
   const [databasePath] = devDatabaseSidecars();
-  if (activeConfig.TURSO_DATABASE_URL !== `file:${databasePath}`) {
-    throw new Error(`[dev:setup] Refusing to set up unexpected database URL: ${activeConfig.TURSO_DATABASE_URL}`);
+  const fixedDatabaseUrl = `file:${databasePath}`;
+  if (requestedDatabaseUrl !== fixedDatabaseUrl) {
+    throw new Error(`[dev:setup] Refusing to set up unexpected database URL: ${requestedDatabaseUrl}`);
   }
+  const fixedLocalConfig = Object.freeze({
+    TURSO_DATABASE_URL: fixedDatabaseUrl,
+    TURSO_AUTH_TOKEN: undefined,
+  });
   await mkdir(dirname(databasePath), { recursive: true });
-  assertDevDatabaseTarget(databasePath);
   const [{ createDatabase }, { migrateDatabase }, { seedDatabase }] = await Promise.all([
     import('../src/server/db/factory'),
     import('../src/server/db/migrate'),
     import('../src/server/db/seed'),
   ]);
-  const database = createDatabase(activeConfig);
-  await migrateDatabase(database);
-  await seedDatabase(database);
+  assertSafeDevDatabaseFiles();
+  const database = createDatabase(fixedLocalConfig);
+  try {
+    await migrateDatabase(database);
+    await seedDatabase(database);
+  } finally {
+    database.$client.close();
+  }
   console.log(`[dev:setup] Local development database: ${relative(process.cwd(), databasePath)}`);
   console.log('[dev:setup] Admin URL: http://localhost:3000/admin');
   console.log('[dev:setup] Development password: admin');

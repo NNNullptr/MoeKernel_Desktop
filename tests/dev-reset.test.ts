@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { cp, mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import test from 'node:test';
+import test, { type TestContext } from 'node:test';
+import { createClient } from '@libsql/client/node';
 import { setupDevelopmentDatabase } from '../scripts/dev-setup';
 
 const projectRoot = process.cwd();
@@ -27,23 +28,57 @@ function runTsx(
 
 async function createSetupFixture(): Promise<string> {
   const directory = await mkdtemp(join(tmpdir(), 'moekernel-reset-'));
-  await symlink(join(projectRoot, 'drizzle'), join(directory, 'drizzle'), 'dir');
-  await mkdir(join(directory, 'src/client/apps/blog'), { recursive: true });
-  await symlink(
+  await cp(join(projectRoot, 'drizzle'), join(directory, 'drizzle'), { recursive: true });
+  await cp(
     join(projectRoot, 'src/client/apps/blog/posts'),
     join(directory, 'src/client/apps/blog/posts'),
-    'dir',
+    { recursive: true },
   );
   return directory;
 }
 
-test('reset command refuses a symlinked .data directory before deleting an external database', async () => {
+function isSymlinkUnavailable(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error
+    && 'code' in error
+    && ['EACCES', 'ENOSYS', 'EPERM'].includes(String(error.code));
+}
+
+async function symlinkOrSkip(
+  context: TestContext,
+  target: string,
+  path: string,
+  type?: 'dir' | 'file',
+): Promise<boolean> {
+  try {
+    await symlink(target, path, type);
+    return true;
+  } catch (error) {
+    if (!isSymlinkUnavailable(error)) throw error;
+    context.skip(`symlinks are unavailable on this platform: ${error.code}`);
+    return false;
+  }
+}
+
+async function createSqliteSentinel(path: string): Promise<void> {
+  const client = createClient({ url: `file:${path}` });
+  try {
+    await client.execute('CREATE TABLE external_sentinel (value TEXT PRIMARY KEY NOT NULL)');
+    await client.execute({
+      sql: 'INSERT INTO external_sentinel (value) VALUES (?)',
+      args: ['must remain byte-for-byte unchanged'],
+    });
+  } finally {
+    client.close();
+  }
+}
+
+test('reset command refuses a symlinked .data directory before deleting an external database', async (context) => {
   const directory = await mkdtemp(join(tmpdir(), 'moekernel-reset-link-'));
   const externalDirectory = await mkdtemp(join(tmpdir(), 'moekernel-external-db-'));
   const externalDatabase = join(externalDirectory, 'dev.db');
   try {
     await writeFile(externalDatabase, 'external database must survive');
-    await symlink(externalDirectory, join(directory, '.data'), 'dir');
+    if (!await symlinkOrSkip(context, externalDirectory, join(directory, '.data'), 'dir')) return;
 
     const result = runTsx(directory, [resetScript]);
 
@@ -56,17 +91,98 @@ test('reset command refuses a symlinked .data directory before deleting an exter
   }
 });
 
-test('setup command refuses a symlinked .data directory before creating an external database', async () => {
+test('setup command refuses a symlinked .data directory before creating an external database', async (context) => {
   const directory = await createSetupFixture();
   const externalDirectory = await mkdtemp(join(tmpdir(), 'moekernel-external-setup-'));
   try {
-    await symlink(externalDirectory, join(directory, '.data'), 'dir');
+    if (!await symlinkOrSkip(context, externalDirectory, join(directory, '.data'), 'dir')) return;
 
     const result = runTsx(directory, [setupScript]);
 
     assert.notEqual(result.status, 0, result.stderr);
     assert.match(`${result.stdout}${result.stderr}`, /Refusing to delete through symbolic link/);
     await assert.rejects(readFile(join(externalDirectory, 'dev.db')));
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+    await rm(externalDirectory, { recursive: true, force: true });
+  }
+});
+
+for (const suffix of ['', '-wal', '-shm'] as const) {
+  const targetName = `dev.db${suffix}`;
+
+  test(`setup command refuses a symlinked ${targetName} and preserves its external sentinel`, async (context) => {
+    const directory = await createSetupFixture();
+    const externalDirectory = await mkdtemp(join(tmpdir(), 'moekernel-external-file-'));
+    const externalSentinel = join(externalDirectory, `sentinel${suffix || '.db'}`);
+    try {
+      await mkdir(join(directory, '.data'), { recursive: true });
+      if (suffix === '') {
+        await createSqliteSentinel(externalSentinel);
+      } else {
+        await writeFile(externalSentinel, `external ${targetName} must survive`);
+      }
+      const before = await readFile(externalSentinel);
+      if (!await symlinkOrSkip(
+        context,
+        externalSentinel,
+        join(directory, '.data', targetName),
+        'file',
+      )) return;
+
+      const result = runTsx(directory, [setupScript]);
+
+      assert.notEqual(result.status, 0, result.stderr);
+      assert.match(`${result.stdout}${result.stderr}`, /Refusing to use symbolic link/);
+      assert.deepEqual(await readFile(externalSentinel), before);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+      await rm(externalDirectory, { recursive: true, force: true });
+    }
+  });
+}
+
+for (const suffix of ['', '-wal', '-shm'] as const) {
+  const targetName = `dev.db${suffix}`;
+
+  test(`setup command refuses a non-regular ${targetName}`, async () => {
+    const directory = await createSetupFixture();
+    try {
+      await mkdir(join(directory, '.data', targetName), { recursive: true });
+
+      const result = runTsx(directory, [setupScript]);
+
+      assert.notEqual(result.status, 0, result.stderr);
+      assert.match(`${result.stdout}${result.stderr}`, /Refusing to use non-regular file/);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+}
+
+test('setup snapshots fixed local configuration before its first await', async () => {
+  const directory = await createSetupFixture();
+  const externalDirectory = await mkdtemp(join(tmpdir(), 'moekernel-mutated-config-'));
+  const externalDatabase = join(externalDirectory, 'outside.db');
+  const runner = join(directory, 'mutate-config.mts');
+  try {
+    await writeFile(runner, `
+      const { setupDevelopmentDatabase } = await import(${JSON.stringify(pathToFileURL(setupScript).href)});
+      const config = {
+        TURSO_DATABASE_URL: \`file:\${process.cwd()}/.data/dev.db\`,
+        TURSO_AUTH_TOKEN: undefined,
+        IS_LOCAL_DATABASE: true,
+      };
+      const setup = setupDevelopmentDatabase(config);
+      config.TURSO_DATABASE_URL = ${JSON.stringify(`file:${externalDatabase}`)};
+      await setup;
+    `);
+
+    const result = runTsx(directory, [runner]);
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal((await readFile(join(directory, '.data/dev.db'))).byteLength > 0, true);
+    await assert.rejects(readFile(externalDatabase), /ENOENT/);
   } finally {
     await rm(directory, { recursive: true, force: true });
     await rm(externalDirectory, { recursive: true, force: true });
@@ -142,7 +258,7 @@ test('reset command ignores an invalid configured database and recreates its loc
     const result = runTsx(directory, [resetScript], environment);
 
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.stdout, /Local development database: .data\/dev\.db/);
+    assert.match(result.stdout, /Local development database: \.data[\\/]dev\.db/);
     assert.equal((await readFile(join(directory, '.data/dev.db'))).byteLength > 0, true);
   } finally {
     await rm(directory, { recursive: true, force: true });
