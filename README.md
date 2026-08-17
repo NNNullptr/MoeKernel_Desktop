@@ -173,39 +173,33 @@ MoeKernel_Desktop/
 
 ---
 
-## 🚀 部署教程（新手向）
+## 🚀 本地开发（零配置）
 
-### 前置条件
-
-在开始之前，确保你的机器上已安装：
-
-- **Node.js 20+**：[https://nodejs.org](https://nodejs.org)（选 LTS 版本）
-- **pnpm**：安装好 Node.js 后执行 `npm install -g pnpm`
-- **Git**：[https://git-scm.com](https://git-scm.com)
-
-> 本项目统一使用 pnpm 进行依赖安装和脚本执行。
-
-验证安装：
-
-```bash
-node -v    # 应输出 v20.x.x 或更高
-pnpm -v    # 应输出 v10.x.x 或更高
-git --version
-```
-
----
-
-### 第一步：获取代码
+要求 Node.js 20+、pnpm 10+ 和 Git。
 
 ```bash
 git clone https://github.com/你的用户名/MoeKernel_Desktop.git
 cd MoeKernel_Desktop
 pnpm install
+pnpm dev
 ```
 
----
+- 前台：`http://localhost:3000`
+- 后台：`http://localhost:3000/admin`
+- 本地后台密码：`admin`
+- 本地数据库：`.data/dev.db`
 
-### 第二步：创建 Turso 数据库
+本地数据会跨重启保留。需要恢复示例数据时运行：
+
+```bash
+pnpm dev:reset
+```
+
+本地开发不需要 `.env`、Turso 账号或云数据库 Token。默认密码和 JWT 仅用于开发，生产环境无法使用这些默认值。
+
+## 🌐 生产部署
+
+### 第一步：创建 Turso 数据库
 
 Turso 是本项目使用的云端 SQLite 数据库，有免费套餐，无需信用卡。
 
@@ -242,50 +236,45 @@ turso db tokens create moekernel   # 复制输出的 Token 字符串
 
 ---
 
-### 第三步：配置环境变量
+### 第二步：配置生产环境变量
 
-在项目根目录直接创建 `.env` 文件：
+从生产示例创建 `.env`，再交互式生成后台密码哈希：
 
 ```bash
-touch .env
+cp .env.example .env
+pnpm hash-password
 ```
 
-用文本编辑器打开 `.env`，填入以下内容：
+第二条命令会输出 `ADMIN_PASSWORD_HASH=...`。将整行粘贴到 `.env` 中，并用文本编辑器填写其余生产值：
 
 ```env
-# ── 数据库（必填）──────────────────────────────
+NODE_ENV=production
 TURSO_DATABASE_URL=libsql://你的数据库名.turso.io
-TURSO_AUTH_TOKEN=你从上一步复制的Token
-
-# ── 后台管理密码（必填）───────────────────────
-# 这是登录 /admin 时使用的密码，自行设置一个强密码
-ADMIN_PASSWORD=你的管理后台密码
-
-# ── JWT 签名密钥（必填）───────────────────────
-# 用于签发管理员登录 Cookie，必须 ≥ 32 个字符的随机字符串
-# 生成示例（在终端运行）：node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-JWT_SECRET=至少32位的随机字符串
-
-# ── 可选配置 ──────────────────────────────────
-# 生产环境设为 production（影响 Cookie Secure 属性）
-NODE_ENV=development
-
-# 跨子域名共享 Cookie 时填写，如 .yoursite.com；单域名留空
-# COOKIE_DOMAIN=
+TURSO_AUTH_TOKEN=你从上一步复制的 Token
+ADMIN_PASSWORD_HASH=$2b$12$替换为 pnpm hash-password 生成的哈希
+JWT_SECRET=至少32位随机字符串
+COOKIE_DOMAIN=
 ```
 
 > ⚠️ **`.env` 文件绝对不要提交到 Git！** 确认 `.gitignore` 里包含 `.env`。
 
+| 变量 | 本地开发 | 生产环境 |
+|---|---|---|
+| `TURSO_DATABASE_URL` | 不需要 | 必填 |
+| `TURSO_AUTH_TOKEN` | 不需要 | 必填 |
+| `ADMIN_PASSWORD_HASH` | 默认密码 `admin` | 必填，必须是 bcrypt 哈希 |
+| `JWT_SECRET` | 使用开发专用值 | 必填，至少 32 字符 |
+| `COOKIE_DOMAIN` | 不需要 | 可选 |
+
 ---
 
-### 第四步：初始化数据库表结构
+### 第三步：迁移生产数据库
 
 ```bash
-pnpm exec drizzle-kit push
+pnpm db:migrate
 ```
 
-这条命令会把 `src/server/db/schema.ts` 中定义的 8 张表推送到 Turso 云端。  
-成功后在终端看到各表名即完成。
+这会将已跟踪的迁移应用到 `.env` 中显式配置的生产数据库。
 
 **（可选）填充初始数据：**
 
@@ -293,28 +282,11 @@ pnpm exec drizzle-kit push
 pnpm db:seed
 ```
 
-这会把 `src/client/config/` 里的静态配置数据（图标/桌宠/博客文章等）写入数据库作为初始内容。
+这是可选操作；它只插入缺失的默认数据，不会覆盖现有内容。
 
 ---
 
-### 第五步：本地开发验证
-
-```bash
-pnpm dev
-```
-
-打开浏览器访问：
-- `http://localhost:3000` — XP 桌面前台
-- `http://localhost:3000/admin` — 管理后台（用 `.env` 中的 `ADMIN_PASSWORD` 登录）
-
-确认以下功能正常：
-- [x] 桌面正常渲染，图标可双击打开窗口
-- [x] `/admin/login` 输入密码后跳转后台
-- [x] 后台保存内容后，前台刷新显示新内容
-
----
-
-### 第六步：构建生产版本
+### 第四步：构建生产版本
 
 ```bash
 pnpm build
@@ -332,11 +304,11 @@ pnpm start
 
 ---
 
-### 第七步：服务器部署（Ubuntu + PM2 + Nginx）
+### 第五步：服务器部署（Ubuntu + PM2 + Nginx）
 
 > 以下步骤需要一台运行 Ubuntu 20.04+ 的云服务器（阿里云/腾讯云/Vultr 等均可）。
 
-#### 7.1 服务器安装 Node.js
+#### 5.1 服务器安装 Node.js
 
 ```bash
 # 使用 NodeSource 安装 Node.js 20
@@ -347,7 +319,7 @@ sudo apt-get install -y nodejs
 npm install -g pnpm pm2
 ```
 
-#### 7.2 上传代码到服务器
+#### 5.2 上传代码到服务器
 
 **方式 A：Git 拉取（推荐）**
 
@@ -362,24 +334,27 @@ pnpm install
 
 在宝塔文件管理器上传项目压缩包，解压到 `/www/moekernel/`，然后在终端执行 `pnpm install`。
 
-#### 7.3 在服务器上创建 .env 文件
+#### 5.3 在服务器上配置 `.env`
 
 ```bash
 cd /www/moekernel
+cp .env.example .env
+pnpm hash-password
 nano .env   # 或 vim .env
 ```
 
-填入与本地相同的环境变量，但修改以下值：
+将 `pnpm hash-password` 输出的 `ADMIN_PASSWORD_HASH=...` 粘贴到 `.env`，并填写 Turso 地址、Token、至少 32 字符的 `JWT_SECRET` 与可选的 `COOKIE_DOMAIN`。确认：
 
 ```env
 NODE_ENV=production
 TURSO_DATABASE_URL=libsql://你的数据库名.turso.io
 TURSO_AUTH_TOKEN=你的Token
-ADMIN_PASSWORD=你的管理密码
+ADMIN_PASSWORD_HASH=$2b$12$替换为生成的哈希
 JWT_SECRET=至少32位随机字符串
+COOKIE_DOMAIN=
 ```
 
-#### 7.4 构建并启动服务
+#### 5.4 构建并启动服务
 
 ```bash
 cd /www/moekernel
@@ -399,7 +374,7 @@ pm2 status              # 应看到 moekernel 状态为 online
 curl http://localhost:3000   # 应返回 HTML 页面
 ```
 
-#### 7.5 配置 Nginx 反向代理
+#### 5.5 配置 Nginx 反向代理
 
 ```bash
 sudo nano /etc/nginx/sites-available/moekernel
@@ -438,17 +413,17 @@ sudo systemctl reload nginx
 
 ---
 
-### 第八步：配置 Cloudflare（可选但推荐）
+### 第六步：配置 Cloudflare（可选但推荐）
 
 使用 Cloudflare 可获得免费 CDN、DDoS 防护和自动 HTTPS。
 
-#### 8.1 添加域名到 Cloudflare
+#### 6.1 添加域名到 Cloudflare
 
 1. 登录 [Cloudflare Dashboard](https://dash.cloudflare.com)
 2. 点击「Add a Site」，输入你的域名
 3. 按提示将域名的 NS 服务器改为 Cloudflare 提供的地址（在域名注册商处修改）
 
-#### 8.2 关键设置（必须正确，否则登录 Cookie 会失效）
+#### 6.2 关键设置（必须正确，否则登录 Cookie 会失效）
 
 **SSL/TLS 加密模式：**  
 进入「SSL/TLS」→「Overview」→ 选择 **Full (Strict)**  
@@ -461,7 +436,7 @@ sudo systemctl reload nginx
 
 这样 tRPC API 请求不会被 Cloudflare 缓存，保证数据实时性。
 
-#### 8.3 申请 SSL 证书（若不用 Cloudflare）
+#### 6.3 申请 SSL 证书（若不用 Cloudflare）
 
 如果不使用 Cloudflare，可用 Certbot 申请免费 Let's Encrypt 证书：
 
@@ -473,10 +448,10 @@ sudo certbot --nginx -d your-domain.com -d www.your-domain.com
 
 ---
 
-### 第九步：首次登录后台配置内容
+### 第七步：首次登录后台配置内容
 
 1. 浏览器访问 `https://your-domain.com/admin`
-2. 输入 `.env` 中设置的 `ADMIN_PASSWORD` 登录
+2. 输入生成 `ADMIN_PASSWORD_HASH` 时使用的管理密码登录
 3. 按需配置各项内容：
    - **主题设置**：替换壁纸 URL、Logo 图片、托盘图标
    - **文档管理**：创建 ID 为 `resume` 的文档，填入你的简历 Markdown 内容
@@ -503,7 +478,7 @@ pm2 reload moekernel   # 热重载（零停机）
 如果数据库 schema 有变更（新增表/字段）：
 
 ```bash
-pnpm exec drizzle-kit push  # 在重启前执行
+pnpm db:migrate  # 在重启前执行
 ```
 
 ---
@@ -599,18 +574,19 @@ export const APP_REGISTRY = {
 
 ---
 
-## 🔧 常用开发命令
+## 🔧 常用命令
 
 ```bash
-pnpm dev          # 启动开发服务器（localhost:3000）
-pnpm build        # 构建生产版本
-pnpm start        # 启动 .output/server/index.mjs 生产服务
-pnpm lint         # TypeScript 类型检查
-pnpm preview      # 本地预览构建结果
-pnpm hash-password  # 生成后台密码哈希
-
-pnpm exec drizzle-kit push  # 推送 schema 变更到 Turso（建表/加字段）
-pnpm db:seed      # 填充初始数据到数据库
+pnpm dev            # 初始化本地数据库并启动开发服务器
+pnpm dev:setup      # 只检查迁移并补齐缺失的默认数据
+pnpm dev:reset      # 重置 .data/dev.db
+pnpm test           # 运行环境与数据库测试
+pnpm lint           # TypeScript 类型检查
+pnpm build          # 构建生产版本
+pnpm start          # 启动生产构建
+pnpm db:migrate     # 迁移显式配置的生产数据库
+pnpm db:seed        # 向显式配置的数据库插入缺失默认数据
+pnpm hash-password  # 交互式生成 ADMIN_PASSWORD_HASH
 ```
 
 ---
