@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import test from 'node:test';
+import { setupDevelopmentDatabase } from '../scripts/dev-setup';
 
 const projectRoot = process.cwd();
 const tsxCli = resolve(projectRoot, 'node_modules/tsx/dist/cli.mjs');
@@ -68,6 +70,63 @@ test('setup command refuses a symlinked .data directory before creating an exter
   } finally {
     await rm(directory, { recursive: true, force: true });
     await rm(externalDirectory, { recursive: true, force: true });
+  }
+});
+
+test('setup rejects a local-marked external file URL before creating its database', async () => {
+  const externalDirectory = await mkdtemp(join(tmpdir(), 'moekernel-external-config-'));
+  const externalDatabase = join(externalDirectory, 'outside.db');
+  let failure: unknown;
+  try {
+    try {
+      await setupDevelopmentDatabase({
+        TURSO_DATABASE_URL: `file:${externalDatabase}`,
+        TURSO_AUTH_TOKEN: undefined,
+        IS_LOCAL_DATABASE: true,
+      });
+    } catch (error) {
+      failure = error;
+    }
+
+    await assert.rejects(readFile(externalDatabase));
+    assert.match(String(failure), /Refusing to set up unexpected database URL/);
+  } finally {
+    await rm(externalDirectory, { recursive: true, force: true });
+  }
+});
+
+test('setup rejects a local-marked remote URL before contacting it for migrations', async () => {
+  let requests = 0;
+  const server = createServer((_request, response) => {
+    requests += 1;
+    response.writeHead(500);
+    response.end('unexpected migration request');
+  });
+  await new Promise<void>((resolveServer, rejectServer) => {
+    server.once('error', rejectServer);
+    server.listen(0, '127.0.0.1', resolveServer);
+  });
+  const address = server.address();
+  if (!address || typeof address === 'string') throw new Error('Test server did not expose a TCP address');
+
+  let failure: unknown;
+  try {
+    try {
+      await setupDevelopmentDatabase({
+        TURSO_DATABASE_URL: `http://127.0.0.1:${address.port}`,
+        TURSO_AUTH_TOKEN: 'test-token',
+        IS_LOCAL_DATABASE: true,
+      });
+    } catch (error) {
+      failure = error;
+    }
+
+    assert.equal(requests, 0);
+    assert.match(String(failure), /Refusing to set up unexpected database URL/);
+  } finally {
+    await new Promise<void>((resolveServer, rejectServer) => {
+      server.close((error) => (error ? rejectServer(error) : resolveServer()));
+    });
   }
 });
 

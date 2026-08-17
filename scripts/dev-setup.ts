@@ -16,6 +16,9 @@ export async function setupDevelopmentDatabase(config?: DevelopmentDatabaseConfi
   }
 
   const [databasePath] = devDatabaseSidecars();
+  if (activeConfig.TURSO_DATABASE_URL !== `file:${databasePath}`) {
+    throw new Error(`[dev:setup] Refusing to set up unexpected database URL: ${activeConfig.TURSO_DATABASE_URL}`);
+  }
   await mkdir(dirname(databasePath), { recursive: true });
   assertDevDatabaseTarget(databasePath);
   const [{ createDatabase }, { migrateDatabase }, { seedDatabase }] = await Promise.all([
