@@ -10,7 +10,8 @@
     "start": "node --env-file=.env .output/server/index.mjs",
     "lint": "tsc -b --pretty --noEmit",
     "preview": "vite preview",
-    "db:seed": "tsx --env-file=.env src/server/db/seed.ts",
+    "db:migrate": "tsx scripts/db-migrate.ts",
+    "db:seed": "tsx scripts/db-seed.ts",
     "hash-password": "tsx scripts/hash-password.ts"
   },
   "keywords": [],
