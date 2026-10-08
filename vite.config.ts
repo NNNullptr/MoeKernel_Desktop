@@ -3,7 +3,6 @@ import tailwindcss from '@tailwindcss/vite';
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 import viteReact from '@vitejs/plugin-react';
 import { nitro } from 'nitro/vite';
-import { viteComponentMapper } from 'step1-tagger';
 import { defineConfig } from 'vite';
 import tsConfigPaths from 'vite-tsconfig-paths';
 
@@ -15,7 +14,6 @@ export default defineConfig({
     tsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
-    viteComponentMapper(),
     tanstackStart(),
     nitro({
       // 架构变更 2026-04-22：从 deno-deploy 切换为 node-server
